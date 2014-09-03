@@ -36,6 +36,11 @@ h3 {
   cursor: default;
 }
 
+#divMain {
+  width: 935px;
+  margin: auto;
+}
+
 .normal_button {
   width: 100px;
 }
