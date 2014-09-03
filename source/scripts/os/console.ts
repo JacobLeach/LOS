@@ -46,7 +46,28 @@ module TSOS {
                     _OsShell.handleInput(this.buffer);
                     // ... and reset our buffer.
                     this.buffer = "";
-                } else {
+                } 
+                else if(chr === String.fromCharCode(8)) { // Backspace key
+                  //TODO: Make it not erase the prompt
+                  var charWidth = _DrawingContext.measureText(
+                                                              this.currentFont, 
+                                                              this.currentFontSize, 
+                                                              this.buffer.substr(-1)
+                                                             );
+
+                  var ascent = _DrawingContext.fontAscent(this.currentFont, this.currentFontSize);
+                  
+                  //Add one because it doesn't erase it all without it
+                  var charHeight =  1 + ascent +
+                                   _DrawingContext.fontDescent(
+                                                                this.currentFont, 
+                                                                this.currentFontSize
+                                                               );
+                  _DrawingContext.clearRect(this.currentXPosition - charWidth, this.currentYPosition - ascent, charWidth, charHeight + 1);  
+                  //TODO: Make it check for less than zero.
+                  this.currentXPosition -= charWidth;
+                } 
+                else {
                     // This is a "normal" character, so ...
                     // ... draw it on the screen...
                     this.putText(chr);
