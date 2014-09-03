@@ -20,6 +20,7 @@ module TSOS {
         public init() {
             this.status = "loaded";
         }
+
         // Turn scancode into ascii.
         // Ugly way of doing it but it works.
         public handleKeyPress(params) {
