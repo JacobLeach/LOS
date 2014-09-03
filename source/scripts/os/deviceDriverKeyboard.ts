@@ -14,40 +14,160 @@ module TSOS {
     export class DeviceDriverKeyboard extends DeviceDriver {
 
         constructor() {
-            // Override the base method pointers.
-            super(this.krnKbdDriverEntry, this.krnKbdDispatchKeyPress);
+            super(this.init, this.handleKeyPress);
         }
 
-        public krnKbdDriverEntry() {
-            // Initialization routine for this, the kernel-mode Keyboard Device Driver.
+        public init() {
             this.status = "loaded";
-            // More?
         }
 
-        public krnKbdDispatchKeyPress(params) {
-            // Parse the params.    TODO: Check that they are valid and osTrapError if not.
-            var keyCode = params[0];
+        // Turn scancode into ascii.
+        // Ugly way of doing it but it works.
+        public handleKeyPress(params) {
+            //TODO: Check that they are valid and osTrapError if not.
+            var scanCode = params[0];
             var isShifted = params[1];
-            _Kernel.krnTrace("Key code:" + keyCode + " shifted:" + isShifted);
-            var chr = "";
-            // Check to see if we even want to deal with the key that was pressed.
-            if (((keyCode >= 65) && (keyCode <= 90)) ||   // A..Z
-                ((keyCode >= 97) && (keyCode <= 123))) {  // a..z {
-                // Determine the character we want to display.
-                // Assume it's lowercase...
-                chr = String.fromCharCode(keyCode + 32);
-                // ... then check the shift key and re-adjust if necessary.
-                if (isShifted) {
-                    chr = String.fromCharCode(keyCode);
-                }
-                // TODO: Check for caps-lock and handle as shifted if so.
-                _KernelInputQueue.enqueue(chr);
-            } else if (((keyCode >= 48) && (keyCode <= 57)) ||   // digits
-                        (keyCode == 32)                     ||   // space
-                        (keyCode == 13)) {                       // enter
-                chr = String.fromCharCode(keyCode);
-                _KernelInputQueue.enqueue(chr);
+            
+            _Kernel.krnTrace("Scancode:" + scanCode + " shifted:" + isShifted);
+            
+            var character = "";
+            
+            //Is a character
+            if ((scanCode >= 65) && (scanCode <= 90)) {
+              //If it is lower case, add 32 to get the ASCII lowercase character
+              if (!isShifted) {
+                character = String.fromCharCode(scanCode + 32);
+              }
+              //Otherwise it is already correct
+              else {
+                character = String.fromCharCode(scanCode);
+              }
             }
-        }
+            //Is a top row number key
+            else if ((scanCode >= 48) && (scanCode <= 57)) {
+              //If it is not shifted, the ASCII code is already correct
+              if (!isShifted) {
+                character = String.fromCharCode(scanCode);
+              }
+              //Otherwise it is not
+              else {
+                //Implement a standard keyboard
+                switch(scanCode) {
+                  case 48:
+                    character = ')';
+                    break;
+                  case 49:
+                    character = '!';
+                    break;
+                  case 50:
+                    character = '@';
+                    break;
+                  case 51:
+                    character = '#';
+                    break;
+                  case 52:
+                    character = '$';
+                    break;
+                  case 53:
+                    character = '%';
+                    break;
+                  case 54:
+                    character = '^';
+                    break;
+                  case 55:
+                    character = '&';
+                    break;
+                  case 56:
+                    character = '*';
+                    break;
+                  case 57:
+                    character = '(';
+                    break;
+                }//end case
+              }//end else
+            }//end else if
+            //If it is a key with two symbols on it
+            else if ((scanCode >= 186) && (scanCode <= 192) || 
+                    ((scanCode >= 219) && scanCode <= 222)) {
+              if(!isShifted) {
+                switch(scanCode) {
+                  case 186:
+                    character = ';';
+                    break;
+                  case 187:
+                    character = '=';
+                    break;
+                  case 188:
+                    character = ',';
+                    break;
+                  case 189:
+                    character = '-';
+                    break;
+                  case 190:
+                    character = '.';
+                    break;
+                  case 191:
+                    character = '/';
+                    break;
+                  case 219:
+                    character = '[';
+                    break;
+                  case 220:
+                    character = '\\';
+                    break;
+                  case 221:
+                    character = ']';
+                    break;
+                  case 222:
+                    character = '\'';
+                    break;
+                }//end switch
+              }//end if
+              else {
+                switch(scanCode) {
+                  case 186:
+                    character = ':';
+                    break;
+                  case 187:
+                    character = '+';
+                    break;
+                  case 188:
+                    character = '<';
+                    break;
+                  case 189:
+                    character = '_';
+                    break;
+                  case 190:
+                    character = '>';
+                    break;
+                  case 191:
+                    character = '?';
+                    break;
+                  case 219:
+                    character = '{';
+                    break;
+                  case 220:
+                    character = '|';
+                    break;
+                  case 221:
+                    character = '}';
+                    break;
+                  case 222:
+                    character = '"';
+                    break;
+                }//end switch
+              }//end else
+            }//end else if
+            //Check for cases where scancode == ASCII code
+            //Space = 32
+            //Enter = 13
+            //Backspace = 8
+            else if ((scanCode == 32) ||
+                     (scanCode == 13) ||
+                     (scanCode == 8)) {
+              character = String.fromCharCode(scanCode);
+            }
+            _KernelInputQueue.enqueue(character);
+        }//end handleKeyPress
     }
 }
