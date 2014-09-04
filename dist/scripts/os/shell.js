@@ -12,7 +12,7 @@ var TSOS;
         function Shell() {
             // Properties
             this.promptStr = ">";
-            this.commandList = [];
+            this.commandList = {};
             this.curses = "[fuvg],[cvff],[shpx],[phag],[pbpxfhpxre],[zbgureshpxre],[gvgf]";
             this.apologies = "[sorry]";
         }
@@ -23,35 +23,51 @@ var TSOS;
             // Load the command list.
             // ver
             sc = new TSOS.ShellCommand(this.shellVer, "ver", "- Displays the current version data.");
-            this.commandList[this.commandList.length] = sc;
+            this.commandList[sc.command] = sc;
 
             // help
             sc = new TSOS.ShellCommand(this.shellHelp, "help", "- This is the help command. Seek help.");
-            this.commandList[this.commandList.length] = sc;
+            this.commandList[sc.command] = sc;
 
             // shutdown
             sc = new TSOS.ShellCommand(this.shellShutdown, "shutdown", "- Shuts down the virtual OS but leaves the underlying hardware simulation running.");
-            this.commandList[this.commandList.length] = sc;
+            this.commandList[sc.command] = sc;
 
             // cls
             sc = new TSOS.ShellCommand(this.shellCls, "cls", "- Clears the screen and resets the cursor position.");
-            this.commandList[this.commandList.length] = sc;
+            this.commandList[sc.command] = sc;
 
             // man <topic>
             sc = new TSOS.ShellCommand(this.shellMan, "man", "<topic> - Displays the MANual page for <topic>.");
-            this.commandList[this.commandList.length] = sc;
+            this.commandList[sc.command] = sc;
 
             // trace <on | off>
             sc = new TSOS.ShellCommand(this.shellTrace, "trace", "<on | off> - Turns the OS trace on or off.");
-            this.commandList[this.commandList.length] = sc;
+            this.commandList[sc.command] = sc;
 
             // rot13 <string>
             sc = new TSOS.ShellCommand(this.shellRot13, "rot13", "<string> - Does rot13 obfuscation on <string>.");
-            this.commandList[this.commandList.length] = sc;
+            this.commandList[sc.command] = sc;
 
             // prompt <string>
             sc = new TSOS.ShellCommand(this.shellPrompt, "prompt", "<string> - Sets the prompt.");
-            this.commandList[this.commandList.length] = sc;
+            this.commandList[sc.command] = sc;
+
+            // prompt <string>
+            sc = new TSOS.ShellCommand(this.shellKirby, "kirby", "- Displays Kirby");
+            this.commandList[sc.command] = sc;
+
+            // alias <alias> <command>
+            sc = new TSOS.ShellCommand(this.shellAlias, "alias", "<alias> <command> - Aliases a command");
+            this.commandList[sc.command] = sc;
+
+            // alias <alias> <command>
+            sc = new TSOS.ShellCommand(this.shellDate, "date", "- Displays current date and time");
+            this.commandList[sc.command] = sc;
+
+            // whereami
+            sc = new TSOS.ShellCommand(this.shellLocate, "whereami", "- Displays current location");
+            this.commandList[sc.command] = sc;
 
             // processes - list the running processes and their IDs
             // kill <id> - kills the specified process id.
@@ -82,19 +98,8 @@ var TSOS;
             //
             // JavaScript may not support associative arrays in all browsers so we have to
             // iterate over the command list in attempt to find a match.  TODO: Is there a better way? Probably.
-            var index = 0;
-            var found = false;
-            var fn = undefined;
-            while (!found && index < this.commandList.length) {
-                if (this.commandList[index].command === cmd) {
-                    found = true;
-                    fn = this.commandList[index].func;
-                } else {
-                    ++index;
-                }
-            }
-            if (found) {
-                this.execute(fn, args);
+            if (this.commandList[cmd] != undefined) {
+                this.execute(this.commandList[cmd].func, args);
             } else {
                 // It's not found, so check for curses and apologies before declaring the command invalid.
                 if (this.curses.indexOf("[" + TSOS.Utils.rot13(cmd) + "]") >= 0) {
@@ -261,6 +266,38 @@ var TSOS;
                 _OsShell.promptStr = args[0];
             } else {
                 _StdOut.putText("Usage: prompt <string>  Please supply a string.");
+            }
+        };
+
+        Shell.prototype.shellKirby = function (args) {
+            _StdOut.putText("<(^.^)>");
+        };
+
+        Shell.prototype.shellAlias = function (args) {
+            if (args.length > 1) {
+                //Only work if the command exists and the alias is not already a command
+                if (_OsShell.commandList[args[1]] != undefined && _OsShell.commandList[args[0]] === undefined) {
+                    var sc = new TSOS.ShellCommand(_OsShell.commandList[args[1]].func, args[0], _OsShell.commandList[args[1]].description);
+                    _OsShell.commandList[sc.command] = sc;
+                }
+            } else {
+                _StdOut.putText("Usage: alias <alias> <command>  Please supply a alias and a command.");
+            }
+        };
+
+        Shell.prototype.shellDate = function (args) {
+            var date = new Date();
+            var formatted = (date.getMonth() + 1) + "/" + date.getDay() + "/" + date.getFullYear() + " " + date.getHours() + ":" + date.getMinutes() + ":" + ((date.getSeconds() < 10) ? ("0" + date.getSeconds()) : ("" + date.getSeconds()));
+            _StdOut.putText(formatted);
+        };
+
+        Shell.prototype.shellLocate = function (args) {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    _StdOut.putText("Latitude: " + position.coords.latitude + " Longitude: " + position.coords.longitude);
+                });
+            } else {
+                _StdOut.putText("I've alerted the NSA of your location.");
             }
         };
         return Shell;

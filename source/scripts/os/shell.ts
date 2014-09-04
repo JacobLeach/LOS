@@ -14,7 +14,7 @@ module TSOS {
     export class Shell {
         // Properties
         public promptStr = ">";
-        public commandList = [];
+        public commandList = {};
         public curses = "[fuvg],[cvff],[shpx],[phag],[pbpxfhpxre],[zbgureshpxre],[gvgf]";
         public apologies = "[sorry]";
 
@@ -31,49 +31,73 @@ module TSOS {
             sc = new ShellCommand(this.shellVer,
                                   "ver",
                                   "- Displays the current version data.");
-            this.commandList[this.commandList.length] = sc;
+            this.commandList[sc.command] = sc;
 
             // help
             sc = new ShellCommand(this.shellHelp,
                                   "help",
                                   "- This is the help command. Seek help.");
-            this.commandList[this.commandList.length] = sc;
+            this.commandList[sc.command] = sc;
 
             // shutdown
             sc = new ShellCommand(this.shellShutdown,
                                   "shutdown",
                                   "- Shuts down the virtual OS but leaves the underlying hardware simulation running.");
-            this.commandList[this.commandList.length] = sc;
+            this.commandList[sc.command] = sc;
 
             // cls
             sc = new ShellCommand(this.shellCls,
                                   "cls",
                                   "- Clears the screen and resets the cursor position.");
-            this.commandList[this.commandList.length] = sc;
+            this.commandList[sc.command] = sc;
 
             // man <topic>
             sc = new ShellCommand(this.shellMan,
                                   "man",
                                   "<topic> - Displays the MANual page for <topic>.");
-            this.commandList[this.commandList.length] = sc;
+            this.commandList[sc.command] = sc;
 
             // trace <on | off>
             sc = new ShellCommand(this.shellTrace,
                                   "trace",
                                   "<on | off> - Turns the OS trace on or off.");
-            this.commandList[this.commandList.length] = sc;
+            this.commandList[sc.command] = sc;
 
             // rot13 <string>
             sc = new ShellCommand(this.shellRot13,
                                   "rot13",
                                   "<string> - Does rot13 obfuscation on <string>.");
-            this.commandList[this.commandList.length] = sc;
+            this.commandList[sc.command] = sc;
 
             // prompt <string>
             sc = new ShellCommand(this.shellPrompt,
                                   "prompt",
                                   "<string> - Sets the prompt.");
-            this.commandList[this.commandList.length] = sc;
+            this.commandList[sc.command] = sc;
+            
+            // prompt <string>
+            sc = new ShellCommand(this.shellKirby,
+                                  "kirby",
+                                  "- Displays Kirby");
+            this.commandList[sc.command] = sc;
+            
+            // alias <alias> <command>
+            sc = new ShellCommand(this.shellAlias,
+                                  "alias",
+                                  "<alias> <command> - Aliases a command");
+            this.commandList[sc.command] = sc;
+            
+            // alias <alias> <command>
+            sc = new ShellCommand(this.shellDate,
+                                  "date",
+                                  "- Displays current date and time");
+            this.commandList[sc.command] = sc;
+            
+            // whereami
+            sc = new ShellCommand(this.shellLocate,
+                                  "whereami",
+                                  "- Displays current location");
+            this.commandList[sc.command] = sc;
 
             // processes - list the running processes and their IDs
             // kill <id> - kills the specified process id.
@@ -102,19 +126,8 @@ module TSOS {
             //
             // JavaScript may not support associative arrays in all browsers so we have to
             // iterate over the command list in attempt to find a match.  TODO: Is there a better way? Probably.
-            var index = 0;
-            var found = false;
-            var fn = undefined;
-            while (!found && index < this.commandList.length) {
-                if (this.commandList[index].command === cmd) {
-                    found = true;
-                    fn = this.commandList[index].func;
-                } else {
-                    ++index;
-                }
-            }
-            if (found) {
-                this.execute(fn, args);
+            if (this.commandList[cmd] != undefined) {
+                this.execute(this.commandList[cmd].func, args);
             } else {
                 // It's not found, so check for curses and apologies before declaring the command invalid.
                 if (this.curses.indexOf("[" + Utils.rot13(cmd) + "]") >= 0) {     // Check for curses. {
@@ -277,6 +290,46 @@ module TSOS {
             } else {
                 _StdOut.putText("Usage: prompt <string>  Please supply a string.");
             }
+        }
+        
+        public shellKirby(args) {
+          _StdOut.putText("<(^.^)>");
+        }
+        
+        public shellAlias(args) {
+            if (args.length > 1) {
+              //Only work if the command exists and the alias is not already a command
+              if (_OsShell.commandList[args[1]] != undefined && _OsShell.commandList[args[0]] === undefined) {
+                var sc = new ShellCommand(_OsShell.commandList[args[1]].func,
+                                      args[0],
+                                      _OsShell.commandList[args[1]].description);
+                _OsShell.commandList[sc.command] = sc;
+              }
+            } else {
+                _StdOut.putText("Usage: alias <alias> <command>  Please supply a alias and a command.");
+            }
+        }
+        
+        public shellDate(args) {
+          var date = new Date();
+          var formatted =  (date.getMonth() + 1) + "/" +
+                            date.getDay() + "/" +
+                            date.getFullYear() + " " + 
+                            date.getHours() + ":" +
+                            date.getMinutes() + ":" +
+                           ((date.getSeconds() < 10) ? ("0" + date.getSeconds()) : ("" + date.getSeconds()));
+          _StdOut.putText(formatted);
+        }
+        
+        public shellLocate(args) {
+          if(navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+              _StdOut.putText("Latitude: " + position.coords.latitude + " Longitude: " + position.coords.longitude);
+            });
+          }
+          else {
+            _StdOut.putText("I've alerted the NSA of your location.");
+          }
         }
 
     }
