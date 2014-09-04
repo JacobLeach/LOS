@@ -74,6 +74,12 @@ module TSOS {
                                   "prompt",
                                   "<string> - Sets the prompt.");
             this.commandList[sc.command] = sc;
+            
+            // prompt <string>
+            sc = new ShellCommand(this.shellKirby,
+                                  "kirby",
+                                  "- Displays Kirby");
+            this.commandList[sc.command] = sc;
 
             // processes - list the running processes and their IDs
             // kill <id> - kills the specified process id.
@@ -266,6 +272,10 @@ module TSOS {
             } else {
                 _StdOut.putText("Usage: prompt <string>  Please supply a string.");
             }
+        }
+        
+        public shellKirby(args) {
+          _StdOut.putText("<(^.^)>");
         }
 
     }
