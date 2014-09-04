@@ -53,6 +53,10 @@ var TSOS;
             sc = new TSOS.ShellCommand(this.shellPrompt, "prompt", "<string> - Sets the prompt.");
             this.commandList[sc.command] = sc;
 
+            // prompt <string>
+            sc = new TSOS.ShellCommand(this.shellKirby, "kirby", "- Displays Kirby");
+            this.commandList[sc.command] = sc;
+
             // processes - list the running processes and their IDs
             // kill <id> - kills the specified process id.
             //
@@ -251,6 +255,10 @@ var TSOS;
             } else {
                 _StdOut.putText("Usage: prompt <string>  Please supply a string.");
             }
+        };
+
+        Shell.prototype.shellKirby = function (args) {
+            _StdOut.putText("<(^.^)>");
         };
         return Shell;
     })();
