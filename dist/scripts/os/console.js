@@ -52,13 +52,18 @@ var TSOS;
                     var charWidth = _DrawingContext.measureText(this.currentFont, this.currentFontSize, this.buffer.substr(-1));
 
                     var ascent = _DrawingContext.fontAscent(this.currentFont, this.currentFontSize);
+                    var descent = _DrawingContext.fontDescent(this.currentFont, this.currentFontSize);
 
                     //Add one because it doesn't erase it all without it
-                    var charHeight = 1 + ascent + _DrawingContext.fontDescent(this.currentFont, this.currentFontSize);
+                    var charHeight = 1 + ascent + descent;
+
                     _DrawingContext.clearRect(this.currentXPosition - charWidth, this.currentYPosition - ascent, charWidth, charHeight + 1);
 
                     //TODO: Make it check for less than zero.
                     this.currentXPosition -= charWidth;
+
+                    //Remove the last character from the buffer
+                    this.buffer = this.buffer.substr(0, this.buffer.length - 1);
                 } else {
                     // This is a "normal" character, so ...
                     // ... draw it on the screen...
