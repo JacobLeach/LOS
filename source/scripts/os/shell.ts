@@ -14,7 +14,7 @@ module TSOS {
     export class Shell {
         // Properties
         public promptStr = ">";
-        public commandList = [];
+        public commandList = {};
         public curses = "[fuvg],[cvff],[shpx],[phag],[pbpxfhpxre],[zbgureshpxre],[gvgf]";
         public apologies = "[sorry]";
 
@@ -31,49 +31,49 @@ module TSOS {
             sc = new ShellCommand(this.shellVer,
                                   "ver",
                                   "- Displays the current version data.");
-            this.commandList[this.commandList.length] = sc;
+            this.commandList[sc.command] = sc;
 
             // help
             sc = new ShellCommand(this.shellHelp,
                                   "help",
                                   "- This is the help command. Seek help.");
-            this.commandList[this.commandList.length] = sc;
+            this.commandList[sc.command] = sc;
 
             // shutdown
             sc = new ShellCommand(this.shellShutdown,
                                   "shutdown",
                                   "- Shuts down the virtual OS but leaves the underlying hardware simulation running.");
-            this.commandList[this.commandList.length] = sc;
+            this.commandList[sc.command] = sc;
 
             // cls
             sc = new ShellCommand(this.shellCls,
                                   "cls",
                                   "- Clears the screen and resets the cursor position.");
-            this.commandList[this.commandList.length] = sc;
+            this.commandList[sc.command] = sc;
 
             // man <topic>
             sc = new ShellCommand(this.shellMan,
                                   "man",
                                   "<topic> - Displays the MANual page for <topic>.");
-            this.commandList[this.commandList.length] = sc;
+            this.commandList[sc.command] = sc;
 
             // trace <on | off>
             sc = new ShellCommand(this.shellTrace,
                                   "trace",
                                   "<on | off> - Turns the OS trace on or off.");
-            this.commandList[this.commandList.length] = sc;
+            this.commandList[sc.command] = sc;
 
             // rot13 <string>
             sc = new ShellCommand(this.shellRot13,
                                   "rot13",
                                   "<string> - Does rot13 obfuscation on <string>.");
-            this.commandList[this.commandList.length] = sc;
+            this.commandList[sc.command] = sc;
 
             // prompt <string>
             sc = new ShellCommand(this.shellPrompt,
                                   "prompt",
                                   "<string> - Sets the prompt.");
-            this.commandList[this.commandList.length] = sc;
+            this.commandList[sc.command] = sc;
 
             // processes - list the running processes and their IDs
             // kill <id> - kills the specified process id.
@@ -102,19 +102,8 @@ module TSOS {
             //
             // JavaScript may not support associative arrays in all browsers so we have to
             // iterate over the command list in attempt to find a match.  TODO: Is there a better way? Probably.
-            var index = 0;
-            var found = false;
-            var fn = undefined;
-            while (!found && index < this.commandList.length) {
-                if (this.commandList[index].command === cmd) {
-                    found = true;
-                    fn = this.commandList[index].func;
-                } else {
-                    ++index;
-                }
-            }
-            if (found) {
-                this.execute(fn, args);
+            if (this.commandList[cmd] != undefined) {
+                this.execute(this.commandList[cmd].func, args);
             } else {
                 // It's not found, so check for curses and apologies before declaring the command invalid.
                 if (this.curses.indexOf("[" + Utils.rot13(cmd) + "]") >= 0) {     // Check for curses. {
