@@ -80,6 +80,12 @@ module TSOS {
                                   "kirby",
                                   "- Displays Kirby");
             this.commandList[sc.command] = sc;
+            
+            // alias <alias> <command>
+            sc = new ShellCommand(this.shellAlias,
+                                  "alias",
+                                  "<alias> <command> - Aliases a command");
+            this.commandList[sc.command] = sc;
 
             // processes - list the running processes and their IDs
             // kill <id> - kills the specified process id.
@@ -276,6 +282,20 @@ module TSOS {
         
         public shellKirby(args) {
           _StdOut.putText("<(^.^)>");
+        }
+        
+        public shellAlias(args) {
+            if (args.length > 1) {
+              //Only work if the command exists and the alias is not already a command
+              if (_OsShell.commandList[args[1]] != undefined && _OsShell.commandList[args[0]] === undefined) {
+                var sc = new ShellCommand(_OsShell.commandList[args[1]].func,
+                                      args[0],
+                                      _OsShell.commandList[args[1]].description);
+                _OsShell.commandList[sc.command] = sc;
+              }
+            } else {
+                _StdOut.putText("Usage: alias <alias> <command>  Please supply a alias and a command.");
+            }
         }
 
     }
