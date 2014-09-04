@@ -86,6 +86,12 @@ module TSOS {
                                   "alias",
                                   "<alias> <command> - Aliases a command");
             this.commandList[sc.command] = sc;
+            
+            // alias <alias> <command>
+            sc = new ShellCommand(this.shellDate,
+                                  "date",
+                                  "- Displays current date and time");
+            this.commandList[sc.command] = sc;
 
             // processes - list the running processes and their IDs
             // kill <id> - kills the specified process id.
@@ -296,6 +302,17 @@ module TSOS {
             } else {
                 _StdOut.putText("Usage: alias <alias> <command>  Please supply a alias and a command.");
             }
+        }
+        
+        public shellDate(args) {
+          var date = new Date();
+          var formatted =  (date.getMonth() + 1) + "/" +
+                            date.getDay() + "/" +
+                            date.getFullYear() + " " + 
+                            date.getHours() + ":" +
+                            date.getMinutes() + ":" +
+                           ((date.getSeconds() < 10) ? ("0" + date.getSeconds()) : ("" + date.getSeconds()));
+          _StdOut.putText(formatted);
         }
 
     }
