@@ -65,6 +65,10 @@ var TSOS;
             sc = new TSOS.ShellCommand(this.shellDate, "date", "- Displays current date and time");
             this.commandList[sc.command] = sc;
 
+            // whereami
+            sc = new TSOS.ShellCommand(this.shellLocate, "whereami", "- Displays current location");
+            this.commandList[sc.command] = sc;
+
             // processes - list the running processes and their IDs
             // kill <id> - kills the specified process id.
             //
@@ -285,6 +289,16 @@ var TSOS;
             var date = new Date();
             var formatted = (date.getMonth() + 1) + "/" + date.getDay() + "/" + date.getFullYear() + " " + date.getHours() + ":" + date.getMinutes() + ":" + ((date.getSeconds() < 10) ? ("0" + date.getSeconds()) : ("" + date.getSeconds()));
             _StdOut.putText(formatted);
+        };
+
+        Shell.prototype.shellLocate = function (args) {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    _StdOut.putText("Latitude: " + position.coords.latitude + " Longitude: " + position.coords.longitude);
+                });
+            } else {
+                _StdOut.putText("I've alerted the NSA of your location.");
+            }
         };
         return Shell;
     })();
