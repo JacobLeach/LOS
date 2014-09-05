@@ -48,7 +48,6 @@ module TSOS {
                     this.buffer = "";
                 } 
                 else if(chr === String.fromCharCode(8)) { // Backspace key
-                  //TODO: Make it not erase the prompt
                   var charWidth = _DrawingContext.measureText(
                                                               this.currentFont, 
                                                               this.currentFontSize, 
@@ -60,8 +59,13 @@ module TSOS {
                   //Add one because it doesn't erase it all without it
                   var charHeight = 1 + ascent + descent;
 
-                  _DrawingContext.clearRect(this.currentXPosition - charWidth, this.currentYPosition - ascent, charWidth, charHeight + 1);  
-                  //TODO: Make it check for less than zero.
+                  _DrawingContext.clearRect(
+                                            this.currentXPosition - charWidth, 
+                                            this.currentYPosition - ascent, 
+                                            charWidth, 
+                                            charHeight + 1
+                                           );  
+                  
                   this.currentXPosition -= charWidth;
 
                   //Remove the last character from the buffer
