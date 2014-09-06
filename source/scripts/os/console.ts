@@ -36,6 +36,18 @@ module TSOS {
       this.currentYPosition = this.currentFontSize;
     }
 
+    private moveCursorToStartOfLine() {
+      this.currentXPosition = Console.START_OF_LINE;
+    }
+    
+    private moveCursorUpOneLine() {
+      this.currentYPosition -= _DefaultFontSize + _FontHeightMargin;
+    }
+
+    private moveCursorDownOneLine() {
+      this.currentYPosition += _DefaultFontSize + _FontHeightMargin;
+    }
+
     public handleInput(): void {
       while (_KernelInputQueue.getSize() > 0) {
         var chr = _KernelInputQueue.dequeue();
@@ -53,12 +65,12 @@ module TSOS {
           if(chr != String.fromCharCode(0)) {
             //Cursor Start of next line
             if(chr === 'E') {
-              this.currentXPosition = Console.START_OF_LINE;
-              this.currentYPosition += _DefaultFontSize + _FontHeightMargin;
+              this.moveCursorToStartOfLine();
+              this.moveCursorDownOneLine();
             }
             else if(chr === 'F') {
-              this.currentXPosition = Console.START_OF_LINE;
-              this.currentYPosition -= _DefaultFontSize + _FontHeightMargin;
+              this.moveCursorToStartOfLine();
+              this.moveCursorUpOneLine();
             }
             this.ansi = false;
           }
