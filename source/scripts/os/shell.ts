@@ -100,6 +100,11 @@ module TSOS {
                                   "whereami",
                                   "- Displays current location");
             this.commandList[sc.command] = sc;
+            
+            sc = new ShellCommand(this.shellCrash,
+                                  "crash",
+                                  "- Crashes the OS");
+            this.commandList[sc.command] = sc;
 
             // processes - list the running processes and their IDs
             // kill <id> - kills the specified process id.
@@ -390,6 +395,10 @@ module TSOS {
           else {
             _StdOut.putText("I've alerted the NSA of your location.");
           }
+        }
+        
+        public shellCrash(args) {
+          _Console.bluescreen("Gotta crash... Mmmhh kay.");
         }
 
     }

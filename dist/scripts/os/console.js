@@ -26,6 +26,15 @@ var TSOS;
             this.resetXY();
         };
 
+        Console.prototype.bluescreen = function (text) {
+            _DrawingContext.fillStyle = "#00BF16";
+            _DrawingContext.fillRect(0, 0, _Canvas.width, _Canvas.height);
+            _DrawingContext.drawText(this.currentFont, this.currentFontSize, 140, _Canvas.height / 2, text);
+
+            _Kernel.krnShutdown();
+            clearInterval(_hardwareClockID);
+        };
+
         Console.prototype.clearScreen = function () {
             _DrawingContext.clearRect(0, 0, _Canvas.width, _Canvas.height);
         };
