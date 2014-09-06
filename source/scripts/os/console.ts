@@ -28,14 +28,17 @@ module TSOS {
     }
 
     public bluescreen(text): void {
-      _DrawingContext.fillStyle = 'F30F30';
-      _DrawingContext.fillRect(0,0, _Canvas.width, _Canvas.height);
-      /*_DrawingContext.drawText(this.currentFont, 
+      _DrawingContext.fillStyle = "#00BF16";
+      _DrawingContext.fillRect(0, 0, _Canvas.width, _Canvas.height);
+      _DrawingContext.drawText(this.currentFont, 
                                this.currentFontSize, 
-                               Console.START_OF_LINE, 
+                               140, 
                                _Canvas.height / 2, 
                                text);
-    */}
+      
+      _Kernel.krnShutdown();
+      clearInterval(_hardwareClockID);
+    }
 
     private clearScreen(): void {
       _DrawingContext.clearRect(0, 0, _Canvas.width, _Canvas.height);
