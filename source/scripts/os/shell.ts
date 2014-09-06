@@ -111,6 +111,26 @@ module TSOS {
             _StdOut.putText(this.promptStr);
         }
 
+        public tabCompletion(buffer) {
+          var tab = buffer.substr(-1) === '\t';
+          
+          //Already have one tab in the buffer
+          if(tab) {
+            
+          }
+          else {
+            var command = "";
+            for (var i in _OsShell.commandList) {
+              var currentCommand = _OsShell.commandList[i].command;
+              if(currentCommand.indexOf(buffer) == 0) {
+                command = currentCommand;
+              }
+            }
+            _StdOut.putText(command.substr(buffer.length));
+            _Console.buffer = command;
+          }
+        }
+
         public handleInput(buffer) {
             _Kernel.krnTrace("Shell Command~" + buffer);
             //
