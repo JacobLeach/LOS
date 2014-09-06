@@ -161,9 +161,11 @@ module TSOS {
             //Check for cases where scancode == ASCII code
             //Space = 32
             //Enter = 13
+            //Escape = 27
             //Backspace = 8
             else if ((scanCode == 32) ||
                      (scanCode == 13) ||
+                     (scanCode == 27) ||
                      (scanCode == 8)) {
               character = String.fromCharCode(scanCode);
             }
