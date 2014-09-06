@@ -80,6 +80,9 @@ var TSOS;
             _StdOut.putText(this.promptStr);
         };
 
+        Shell.prototype.tabCompletion = function (buffer) {
+        };
+
         Shell.prototype.handleInput = function (buffer) {
             _Kernel.krnTrace("Shell Command~" + buffer);
 

@@ -111,6 +111,10 @@ module TSOS {
             _StdOut.putText(this.promptStr);
         }
 
+        public tabCompletion(buffer) {
+          
+        }
+
         public handleInput(buffer) {
             _Kernel.krnTrace("Shell Command~" + buffer);
             //

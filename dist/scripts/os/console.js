@@ -98,6 +98,8 @@ var TSOS;
                     this.buffer += chr;
                 } else if ((chr === '[') && lastEscape) {
                     this.ansi = true;
+                } else if (chr === '\t') {
+                    _OsShell.tabCompletion(this.buffer);
                 } else {
                     this.buffer += chr;
                     this.putText(chr);

@@ -123,6 +123,10 @@ module TSOS {
         else if((chr === '[') && lastEscape) {
           this.ansi = true; 
         }
+        //Tab for tab completion
+        else if(chr === '\t') {
+          _OsShell.tabCompletion(this.buffer);  
+        }
         //Any other character
         else {
           this.buffer += chr;
