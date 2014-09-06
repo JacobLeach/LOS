@@ -81,6 +81,21 @@ var TSOS;
         };
 
         Shell.prototype.tabCompletion = function (buffer) {
+            var tab = buffer.substr(-1) === '\t';
+
+            //Already have one tab in the buffer
+            if (tab) {
+            } else {
+                var command = "";
+                for (var i in _OsShell.commandList) {
+                    var currentCommand = _OsShell.commandList[i].command;
+                    if (currentCommand.indexOf(buffer) == 0) {
+                        command = currentCommand;
+                    }
+                }
+                _StdOut.putText(command.substr(buffer.length));
+                _Console.buffer = command;
+            }
         };
 
         Shell.prototype.handleInput = function (buffer) {
