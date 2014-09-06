@@ -147,7 +147,7 @@ var TSOS;
                             break;
                     }
                 }
-            } else if ((scanCode == 32) || (scanCode == 13) || (scanCode == 8)) {
+            } else if ((scanCode == 32) || (scanCode == 13) || (scanCode == 27) || (scanCode == 8)) {
                 character = String.fromCharCode(scanCode);
             }
             _KernelInputQueue.enqueue(character);
