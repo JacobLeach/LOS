@@ -35,6 +35,18 @@ var TSOS;
             this.currentYPosition = this.currentFontSize;
         };
 
+        Console.prototype.moveCursorToStartOfLine = function () {
+            this.currentXPosition = Console.START_OF_LINE;
+        };
+
+        Console.prototype.moveCursorUpOneLine = function () {
+            this.currentYPosition -= _DefaultFontSize + _FontHeightMargin;
+        };
+
+        Console.prototype.moveCursorDownOneLine = function () {
+            this.currentYPosition += _DefaultFontSize + _FontHeightMargin;
+        };
+
         Console.prototype.handleInput = function () {
             while (_KernelInputQueue.getSize() > 0) {
                 var chr = _KernelInputQueue.dequeue();
@@ -51,11 +63,11 @@ var TSOS;
                     if (chr != String.fromCharCode(0)) {
                         //Cursor Start of next line
                         if (chr === 'E') {
-                            this.currentXPosition = Console.START_OF_LINE;
-                            this.currentYPosition += _DefaultFontSize + _FontHeightMargin;
+                            this.moveCursorToStartOfLine();
+                            this.moveCursorDownOneLine();
                         } else if (chr === 'F') {
-                            this.currentXPosition = Console.START_OF_LINE;
-                            this.currentYPosition -= _DefaultFontSize + _FontHeightMargin;
+                            this.moveCursorToStartOfLine();
+                            this.moveCursorUpOneLine();
                         }
                         this.ansi = false;
                     }
