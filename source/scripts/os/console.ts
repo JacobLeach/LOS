@@ -27,6 +27,16 @@ module TSOS {
       this.resetXY();
     }
 
+    public bluescreen(text): void {
+      _DrawingContext.fillStyle = 'F30F30';
+      _DrawingContext.fillRect(0,0, _Canvas.width, _Canvas.height);
+      /*_DrawingContext.drawText(this.currentFont, 
+                               this.currentFontSize, 
+                               Console.START_OF_LINE, 
+                               _Canvas.height / 2, 
+                               text);
+    */}
+
     private clearScreen(): void {
       _DrawingContext.clearRect(0, 0, _Canvas.width, _Canvas.height);
     }

@@ -26,6 +26,17 @@ var TSOS;
             this.resetXY();
         };
 
+        Console.prototype.bluescreen = function (text) {
+            _DrawingContext.fillStyle = 'F30F30';
+            _DrawingContext.fillRect(0, 0, _Canvas.width, _Canvas.height);
+            /*_DrawingContext.drawText(this.currentFont,
+            this.currentFontSize,
+            Console.START_OF_LINE,
+            _Canvas.height / 2,
+            text);
+            */
+        };
+
         Console.prototype.clearScreen = function () {
             _DrawingContext.clearRect(0, 0, _Canvas.width, _Canvas.height);
         };
