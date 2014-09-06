@@ -163,10 +163,12 @@ module TSOS {
             //Enter = 13
             //Escape = 27
             //Backspace = 8
+            //Tab = 9
             else if ((scanCode == 32) ||
                      (scanCode == 13) ||
                      (scanCode == 27) ||
-                     (scanCode == 8)) {
+                     (scanCode == 8)  || 
+                     (scanCode == 9)) {
               character = String.fromCharCode(scanCode);
             }
             _KernelInputQueue.enqueue(character);
