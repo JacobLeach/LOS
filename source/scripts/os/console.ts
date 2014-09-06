@@ -36,7 +36,23 @@ module TSOS {
       this.currentYPosition = this.currentFontSize;
     }
 
-    private moveCursorToStartOfLine() {
+    public clearLine() {
+      var ascent = _DrawingContext.fontAscent(this.currentFont, 
+                                              this.currentFontSize);
+
+      var descent = _DrawingContext.fontDescent(this.currentFont, 
+                                                this.currentFontSize);
+
+      //Add one because it doesn't erase it all without it
+      var charHeight = 1 + ascent + descent;
+      
+      _DrawingContext.clearRect(Console.START_OF_LINE, 
+                                this.currentYPosition - ascent, 
+                                _Canvas.width, 
+                                charHeight + 1);
+    }
+
+    public moveCursorToStartOfLine() {
       this.currentXPosition = Console.START_OF_LINE;
     }
     
@@ -56,7 +72,6 @@ module TSOS {
         var lastEscape = (this.buffer.substr(-1) === String.fromCharCode(27)); 
         
         //Handle the new character
-        
         //If the ANSI CSI squence has been set, handle the control code
         //This is simplified... aka no numbers
         //Also since we are not monospace, I can only do a subset
@@ -71,6 +86,19 @@ module TSOS {
             else if(chr === 'F') {
               this.moveCursorToStartOfLine();
               this.moveCursorUpOneLine();
+            }
+            //This is utter shit but it works
+            else if(chr == 'A') {
+              _OsShell.handleUp();
+            }
+            else if(chr == 'B') {
+              _OsShell.handleDown();
+            }
+            else if(chr == 'C') {
+              _OsShell.handleRight();
+            }
+            else if(chr == 'D') {
+              _OsShell.handleLeft();
             }
             this.ansi = false;
           }

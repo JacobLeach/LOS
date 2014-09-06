@@ -15,6 +15,8 @@ var TSOS;
             this.commandList = {};
             this.curses = "[fuvg],[cvff],[shpx],[phag],[pbpxfhpxre],[zbgureshpxre],[gvgf]";
             this.apologies = "[sorry]";
+            this.historyList = [];
+            this.current = -2;
         }
         Shell.prototype.init = function () {
             var sc = null;
@@ -80,6 +82,39 @@ var TSOS;
             _StdOut.putText(this.promptStr);
         };
 
+        Shell.prototype.handleUp = function () {
+            if (_OsShell.current == -2) {
+                _OsShell.current = _OsShell.historyList.length;
+            }
+            if (_OsShell.current != 0) {
+                _OsShell.current--;
+            }
+            _Console.clearLine();
+            _Console.moveCursorToStartOfLine();
+            _OsShell.putPrompt();
+            _StdOut.putText(_OsShell.historyList[_OsShell.current]);
+            _Console.buffer = _OsShell.historyList[_OsShell.current];
+        };
+
+        Shell.prototype.handleDown = function () {
+            if (_OsShell.current > 0) {
+                if (_OsShell.current != _OsShell.historyList.length - 1) {
+                    _OsShell.current++;
+                }
+                _Console.clearLine();
+                _Console.moveCursorToStartOfLine();
+                _OsShell.putPrompt();
+                _StdOut.putText(_OsShell.historyList[_OsShell.current]);
+                _Console.buffer = _OsShell.historyList[_OsShell.current];
+            }
+        };
+
+        Shell.prototype.handleLeft = function () {
+        };
+
+        Shell.prototype.handleRight = function () {
+        };
+
         Shell.prototype.tabCompletion = function (buffer) {
             var tab = buffer.substr(-1) === '\t';
 
@@ -99,6 +134,8 @@ var TSOS;
         };
 
         Shell.prototype.handleInput = function (buffer) {
+            _OsShell.historyList[_OsShell.historyList.length] = buffer;
+            _OsShell.current = -2;
             _Kernel.krnTrace("Shell Command~" + buffer);
 
             //
