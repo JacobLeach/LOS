@@ -11,7 +11,7 @@ var TSOS;
         function Console(currentFont, currentFontSize, currentXPosition, currentYPosition, buffer) {
             if (typeof currentFont === "undefined") { currentFont = _DefaultFontFamily; }
             if (typeof currentFontSize === "undefined") { currentFontSize = _DefaultFontSize; }
-            if (typeof currentXPosition === "undefined") { currentXPosition = 0; }
+            if (typeof currentXPosition === "undefined") { currentXPosition = Console.START_OF_LINE; }
             if (typeof currentYPosition === "undefined") { currentYPosition = _DefaultFontSize; }
             if (typeof buffer === "undefined") { buffer = ""; }
             this.currentFont = currentFont;
@@ -36,21 +36,17 @@ var TSOS;
 
         Console.prototype.handleInput = function () {
             while (_KernelInputQueue.getSize() > 0) {
-                // Get the next character from the kernel input queue.
                 var chr = _KernelInputQueue.dequeue();
 
-                // Check to see if it's "special" (enter or ctrl-c) or "normal" (anything else that the keyboard device driver gave us).
+                //Enter
                 if (chr === String.fromCharCode(13)) {
-                    // The enter key marks the end of a console command, so ...
-                    // ... tell the shell ...
                     _OsShell.handleInput(this.buffer);
-
-                    // ... and reset our buffer.
                     this.buffer = "";
                 } else if (chr === String.fromCharCode(8)) {
                     var charWidth = _DrawingContext.measureText(this.currentFont, this.currentFontSize, this.buffer.substr(-1));
 
                     var ascent = _DrawingContext.fontAscent(this.currentFont, this.currentFontSize);
+
                     var descent = _DrawingContext.fontDescent(this.currentFont, this.currentFontSize);
 
                     //Add one because it doesn't erase it all without it
@@ -58,44 +54,37 @@ var TSOS;
 
                     _DrawingContext.clearRect(this.currentXPosition - charWidth, this.currentYPosition - ascent, charWidth, charHeight + 1);
 
+                    //Move the cursor back one character
                     this.currentXPosition -= charWidth;
 
                     //Remove the last character from the buffer
                     this.buffer = this.buffer.substr(0, this.buffer.length - 1);
                 } else {
-                    // This is a "normal" character, so ...
-                    // ... draw it on the screen...
-                    this.putText(chr);
-
-                    // ... and add it to our buffer.
                     this.buffer += chr;
+                    this.putText(chr);
                 }
                 // TODO: Write a case for Ctrl-C.
             }
         };
 
         Console.prototype.putText = function (text) {
-            // My first inclination here was to write two functions: putChar() and putString().
-            // Then I remembered that JavaScript is (sadly) untyped and it won't differentiate
-            // between the two.  So rather than be like PHP and write two (or more) functions that
-            // do the same thing, thereby encouraging confusion and decreasing readability, I
-            // decided to write one function and use the term "text" to connote string or char.
-            // UPDATE: Even though we are now working in TypeScript, char and string remain undistinguished.
+            //Check to see that we have something to write
+            //If we do, write it to the current position on the screen
             if (text !== "") {
-                // Draw the text at the current X and Y coordinates.
                 _DrawingContext.drawText(this.currentFont, this.currentFontSize, this.currentXPosition, this.currentYPosition, text);
 
-                // Move the current X position.
                 var offset = _DrawingContext.measureText(this.currentFont, this.currentFontSize, text);
+
                 this.currentXPosition = this.currentXPosition + offset;
             }
         };
 
         Console.prototype.advanceLine = function () {
-            this.currentXPosition = 0;
+            this.currentXPosition = Console.START_OF_LINE;
             this.currentYPosition += _DefaultFontSize + _FontHeightMargin;
             // TODO: Handle scrolling. (Project 1)
         };
+        Console.START_OF_LINE = 0;
         return Console;
     })();
     TSOS.Console = Console;
