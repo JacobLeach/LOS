@@ -149,6 +149,29 @@ var TSOS;
                 }
             } else if ((scanCode == 32) || (scanCode == 13) || (scanCode == 27) || (scanCode == 8) || (scanCode == 9)) {
                 character = String.fromCharCode(scanCode);
+            } else if (scanCode >= 37 && scanCode <= 40) {
+                switch (scanCode) {
+                    case 37:
+                        _KernelInputQueue.enqueue(String.fromCharCode(27));
+                        _KernelInputQueue.enqueue("[");
+                        character = "D";
+                        break;
+                    case 38:
+                        _KernelInputQueue.enqueue(String.fromCharCode(27));
+                        _KernelInputQueue.enqueue("[");
+                        character = "A";
+                        break;
+                    case 39:
+                        _KernelInputQueue.enqueue(String.fromCharCode(27));
+                        _KernelInputQueue.enqueue("[");
+                        character = "C";
+                        break;
+                    case 40:
+                        _KernelInputQueue.enqueue(String.fromCharCode(27));
+                        _KernelInputQueue.enqueue("[");
+                        character = "B";
+                        break;
+                }
             } else {
                 character = String.fromCharCode(0);
             }

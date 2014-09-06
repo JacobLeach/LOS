@@ -35,6 +35,17 @@ var TSOS;
             this.currentYPosition = this.currentFontSize;
         };
 
+        Console.prototype.clearLine = function () {
+            var ascent = _DrawingContext.fontAscent(this.currentFont, this.currentFontSize);
+
+            var descent = _DrawingContext.fontDescent(this.currentFont, this.currentFontSize);
+
+            //Add one because it doesn't erase it all without it
+            var charHeight = 1 + ascent + descent;
+
+            _DrawingContext.clearRect(Console.START_OF_LINE, this.currentYPosition - ascent, _Canvas.width, charHeight + 1);
+        };
+
         Console.prototype.moveCursorToStartOfLine = function () {
             this.currentXPosition = Console.START_OF_LINE;
         };
@@ -68,6 +79,14 @@ var TSOS;
                         } else if (chr === 'F') {
                             this.moveCursorToStartOfLine();
                             this.moveCursorUpOneLine();
+                        } else if (chr == 'A') {
+                            _OsShell.handleUp();
+                        } else if (chr == 'B') {
+                            _OsShell.handleDown();
+                        } else if (chr == 'C') {
+                            _OsShell.handleRight();
+                        } else if (chr == 'D') {
+                            _OsShell.handleLeft();
                         }
                         this.ansi = false;
                     }
