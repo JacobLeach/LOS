@@ -169,6 +169,9 @@ module TSOS {
                      (scanCode == 8)) {
               character = String.fromCharCode(scanCode);
             }
+            else {
+              character = String.fromCharCode(0); 
+            }
             _KernelInputQueue.enqueue(character);
         }//end handleKeyPress
     }

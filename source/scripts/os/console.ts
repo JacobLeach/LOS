@@ -47,13 +47,21 @@ module TSOS {
         
         //If the ANSI CSI squence has been set, handle the control code
         //This is simplified... aka no numbers
+        //Also since we are not monospace, I can only do a subset
         if(this.ansi) {
-          //Cursor Up
-          if(chr === 'A') {
-            this.currentYPosition += _DefaultFontSize + _FontHeightMargin;
+          //Character is a shift or something
+          if(chr != String.fromCharCode(0)) {
+            //Cursor Start of next line
+            if(chr === 'E') {
+              this.currentXPosition = Console.START_OF_LINE;
+              this.currentYPosition += _DefaultFontSize + _FontHeightMargin;
+            }
+            else if(chr === 'F') {
+              this.currentXPosition = Console.START_OF_LINE;
+              this.currentYPosition -= _DefaultFontSize + _FontHeightMargin;
+            }
+            this.ansi = false;
           }
-
-          this.ansi = false;
         }
         //Enter
         else if (chr === String.fromCharCode(13)) {
