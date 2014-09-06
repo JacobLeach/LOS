@@ -19,6 +19,7 @@ var TSOS;
             this.currentXPosition = currentXPosition;
             this.currentYPosition = currentYPosition;
             this.buffer = buffer;
+            this.ansi = false;
         }
         Console.prototype.init = function () {
             this.clearScreen();
@@ -38,8 +39,20 @@ var TSOS;
             while (_KernelInputQueue.getSize() > 0) {
                 var chr = _KernelInputQueue.dequeue();
 
-                //Enter
-                if (chr === String.fromCharCode(13)) {
+                //Set flag for whether the last character is escape
+                var lastEscape = (this.buffer.substr(-1) === String.fromCharCode(27));
+
+                //Handle the new character
+                //If the ANSI CSI squence has been set, handle the control code
+                //This is simplified... aka no numbers
+                if (this.ansi) {
+                    //Cursor Up
+                    if (chr === 'A') {
+                        this.currentYPosition += _DefaultFontSize + _FontHeightMargin;
+                    }
+
+                    this.ansi = false;
+                } else if (chr === String.fromCharCode(13)) {
                     _OsShell.handleInput(this.buffer);
                     this.buffer = "";
                 } else if (chr === String.fromCharCode(8)) {
@@ -52,13 +65,20 @@ var TSOS;
                     //Add one because it doesn't erase it all without it
                     var charHeight = 1 + ascent + descent;
 
-                    _DrawingContext.clearRect(this.currentXPosition - charWidth, this.currentYPosition - ascent, charWidth, charHeight + 1);
+                    //If escape is the last character, we have nothing to delete
+                    if (!lastEscape) {
+                        _DrawingContext.clearRect(this.currentXPosition - charWidth, this.currentYPosition - ascent, charWidth, charHeight + 1);
 
-                    //Move the cursor back one character
-                    this.currentXPosition -= charWidth;
+                        //Move the cursor back one character
+                        this.currentXPosition -= charWidth;
+                    }
 
                     //Remove the last character from the buffer
                     this.buffer = this.buffer.substr(0, this.buffer.length - 1);
+                } else if (chr === String.fromCharCode(27) && !lastEscape) {
+                    this.buffer += chr;
+                } else if ((chr === '[') && lastEscape) {
+                    this.ansi = true;
                 } else {
                     this.buffer += chr;
                     this.putText(chr);
