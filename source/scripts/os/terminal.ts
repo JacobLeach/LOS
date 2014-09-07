@@ -99,6 +99,13 @@ module TSOS {
             case 'D':
               this.moveCursorLeft(amount);
               break;
+            case 'E':
+              this.makeNewLine();
+              break;
+            case 'F':
+              this.cursor.x = 0;
+              this.moveCursorUp(1);
+              break;
           }
           this.ansiNumber = "";
           printable = false;
@@ -186,8 +193,6 @@ module TSOS {
     }
 
     private makeNewLine() {
-        console.log("CUR: " + this.cursor.y);
-        console.log("ROWS: " + this.rows);
       this.cursor.x = 0;
       if(this.cursor.y === this.rows) { 
         var image = this.context.getImageData(0, this.lineHeight, this.context.canvas.width, this.rows * this.lineHeight);
