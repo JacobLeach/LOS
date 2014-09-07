@@ -1,5 +1,6 @@
 ///<reference path="shellCommand.ts" />
 ///<reference path="userCommand.ts" />
+///<reference path="stdio.ts" />
 ///<reference path="../utils.ts" />
 
 /* ------------
@@ -22,6 +23,11 @@ module TSOS {
 
         constructor() {
 
+        }
+
+        public isr(params) {
+          var noNewLine = params[0].substr(0, params[0].length - 1);
+          this.handleInput(noNewLine);
         }
 
         public init() {
@@ -115,68 +121,10 @@ module TSOS {
         }
 
         public putPrompt() {
-            _StdOut.putText(this.promptStr);
-        }
-  
-        public handleUp() {
-          if(_OsShell.current == -2) {
-            _OsShell.current = _OsShell.historyList.length;
-          }
-          if(_OsShell.current != 0) {
-            _OsShell.current--;
-          }
-          _Console.clearLine();
-          _Console.moveCursorToStartOfLine();
-          _OsShell.putPrompt();
-          _StdOut.putText(_OsShell.historyList[_OsShell.current]);
-          _Console.buffer = _OsShell.historyList[_OsShell.current];
-        }
-        
-        public handleDown() {
-          if(_OsShell.current > 0) {
-            if(_OsShell.current != _OsShell.historyList.length -1) {
-              _OsShell.current++;
-            }
-            _Console.clearLine();
-            _Console.moveCursorToStartOfLine();
-            _OsShell.putPrompt();
-            _StdOut.putText(_OsShell.historyList[_OsShell.current]);
-            _Console.buffer = _OsShell.historyList[_OsShell.current];
-          }
-          
-        }
-        
-        public handleLeft() {
-
-        }
-        
-        public handleRight() {
-
-        }
-
-        public tabCompletion(buffer) {
-          var tab = buffer.substr(-1) === '\t';
-          
-          //Already have one tab in the buffer
-          if(tab) {
-            
-          }
-          else {
-            var command = "";
-            for (var i in _OsShell.commandList) {
-              var currentCommand = _OsShell.commandList[i].command;
-              if(currentCommand.indexOf(buffer) == 0) {
-                command = currentCommand;
-              }
-            }
-            _StdOut.putText(command.substr(buffer.length));
-            _Console.buffer = command;
-          }
+            Stdio.putString(this.promptStr, _StdOut);
         }
 
         public handleInput(buffer) {
-          _OsShell.historyList[_OsShell.historyList.length] = buffer;
-          _OsShell.current = -2;
           _Kernel.krnTrace("Shell Command~" + buffer);
             //
             // Parse the input...
@@ -207,13 +155,11 @@ module TSOS {
 
         // args is an option parameter, ergo the ? which allows TypeScript to understand that
         public execute(fn, args?) {
-            // We just got a command, so advance the line...
-            _StdOut.advanceLine();
             // ... call the command function passing in the args...
             fn(args);
             // Check to see if we need to advance the line again
-            if (_StdOut.currentXPosition > 0) {
-                _StdOut.advanceLine();
+            if (_Console.getCursorPosition().x > 0) {
+              Stdio.putString(ESCAPE + '[E',_StdOut);
             }
             // ... and finally write the prompt again.
             this.putPrompt();
@@ -252,44 +198,44 @@ module TSOS {
         // Shell Command Functions.  Again, not part of Shell() class per se', just called from there.
         //
         public shellInvalidCommand() {
-            _StdOut.putText("Invalid Command. ");
+            Stdio.putString("Invalid Command. ", _StdOut);
             if (_SarcasticMode) {
-                _StdOut.putText("Duh. Go back to your Speak & Spell.");
+                Stdio.putString("Duh. Go back to your Speak & Spell.", _StdOut);
             } else {
-                _StdOut.putText("Type 'help' for, well... help.");
+                Stdio.putString("Type 'help' for, well... help.", _StdOut);
             }
         }
 
         public shellCurse() {
-            _StdOut.putText("Oh, so that's how it's going to be, eh? Fine.");
+            Stdio.putString("Oh, so that's how it's going to be, eh? Fine.", _StdOut);
             _StdOut.advanceLine();
-            _StdOut.putText("Bitch.");
+            Stdio.putString("Bitch.", _StdOut);
             _SarcasticMode = true;
         }
 
         public shellApology() {
            if (_SarcasticMode) {
-              _StdOut.putText("Okay. I forgive you. This time.");
+              Stdio.putString("Okay. I forgive you. This time.", _StdOut);
               _SarcasticMode = false;
            } else {
-              _StdOut.putText("For what?");
+              Stdio.putString("For what?", _StdOut);
            }
         }
 
         public shellVer(args) {
-            _StdOut.putText(APP_NAME + " version " + APP_VERSION);
+            Stdio.putString(APP_NAME + " version " + APP_VERSION, _StdOut);
         }
 
         public shellHelp(args) {
-            _StdOut.putText("Commands:");
+            Stdio.putString("Commands:", _StdOut);
             for (var i in _OsShell.commandList) {
                 _StdOut.advanceLine();
-                _StdOut.putText("  " + _OsShell.commandList[i].command + " " + _OsShell.commandList[i].description);
+                Stdio.putString("  " + _OsShell.commandList[i].command + " " + _OsShell.commandList[i].description, _StdOut);
             }
         }
 
         public shellShutdown(args) {
-             _StdOut.putText("Shutting down...");
+             Stdio.putString("Shutting down...", _StdOut);
              // Call Kernel shutdown routine.
             _Kernel.krnShutdown();
             // TODO: Stop the final prompt from being displayed.  If possible.  Not a high priority.  (Damn OCD!)
@@ -305,13 +251,13 @@ module TSOS {
                 var topic = args[0];
                 switch (topic) {
                     case "help":
-                        _StdOut.putText("Help displays a list of (hopefully) valid commands.");
+                        Stdio.putString("Help displays a list of (hopefully) valid commands.", _StdOut);
                         break;
                     default:
-                        _StdOut.putText("No manual entry for " + args[0] + ".");
+                        Stdio.putString("No manual entry for " + args[0] + ".", _StdOut);
                 }
             } else {
-                _StdOut.putText("Usage: man <topic>  Please supply a topic.");
+                Stdio.putString("Usage: man <topic>  Please supply a topic.", _StdOut);
             }
         }
 
@@ -321,31 +267,31 @@ module TSOS {
                 switch (setting) {
                     case "on":
                         if (_Trace && _SarcasticMode) {
-                            _StdOut.putText("Trace is already on, dumbass.");
+                            Stdio.putString("Trace is already on, dumbass.", _StdOut);
                         } else {
                             _Trace = true;
-                            _StdOut.putText("Trace ON");
+                            Stdio.putString("Trace ON", _StdOut);
                         }
 
                         break;
                     case "off":
                         _Trace = false;
-                        _StdOut.putText("Trace OFF");
+                        Stdio.putString("Trace OFF", _StdOut);
                         break;
                     default:
-                        _StdOut.putText("Invalid arguement.  Usage: trace <on | off>.");
+                        Stdio.putString("Invalid arguement.  Usage: trace <on | off>.", _StdOut);
                 }
             } else {
-                _StdOut.putText("Usage: trace <on | off>");
+                Stdio.putString("Usage: trace <on | off>", _StdOut);
             }
         }
 
         public shellRot13(args) {
             if (args.length > 0) {
                 // Requires Utils.ts for rot13() function.
-                _StdOut.putText(args.join(' ') + " = '" + Utils.rot13(args.join(' ')) +"'");
+                Stdio.putString(args.join(' ') + " = '" + Utils.rot13(args.join(' ')) +"'", _StdOut);
             } else {
-                _StdOut.putText("Usage: rot13 <string>  Please supply a string.");
+                Stdio.putString("Usage: rot13 <string>  Please supply a string.", _StdOut);
             }
         }
 
@@ -353,12 +299,12 @@ module TSOS {
             if (args.length > 0) {
                 _OsShell.promptStr = args[0];
             } else {
-                _StdOut.putText("Usage: prompt <string>  Please supply a string.");
+                Stdio.putString("Usage: prompt <string>  Please supply a string.", _StdOut);
             }
         }
         
         public shellKirby(args) {
-          _StdOut.putText("<(^.^)>");
+          Stdio.putString("<(^.^)>", _StdOut);
         }
         
         public shellAlias(args) {
@@ -366,12 +312,13 @@ module TSOS {
               //Only work if the command exists and the alias is not already a command
               if (_OsShell.commandList[args[1]] != undefined && _OsShell.commandList[args[0]] === undefined) {
                 var sc = new ShellCommand(_OsShell.commandList[args[1]].func,
-                                      args[0],
-                                      _OsShell.commandList[args[1]].description);
+                                          args[0],
+                                          _OsShell.commandList[args[1]].description);
                 _OsShell.commandList[sc.command] = sc;
               }
-            } else {
-                _StdOut.putText("Usage: alias <alias> <command>  Please supply a alias and a command.");
+            } 
+            else {
+              Stdio.putString("Usage: alias <alias> <command>  Please supply a alias and a command.", _StdOut);
             }
         }
         
@@ -383,22 +330,22 @@ module TSOS {
                             date.getHours() + ":" +
                             date.getMinutes() + ":" +
                            ((date.getSeconds() < 10) ? ("0" + date.getSeconds()) : ("" + date.getSeconds()));
-          _StdOut.putText(formatted);
+          Stdio.putString(formatted, _StdOut);
         }
         
         public shellLocate(args) {
           if(navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(function(position) {
-              _StdOut.putText("Latitude: " + position.coords.latitude + " Longitude: " + position.coords.longitude);
+              Stdio.putString("Latitude: " + position.coords.latitude + " Longitude: " + position.coords.longitude, _StdOut);
             });
           }
           else {
-            _StdOut.putText("I've alerted the NSA of your location.");
+            Stdio.putString("I've alerted the NSA of your location.", _StdOut);
           }
         }
         
         public shellCrash(args) {
-          _Console.bluescreen("Gotta crash... Mmmhh kay.");
+          //_Console.bluescreen("Gotta crash... Mmmhh kay.");
         }
 
     }

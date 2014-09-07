@@ -21,6 +21,10 @@ module TSOS {
         public isEmpty(){
             return (this.q.length == 0);
         }
+        
+        public peek() {
+            return this.q[0];
+        }
 
         public enqueue(element) {
             this.q.push(element);

@@ -20,7 +20,9 @@ var CPU_CLOCK_INTERVAL: number = 100;   // This is in ms, or milliseconds, so 10
 var TIMER_IRQ: number = 0;  // Pages 23 (timer), 9 (interrupts), and 561 (interrupt priority).
                             // NOTE: The timer is different from hardware/host clock pulses. Don't confuse these.
 var KEYBOARD_IRQ: number = 1;
+var TERMINAL_IRQ: number = 2;
 
+var ESCAPE = String.fromCharCode(27);
 
 //
 // Global Variables
@@ -51,7 +53,7 @@ var _StdIn  = null;
 var _StdOut = null;
 
 // UI
-var _Console: TSOS.Console;
+var _Console: TSOS.Terminal;
 var _OsShell: TSOS.Shell;
 
 // At least this OS is not trying to kill you. (Yet.)
