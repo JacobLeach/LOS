@@ -15,6 +15,17 @@ var TSOS;
             this.lastCharEscape = false;
             this.ansi = false;
             this.ansiNumber = "";
+            /*
+            * This controls whether or not the terminal is canonical or not.
+            *
+            * In other words, whether or not it buffers.
+            * If it is canonical, it only passes the input back after a newline.
+            * If it is non-ccanonical it passes back each character as they come.
+            *
+            * TODO: Make the shell do ALL the buffering
+            *       AKA, put this in non-canonical mode
+            */
+            this.canonical = false;
             this.canvas = canvas;
             this.inputBuffer = inputBuffer;
 
@@ -42,6 +53,7 @@ var TSOS;
 
         Terminal.prototype.handleChar = function (character, isInput) {
             var printable = true;
+            var input = "";
 
             //Checking to see if this is going to be an ANSI control code
             //If it is, then handle it
@@ -112,8 +124,6 @@ var TSOS;
             } else if (character === String.fromCharCode(13)) {
                 printable = false;
 
-                var input = "";
-
                 while (this.inputBuffer[0] != String.fromCharCode(13)) {
                     input += this.inputBuffer.shift();
                 }
@@ -122,13 +132,17 @@ var TSOS;
                 input += this.inputBuffer.shift();
 
                 this.makeNewLine();
-
-                _KernelInterruptQueue.enqueue(new TSOS.Interrupt(TERMINAL_IRQ, [input]));
+            } else if (!this.canonical) {
+                input += this.inputBuffer.shift();
             }
 
             //If it is a printable character, print it
             if (((this.echo && isInput) || !isInput) && printable) {
                 this.printChar(character);
+            }
+
+            if ((!this.canonical || character === String.fromCharCode(13)) && isInput) {
+                _KernelInterruptQueue.enqueue(new TSOS.Interrupt(TERMINAL_IRQ, input));
             }
         };
 

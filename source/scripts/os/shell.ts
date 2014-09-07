@@ -21,13 +21,14 @@ module TSOS {
         public historyList = [];
         private current = -2;
 
+        private inputBuffer: String = "";
+
         constructor() {
 
         }
 
-        public isr(params) {
-          var noNewLine = params[0].substr(0, params[0].length - 1);
-          this.handleInput(noNewLine);
+        public isr(character) {
+          this.handleCharacter(character);
         }
 
         public init() {
@@ -129,74 +130,63 @@ module TSOS {
             Stdio.putString(this.promptStr, _StdOut);
         }
 
-        public handleInput(buffer) {
-          _Kernel.krnTrace("Shell Command~" + buffer);
-            //
-            // Parse the input...
-            //
-            var userCommand = new UserCommand();
-            userCommand = this.parseInput(buffer);
-            // ... and assign the command and args to local variables.
-            var cmd = userCommand.command;
-            var args = userCommand.args;
-            //
-            // Determine the command and execute it.
-            //
-            // JavaScript may not support associative arrays in all browsers so we have to
-            // iterate over the command list in attempt to find a match.  TODO: Is there a better way? Probably.
-            if (this.commandList[cmd] != undefined) {
-                this.execute(this.commandList[cmd].func, args);
-            } else {
-                // It's not found, so check for curses and apologies before declaring the command invalid.
-                if (this.curses.indexOf("[" + Utils.rot13(cmd) + "]") >= 0) {     // Check for curses. {
-                    this.execute(this.shellCurse);
-                } else if (this.apologies.indexOf("[" + cmd + "]") >= 0) {    // Check for apologies. {
-                    this.execute(this.shellApology);
-                } else { // It's just a bad command. {
-                    this.execute(this.shellInvalidCommand);
-                }
-            }
+        private handleCharacter(character: String): void {
+          if(character === String.fromCharCode(13)) {
+
+            //Remove leading and trailing spaces.
+            this.inputBuffer = Utils.trim(this.inputBuffer);
+            
+            //Handle the command
+            this.handleCommand(); 
+
+            //Flush the buffer after we handle the command
+            this.inputBuffer = "";
+          }
+          else {
+            this.inputBuffer += character + "";
+          }
         }
 
-        // args is an option parameter, ergo the ? which allows TypeScript to understand that
-        public execute(fn, args?) {
-            // ... call the command function passing in the args...
-            fn(args);
-            // Check to see if we need to advance the line again
-            if (_Console.getCursorPosition().x > 0) {
-              Stdio.putString(ESCAPE + '[E',_StdOut);
-            }
-            // ... and finally write the prompt again.
-            this.putPrompt();
+        private handleCommand(): void {
+          //Split by spaces for command and arguments
+          var temp = this.inputBuffer.split(" ");
+
+          //First element is the command
+          var command = temp.shift();
+          
+          //Rest are parameters
+          var parameters = temp;
+
+          //If we haven't typed anything, don't check for a command
+          if(this.inputBuffer.length > 0) {
+            this.executeCommand(command, parameters);
+          }
+          
+         /*
+          * If the cursor is not at the beginning of the line,
+          * we need to advance it to the next line before we 
+          * print the prompt
+          */
+          if(_Console.getCursorPosition().x > 0) {
+            Stdio.putString(ESCAPE + '[E', _StdOut);
+          }
+
+          this.putPrompt();
         }
 
-        public parseInput(buffer) {
-            var retVal = new UserCommand();
-
-            // 1. Remove leading and trailing spaces.
-            buffer = Utils.trim(buffer);
-
-            // 2. Lower-case it.
-            buffer = buffer.toLowerCase();
-
-            // 3. Separate on spaces so we can determine the command and command-line args, if any.
-            var tempList = buffer.split(" ");
-
-            // 4. Take the first (zeroth) element and use that as the command.
-            var cmd = tempList.shift();  // Yes, you can do that to an array in JavaScript.  See the Queue class.
-            // 4.1 Remove any left-over spaces.
-            cmd = Utils.trim(cmd);
-            // 4.2 Record it in the return value.
-            retVal.command = cmd;
-
-            // 5. Now create the args array from what's left.
-            for (var i in tempList) {
-                var arg = Utils.trim(tempList[i]);
-                if (arg != "") {
-                    retVal.args[retVal.args.length] = tempList[i];
-                }
-            }
-            return retVal;
+       /*
+        * Command is 'any' so typescript does not bitch about
+        * indexing by String which is valid javascript
+        */
+        private executeCommand(command: any, parameters: String[]): void {
+          //See if the command exists
+          if(this.commandList[command] != undefined) {
+            //Execute the command's function
+            this.commandList[command].func(parameters);
+          }
+          else {
+            this.shellInvalidCommand();
+          }
         }
 
         //
