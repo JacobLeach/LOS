@@ -56,7 +56,25 @@ module TSOS {
       this.columns = Math.round(this.canvas.height / this.charWidth) - 2
       this.rows = Math.round(this.canvas.width / this.lineHeight) - 2;
     }
+    
+    //HACKS HACKS HACKS!
+    public bluescreen() {
+      this.cursor.x = 0;
+      console.log("FUCK");
+      this.cursor.y = 0;
+      this.context.fillStyle='#0000FF';
+      this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+      this.context.fillStyle='#000000';
+    }
 
+    //HACKS HACKS HACKS!
+    public writeWhiteText(text) {
+      this.context.fillStyle='#FFFFFF';
+      for(var i = 0; i < text.length; i++) {
+        this.printChar(text.charAt(i), false);
+      }
+    }
+      
     public getCursorPosition() {
       return {x: this.cursor.x, y: this.cursor.y};
     }
@@ -171,7 +189,7 @@ module TSOS {
 
       //If it is a printable character, print it
       if(((this.echo && isInput) || !isInput)  && printable) {
-        this.printChar(character); 
+        this.printChar(character, true); 
       }
 
       if((!this.canonical || character === ENTER) && isInput) {
@@ -231,7 +249,7 @@ module TSOS {
       }
     }
 
-    private printChar(character: String): void {
+    private printChar(character: String, clearLine: boolean): void {
       if(this.cursor.x == this.columns) {
         this.cursor.x = 0;
         this.makeNewLine(); 
@@ -240,7 +258,9 @@ module TSOS {
       var coords = this.cursorToCoords();
       
       //Clear the spot incase a letter is already here
-      this.clear();
+      if(clearLine) {
+        this.clear();
+      }
 
       //Write the letter to the screen
       this.context.fillText(character, coords.x, coords.y);

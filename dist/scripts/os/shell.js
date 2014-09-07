@@ -229,7 +229,9 @@ var TSOS;
                 TSOS.Stdio.putString(ESCAPE + '[E', _StdOut);
             }
 
-            this.putPrompt();
+            if (command != "crash") {
+                this.putPrompt();
+            }
         };
 
         /*
@@ -386,8 +388,10 @@ var TSOS;
             }
         };
 
+        //HACKS HACKS HACKS
         Shell.prototype.shellCrash = function (args) {
-            //_Console.bluescreen("Gotta crash... Mmmhh kay.");
+            _Console.bluescreen();
+            _Console.writeWhiteText("Gotta crash... Mmmhh kay.");
         };
 
         Shell.prototype.shellStatus = function (args) {

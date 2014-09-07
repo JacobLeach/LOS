@@ -158,8 +158,8 @@ var TSOS;
 
         Kernel.prototype.krnTrapError = function (msg) {
             TSOS.Control.hostLog("OS ERROR - TRAP: " + msg);
-
-            //_Console.bluescreen(msg);
+            _Console.bluescreen();
+            _Console.writeWhiteText(msg);
             this.krnShutdown();
         };
         return Kernel;
