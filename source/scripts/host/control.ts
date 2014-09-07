@@ -36,6 +36,18 @@ module TSOS {
             // Set focus on the start button.
             // Use the TypeScript cast to HTMLInputElement
             (<HTMLInputElement> document.getElementById("btnStartOS")).focus();
+          
+            function updateTime() {
+              var date = new Date();
+              var formatted = (date.getMonth() + 1) + "/" + 
+                               date.getDate() + "/" + 
+                               date.getFullYear() + " " + 
+                               date.getHours() + ":" + 
+                               date.getMinutes() + ":" + 
+                             ((date.getSeconds() < 10) ? ("0" + date.getSeconds()) : ("" + date.getSeconds()));
+              document.getElementById("time").innerHTML = formatted;
+            }
+            setInterval(updateTime, 1000);
 
             // Check for our testing and enrichment core.
             if (typeof Glados === "function") {

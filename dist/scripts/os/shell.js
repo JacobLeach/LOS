@@ -80,6 +80,9 @@ var TSOS;
             sc = new TSOS.ShellCommand(this.shellCrash, "crash", "- Crashes the OS");
             this.commandList[sc.command] = sc;
 
+            sc = new TSOS.ShellCommand(this.shellStatus, "status", "- Changes the status bar status");
+            this.commandList[sc.command] = sc;
+
             // processes - list the running processes and their IDs
             // kill <id> - kills the specified process id.
             //
@@ -311,6 +314,10 @@ var TSOS;
 
         Shell.prototype.shellCrash = function (args) {
             //_Console.bluescreen("Gotta crash... Mmmhh kay.");
+        };
+
+        Shell.prototype.shellStatus = function (args) {
+            document.getElementById("status").innerHTML = args[0];
         };
         return Shell;
     })();
