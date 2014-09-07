@@ -24,7 +24,7 @@ var ESCAPE = String.fromCharCode(27);
 var TAB = String.fromCharCode(9);
 var ENTER = String.fromCharCode(13);
 var BELL = String.fromCharCode(7);
-var BACKSPACCE = String.fromCharCode(8);
+var BACKSPACE = String.fromCharCode(8);
 
 //
 // Global Variables
