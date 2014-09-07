@@ -109,6 +109,9 @@ module TSOS {
                   case 191:
                     character = '/';
                     break;
+                  case 192:
+                    character = '`';
+                    break;
                   case 219:
                     character = '[';
                     break;
@@ -142,6 +145,9 @@ module TSOS {
                     break;
                   case 191:
                     character = '?';
+                    break;
+                  case 192:
+                    character = '~';
                     break;
                   case 219:
                     character = '{';
