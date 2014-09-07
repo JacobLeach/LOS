@@ -111,6 +111,11 @@ module TSOS {
                                   "crash",
                                   "- Crashes the OS");
             this.commandList[sc.command] = sc;
+            
+            sc = new ShellCommand(this.shellStatus,
+                                  "status",
+                                  "- Changes the status bar status");
+            this.commandList[sc.command] = sc;
 
             // processes - list the running processes and their IDs
             // kill <id> - kills the specified process id.
@@ -346,6 +351,10 @@ module TSOS {
         
         public shellCrash(args) {
           //_Console.bluescreen("Gotta crash... Mmmhh kay.");
+        }
+        
+        public shellStatus(args) {
+          document.getElementById("status").innerHTML = args[0];
         }
 
     }
