@@ -125,9 +125,6 @@ var TSOS;
 
         // args is an option parameter, ergo the ? which allows TypeScript to understand that
         Shell.prototype.execute = function (fn, args) {
-            // We just got a command, so advance the line...
-            TSOS.Stdio.putString(ESCAPE + '[E', _StdOut);
-
             // ... call the command function passing in the args...
             fn(args);
 

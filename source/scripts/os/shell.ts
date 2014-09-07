@@ -155,8 +155,6 @@ module TSOS {
 
         // args is an option parameter, ergo the ? which allows TypeScript to understand that
         public execute(fn, args?) {
-            // We just got a command, so advance the line...
-            Stdio.putString(ESCAPE + '[E',_StdOut);
             // ... call the command function passing in the args...
             fn(args);
             // Check to see if we need to advance the line again
@@ -314,12 +312,13 @@ module TSOS {
               //Only work if the command exists and the alias is not already a command
               if (_OsShell.commandList[args[1]] != undefined && _OsShell.commandList[args[0]] === undefined) {
                 var sc = new ShellCommand(_OsShell.commandList[args[1]].func,
-                                      args[0],
-                                      _OsShell.commandList[args[1]].description);
+                                          args[0],
+                                          _OsShell.commandList[args[1]].description);
                 _OsShell.commandList[sc.command] = sc;
               }
-            } else {
-                Stdio.putString("Usage: alias <alias> <command>  Please supply a alias and a command.", _StdOut);
+            } 
+            else {
+              Stdio.putString("Usage: alias <alias> <command>  Please supply a alias and a command.", _StdOut);
             }
         }
         
