@@ -29,6 +29,10 @@ var TSOS;
             this.columns = Math.round(this.canvas.height / this.charWidth) - 2;
             this.rows = Math.round(this.canvas.width / this.lineHeight) - 2;
         }
+        Terminal.prototype.getCursorPosition = function () {
+            return { x: this.cursor.x, y: this.cursor.y };
+        };
+
         Terminal.prototype.handleInputChar = function () {
             if (this.inputBuffer.length > 0) {
                 var character = this.inputBuffer[this.inputBuffer.length - 1];

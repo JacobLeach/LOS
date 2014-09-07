@@ -46,6 +46,10 @@ module TSOS {
       this.rows = Math.round(this.canvas.width / this.lineHeight) - 2;
     }
 
+    public getCursorPosition() {
+      return {x: this.cursor.x, y: this.cursor.y};
+    }
+
     public handleInputChar(): void {
       if(this.inputBuffer.length > 0) {
         var character: String = this.inputBuffer[this.inputBuffer.length - 1]; 
