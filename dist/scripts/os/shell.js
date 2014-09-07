@@ -143,6 +143,11 @@ var TSOS;
                 this.handleTabCompletion();
             } else if (character === ESCAPE) {
                 this.lastCharEscape = true;
+            } else if (character === BACKSPACE) {
+                if (this.inputBuffer.length > 0) {
+                    this.inputBuffer = this.inputBuffer.substr(0, this.inputBuffer.length - 1);
+                    TSOS.Stdio.putString(character, _StdOut);
+                }
             } else if (character === '[') {
                 if (this.lastCharEscape) {
                     this.ansi = true;
