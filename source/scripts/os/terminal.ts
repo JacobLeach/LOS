@@ -135,7 +135,7 @@ module TSOS {
         this.inputBuffer.pop();
         printable = false;
          
-        if(this.inputBuffer.length > 0) { 
+        if(!this.canonical || this.inputBuffer.length > 0) { 
           //Do not print the backspace
           this.moveCursorLeft(1);
           this.clear();
