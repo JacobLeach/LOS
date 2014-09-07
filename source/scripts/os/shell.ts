@@ -121,6 +121,11 @@ module TSOS {
                                   "- Changes the status bar status");
             this.commandList[sc.command] = sc;
 
+            sc = new ShellCommand(this.shellLoad,
+                                  "load",
+                                  "- Loads a program");
+            this.commandList[sc.command] = sc;
+
             // processes - list the running processes and their IDs
             // kill <id> - kills the specified process id.
 
@@ -452,6 +457,25 @@ module TSOS {
         public shellStatus(args) {
           document.getElementById("status").innerHTML = args[0];
         }
+        
+        public shellLoad(args) {
+          var valid = true;
+          var code  = (<HTMLInputElement>document.getElementById("taProgramInput")).value;
+          console.log(code); 
+          for(var i = 0; i < code.length; i++) {
+            if(!((code[i] >= '0' && code[i] <= '9') || (code[i] >= 'A' && code[i] <= 'F') 
+                  || (code[i] === ' ') || (code[i] === ENTER) || (code[i] === String.fromCharCode(10)))) {
+                    console.log(code[i].charCodeAt(0));
+              valid = false;
+            }
+          }
 
+          if(valid) {
+            Stdio.putString("It's valid!", _StdOut);
+          }
+          else {
+            Stdio.putString("You done goofed.", _StdOut);
+          }
+        }
     }
 }
