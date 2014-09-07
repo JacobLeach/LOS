@@ -40,6 +40,24 @@ var TSOS;
             this.columns = Math.round(this.canvas.height / this.charWidth) - 2;
             this.rows = Math.round(this.canvas.width / this.lineHeight) - 2;
         }
+        //HACKS HACKS HACKS!
+        Terminal.prototype.bluescreen = function () {
+            this.cursor.x = 0;
+            console.log("FUCK");
+            this.cursor.y = 0;
+            this.context.fillStyle = '#0000FF';
+            this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+            this.context.fillStyle = '#000000';
+        };
+
+        //HACKS HACKS HACKS!
+        Terminal.prototype.writeWhiteText = function (text) {
+            this.context.fillStyle = '#FFFFFF';
+            for (var i = 0; i < text.length; i++) {
+                this.printChar(text.charAt(i), false);
+            }
+        };
+
         Terminal.prototype.getCursorPosition = function () {
             return { x: this.cursor.x, y: this.cursor.y };
         };
@@ -146,7 +164,7 @@ var TSOS;
 
             //If it is a printable character, print it
             if (((this.echo && isInput) || !isInput) && printable) {
-                this.printChar(character);
+                this.printChar(character, true);
             }
 
             if ((!this.canonical || character === ENTER) && isInput) {
@@ -201,7 +219,7 @@ var TSOS;
             }
         };
 
-        Terminal.prototype.printChar = function (character) {
+        Terminal.prototype.printChar = function (character, clearLine) {
             if (this.cursor.x == this.columns) {
                 this.cursor.x = 0;
                 this.makeNewLine();
@@ -211,7 +229,9 @@ var TSOS;
             var coords = this.cursorToCoords();
 
             //Clear the spot incase a letter is already here
-            this.clear();
+            if (clearLine) {
+                this.clear();
+            }
 
             //Write the letter to the screen
             this.context.fillText(character, coords.x, coords.y);

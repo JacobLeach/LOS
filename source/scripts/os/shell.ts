@@ -274,8 +274,10 @@ module TSOS {
           if(_Console.getCursorPosition().x > 0) {
             Stdio.putString(ESCAPE + '[E', _StdOut);
           }
-
-          this.putPrompt();
+          
+          if(command != "crash") {
+            this.putPrompt();
+          }
         }
 
        /*
@@ -440,9 +442,11 @@ module TSOS {
             Stdio.putString("I've alerted the NSA of your location.", _StdOut);
           }
         }
-        
+       
+        //HACKS HACKS HACKS
         public shellCrash(args) {
-          //_Console.bluescreen("Gotta crash... Mmmhh kay.");
+          _Console.bluescreen();
+          _Console.writeWhiteText("Gotta crash... Mmmhh kay.");
         }
         
         public shellStatus(args) {
