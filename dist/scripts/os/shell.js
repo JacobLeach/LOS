@@ -116,6 +116,9 @@ var TSOS;
 
         Shell.prototype.handleCharacter = function (character) {
             if (character === ENTER) {
+                //Send the enter to the terminal before processing
+                TSOS.Stdio.putString(character, _StdOut);
+
                 //Remove leading and trailing spaces.
                 this.inputBuffer = TSOS.Utils.trim(this.inputBuffer);
 
@@ -125,13 +128,15 @@ var TSOS;
                 //Flush the buffer after we handle the command
                 this.inputBuffer = "";
             } else if (character === TAB) {
-                console.log("WHAT");
-
                 //Erase the tab that got printed to the screen
                 TSOS.Stdio.putString(BACKSPACE, _StdOut);
                 this.handleTabCompletion();
             } else {
+                //Add input to the input buffer
                 this.inputBuffer += character + "";
+
+                //Send it to the terminal to display
+                TSOS.Stdio.putString(character, _StdOut);
             }
         };
 

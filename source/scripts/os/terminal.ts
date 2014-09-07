@@ -23,7 +23,7 @@ module TSOS {
     private lineHeight: number;
 
     private cursor = {x: 0, y: 0}
-    private inputBuffer;
+    private inputBuffer = [];
 
     private echo: boolean = true;
     private lastCharEscape: boolean = false;
@@ -42,9 +42,8 @@ module TSOS {
     */
     private canonical = false;
 
-    constructor(canvas: HTMLCanvasElement, inputBuffer) {
+    constructor(canvas: HTMLCanvasElement) {
       this.canvas = canvas;
-      this.inputBuffer = inputBuffer;
 
       this.context = canvas.getContext('2d'); 
       this.context.font = this.font;
@@ -70,6 +69,9 @@ module TSOS {
     }
 
     public handleChar(character: String, isInput: boolean): void {
+      //Add character to the input buffer
+      this.inputBuffer.push(character);
+
       var printable: boolean = true;
       var input: String = "";
      
