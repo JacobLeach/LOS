@@ -7,10 +7,11 @@ A terminal emulator.
 var TSOS;
 (function (TSOS) {
     var Terminal = (function () {
-        function Terminal(canvas, inputBuffer) {
+        function Terminal(canvas) {
             this.font = '12pt Courier';
             this.lineSpacing = 4;
             this.cursor = { x: 0, y: 0 };
+            this.inputBuffer = [];
             this.echo = true;
             this.lastCharEscape = false;
             this.ansi = false;
@@ -27,7 +28,6 @@ var TSOS;
             */
             this.canonical = false;
             this.canvas = canvas;
-            this.inputBuffer = inputBuffer;
 
             this.context = canvas.getContext('2d');
             this.context.font = this.font;
@@ -52,6 +52,9 @@ var TSOS;
         };
 
         Terminal.prototype.handleChar = function (character, isInput) {
+            //Add character to the input buffer
+            this.inputBuffer.push(character);
+
             var printable = true;
             var input = "";
 

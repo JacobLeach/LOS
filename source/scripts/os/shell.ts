@@ -152,6 +152,9 @@ module TSOS {
 
         private handleCharacter(character: String): void {
           if(character === ENTER) {
+            //Send the enter to the terminal before processing
+            Stdio.putString(character, _StdOut);
+            
             //Remove leading and trailing spaces.
             this.inputBuffer = Utils.trim(this.inputBuffer);
             
@@ -162,13 +165,16 @@ module TSOS {
             this.inputBuffer = "";
           }
           else if(character === TAB) {
-            console.log("WHAT");
             //Erase the tab that got printed to the screen
             Stdio.putString(BACKSPACE, _StdOut);
             this.handleTabCompletion();  
           }
           else {
+            //Add input to the input buffer
             this.inputBuffer += character + "";
+
+            //Send it to the terminal to display
+            Stdio.putString(character, _StdOut);
           }
         }
 
