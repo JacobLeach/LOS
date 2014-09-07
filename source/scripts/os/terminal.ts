@@ -75,7 +75,7 @@ module TSOS {
      
       //Checking to see if this is going to be an ANSI control code
       //If it is, then handle it
-      if(character === String.fromCharCode(27)) {
+      if(character === ESCAPE) {
         printable = false;
         this.lastCharEscape = true;
       }
@@ -130,13 +130,12 @@ module TSOS {
         }
       }
 
-      //Backspace
-      if(character === String.fromCharCode(8)) {
+      if(character === BACKSPACE) {
         //Pop the backspace
         this.inputBuffer.pop();
         printable = false;
          
-        if(this.inputBuffer.length > 0) { 
+        if(!this.canonical || this.inputBuffer.length > 0) { 
           //Do not print the backspace
           this.moveCursorLeft(1);
           this.clear();
@@ -145,11 +144,10 @@ module TSOS {
           this.inputBuffer.pop();
         }
       }
-      //Enter
-      else if(character === String.fromCharCode(13)) {
+      else if(character === ENTER) {
         printable = false;
         
-        while(this.inputBuffer[0] != String.fromCharCode(13)) {
+        while(this.inputBuffer[0] != ENTER) {
           input += this.inputBuffer.shift();
         }
         
@@ -168,7 +166,7 @@ module TSOS {
         this.printChar(character); 
       }
 
-      if((!this.canonical || character === String.fromCharCode(13)) && isInput) {
+      if((!this.canonical || character === ENTER) && isInput) {
         _KernelInterruptQueue.enqueue(new Interrupt(TERMINAL_IRQ, input));
       }
     }

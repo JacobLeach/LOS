@@ -57,7 +57,7 @@ var TSOS;
 
             //Checking to see if this is going to be an ANSI control code
             //If it is, then handle it
-            if (character === String.fromCharCode(27)) {
+            if (character === ESCAPE) {
                 printable = false;
                 this.lastCharEscape = true;
             } else if (character === '[') {
@@ -107,13 +107,12 @@ var TSOS;
                 }
             }
 
-            //Backspace
-            if (character === String.fromCharCode(8)) {
+            if (character === BACKSPACE) {
                 //Pop the backspace
                 this.inputBuffer.pop();
                 printable = false;
 
-                if (this.inputBuffer.length > 0) {
+                if (!this.canonical || this.inputBuffer.length > 0) {
                     //Do not print the backspace
                     this.moveCursorLeft(1);
                     this.clear();
@@ -121,10 +120,10 @@ var TSOS;
                     //Pop the erased character
                     this.inputBuffer.pop();
                 }
-            } else if (character === String.fromCharCode(13)) {
+            } else if (character === ENTER) {
                 printable = false;
 
-                while (this.inputBuffer[0] != String.fromCharCode(13)) {
+                while (this.inputBuffer[0] != ENTER) {
                     input += this.inputBuffer.shift();
                 }
 
@@ -141,7 +140,7 @@ var TSOS;
                 this.printChar(character);
             }
 
-            if ((!this.canonical || character === String.fromCharCode(13)) && isInput) {
+            if ((!this.canonical || character === ENTER) && isInput) {
                 _KernelInterruptQueue.enqueue(new TSOS.Interrupt(TERMINAL_IRQ, input));
             }
         };
