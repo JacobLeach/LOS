@@ -30,6 +30,18 @@ module TSOS {
     private ansi: boolean = false;
     private ansiNumber = "";
 
+    /*
+     * This controls whether or not the terminal is canonical or not.
+     *
+     * In other words, whether or not it buffers.
+     * If it is canonical, it only passes the input back after a newline.
+     * If it is non-ccanonical it passes back each character as they come.
+     *
+     * TODO: Make the shell do ALL the buffering
+     *       AKA, put this in non-canonical mode
+    */
+    private canonical = true;
+
     constructor(canvas: HTMLCanvasElement, inputBuffer) {
       this.canvas = canvas;
       this.inputBuffer = inputBuffer;
@@ -146,13 +158,15 @@ module TSOS {
         input += this.inputBuffer.shift();
   
         this.makeNewLine();
-
-        _KernelInterruptQueue.enqueue(new Interrupt(TERMINAL_IRQ, [input]));
       }
 
       //If it is a printable character, print it
       if(((this.echo && isInput) || !isInput)  && printable) {
         this.printChar(character); 
+      }
+
+      if((!this.canonical || character === String.fromCharCode(13)) && isInput) {
+        _KernelInterruptQueue.enqueue(new Interrupt(TERMINAL_IRQ, input));
       }
     }
 

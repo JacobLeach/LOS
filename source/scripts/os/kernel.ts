@@ -120,7 +120,6 @@ module TSOS {
                     _Console.handleInputChar();
                     break;
                 case TERMINAL_IRQ:
-                    console.log("shit fuck whore");
                     _OsShell.isr(params);
                     break;
                 default:

@@ -20,7 +20,7 @@ var TSOS;
             this.current = -2;
         }
         Shell.prototype.isr = function (params) {
-            var noNewLine = params[0].substr(0, params[0].length - 1);
+            var noNewLine = params.substr(0, params.length - 1);
             this.handleInput(noNewLine);
         };
 

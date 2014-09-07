@@ -26,7 +26,7 @@ module TSOS {
         }
 
         public isr(params) {
-          var noNewLine = params[0].substr(0, params[0].length - 1);
+          var noNewLine = params.substr(0, params.length - 1);
           this.handleInput(noNewLine);
         }
 
