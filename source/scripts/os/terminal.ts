@@ -125,6 +125,12 @@ module TSOS {
               this.cursor.x = 0;
               this.moveCursorUp(1);
               break;
+            case 'G':
+              this.cursor.x = amount;
+              break;
+            case 'K':
+              this.clearLine();
+              break;
           }
           this.ansiNumber = "";
           printable = false;

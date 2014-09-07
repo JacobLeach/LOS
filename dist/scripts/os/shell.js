@@ -18,6 +18,9 @@ var TSOS;
             this.apologies = "[sorry]";
             this.historyList = [];
             this.current = -2;
+            this.ansi = false;
+            this.lastCharEscape = false;
+            this.ansiNumber = "";
             this.inputBuffer = "";
         }
         Shell.prototype.isr = function (character) {
@@ -116,6 +119,10 @@ var TSOS;
 
         Shell.prototype.handleCharacter = function (character) {
             if (character === ENTER) {
+                //Put line in history
+                this.historyList[this.historyList.length] = this.inputBuffer;
+                this.current = -2;
+
                 //Send the enter to the terminal before processing
                 TSOS.Stdio.putString(character, _StdOut);
 
@@ -131,6 +138,64 @@ var TSOS;
                 //Erase the tab that got printed to the screen
                 TSOS.Stdio.putString(BACKSPACE, _StdOut);
                 this.handleTabCompletion();
+            } else if (character === ESCAPE) {
+                this.lastCharEscape = true;
+            } else if (character === '[') {
+                if (this.lastCharEscape) {
+                    this.ansi = true;
+                }
+                this.lastCharEscape = false;
+            } else if (character === String.fromCharCode(0)) {
+                //Do nothing
+            } else if (this.ansi) {
+                if (character >= '0' && character <= '9') {
+                    //+ "" is to make the type system happy
+                    this.ansiNumber += character + "";
+                } else {
+                    var amount;
+                    if (this.ansiNumber === "") {
+                        amount = 1;
+                    } else {
+                        amount = parseInt(this.ansiNumber, 10);
+                    }
+                    switch (character) {
+                        case 'A':
+                            if (this.current == -2) {
+                                this.current = this.historyList.length;
+                            }
+                            if (this.current != 0) {
+                                this.current--;
+                            }
+                            TSOS.Stdio.putString(ESCAPE + "[K", _StdOut);
+                            TSOS.Stdio.putString(ESCAPE + "[0G", _StdOut);
+                            this.putPrompt();
+                            TSOS.Stdio.putString(this.historyList[this.current], _StdOut);
+                            this.inputBuffer = this.historyList[this.current];
+                            break;
+                        case 'B':
+                            if (this.current >= 0) {
+                                if (this.current != this.historyList.length - 1) {
+                                    this.current++;
+                                }
+                                TSOS.Stdio.putString(ESCAPE + "[K", _StdOut);
+                                TSOS.Stdio.putString(ESCAPE + "[0G", _StdOut);
+                                this.putPrompt();
+                                TSOS.Stdio.putString(this.historyList[this.current], _StdOut);
+                                this.inputBuffer = this.historyList[this.current];
+                            }
+                            break;
+                        case 'C':
+                            break;
+                        case 'D':
+                            break;
+                        case 'E':
+                            break;
+                        case 'F':
+                            break;
+                    }
+                    this.ansiNumber = "";
+                    this.ansi = false;
+                }
             } else {
                 //Add input to the input buffer
                 this.inputBuffer += character + "";
