@@ -83,7 +83,7 @@ var TSOS;
         };
 
         Shell.prototype.putPrompt = function () {
-            Stdio.putString(this.promptStr, _StdOut);
+            TSOS.Stdio.putString(this.promptStr, _StdOut);
         };
 
         Shell.prototype.handleInput = function (buffer) {
