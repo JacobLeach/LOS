@@ -40,7 +40,7 @@ module TSOS {
      * TODO: Make the shell do ALL the buffering
      *       AKA, put this in non-canonical mode
     */
-    private canonical = true;
+    private canonical = false;
 
     constructor(canvas: HTMLCanvasElement, inputBuffer) {
       this.canvas = canvas;
@@ -71,6 +71,7 @@ module TSOS {
 
     public handleChar(character: String, isInput: boolean): void {
       var printable: boolean = true;
+      var input: String = "";
      
       //Checking to see if this is going to be an ANSI control code
       //If it is, then handle it
@@ -148,8 +149,6 @@ module TSOS {
       else if(character === String.fromCharCode(13)) {
         printable = false;
         
-        var input: String = "";
-        
         while(this.inputBuffer[0] != String.fromCharCode(13)) {
           input += this.inputBuffer.shift();
         }
@@ -158,6 +157,10 @@ module TSOS {
         input += this.inputBuffer.shift();
   
         this.makeNewLine();
+      }
+      //Not a special character and non-buffering
+      else if(!this.canonical) {
+        input += this.inputBuffer.shift();
       }
 
       //If it is a printable character, print it

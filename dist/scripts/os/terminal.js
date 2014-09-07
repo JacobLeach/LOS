@@ -25,7 +25,7 @@ var TSOS;
             * TODO: Make the shell do ALL the buffering
             *       AKA, put this in non-canonical mode
             */
-            this.canonical = true;
+            this.canonical = false;
             this.canvas = canvas;
             this.inputBuffer = inputBuffer;
 
@@ -53,6 +53,7 @@ var TSOS;
 
         Terminal.prototype.handleChar = function (character, isInput) {
             var printable = true;
+            var input = "";
 
             //Checking to see if this is going to be an ANSI control code
             //If it is, then handle it
@@ -123,8 +124,6 @@ var TSOS;
             } else if (character === String.fromCharCode(13)) {
                 printable = false;
 
-                var input = "";
-
                 while (this.inputBuffer[0] != String.fromCharCode(13)) {
                     input += this.inputBuffer.shift();
                 }
@@ -133,6 +132,8 @@ var TSOS;
                 input += this.inputBuffer.shift();
 
                 this.makeNewLine();
+            } else if (!this.canonical) {
+                input += this.inputBuffer.shift();
             }
 
             //If it is a printable character, print it
