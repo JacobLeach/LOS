@@ -22,10 +22,7 @@ module TSOS {
             _KernelInterruptQueue = new Queue();  // A (currently) non-priority queue for interrupt requests (IRQs).
             _KernelBuffers = new Array();         // Buffers... for the kernel.
             _KernelInputQueue = new Queue();      // Where device input lands before being processed out somewhere.
-            _Console = new Console();          // The command line interface / console I/O device.
-
-            // Initialize the console.
-            _Console.init();
+            _Console = new Terminal(_Canvas, _KernelInputQueue.q);          // The command line interface / console I/O device.
 
             // Initialize standard input and output to the _Console.
             _StdIn  = _Console;
@@ -120,7 +117,10 @@ module TSOS {
                     break;
                 case KEYBOARD_IRQ:
                     _krnKeyboardDriver.isr(params);   // Kernel mode device driver
-                    _StdIn.handleInput();
+                    _Console.handleInputChar();
+                    break;
+                case TERMINAL_IRQ:
+                    console.log("OH FUCK YES");
                     break;
                 default:
                     this.krnTrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");
@@ -169,7 +169,7 @@ module TSOS {
 
         public krnTrapError(msg) {
             Control.hostLog("OS ERROR - TRAP: " + msg);
-            _Console.bluescreen(msg);
+            //_Console.bluescreen(msg);
             this.krnShutdown();
         }
     }

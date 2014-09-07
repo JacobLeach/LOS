@@ -1,5 +1,6 @@
 ///<reference path="shellCommand.ts" />
 ///<reference path="userCommand.ts" />
+///<reference path="stdio.ts" />
 ///<reference path="../utils.ts" />
 /* ------------
 Shell.ts
@@ -82,63 +83,10 @@ var TSOS;
         };
 
         Shell.prototype.putPrompt = function () {
-            _StdOut.putText(this.promptStr);
-        };
-
-        Shell.prototype.handleUp = function () {
-            if (_OsShell.current == -2) {
-                _OsShell.current = _OsShell.historyList.length;
-            }
-            if (_OsShell.current != 0) {
-                _OsShell.current--;
-            }
-            _Console.clearLine();
-            _Console.moveCursorToStartOfLine();
-            _OsShell.putPrompt();
-            _StdOut.putText(_OsShell.historyList[_OsShell.current]);
-            _Console.buffer = _OsShell.historyList[_OsShell.current];
-        };
-
-        Shell.prototype.handleDown = function () {
-            if (_OsShell.current > 0) {
-                if (_OsShell.current != _OsShell.historyList.length - 1) {
-                    _OsShell.current++;
-                }
-                _Console.clearLine();
-                _Console.moveCursorToStartOfLine();
-                _OsShell.putPrompt();
-                _StdOut.putText(_OsShell.historyList[_OsShell.current]);
-                _Console.buffer = _OsShell.historyList[_OsShell.current];
-            }
-        };
-
-        Shell.prototype.handleLeft = function () {
-        };
-
-        Shell.prototype.handleRight = function () {
-        };
-
-        Shell.prototype.tabCompletion = function (buffer) {
-            var tab = buffer.substr(-1) === '\t';
-
-            //Already have one tab in the buffer
-            if (tab) {
-            } else {
-                var command = "";
-                for (var i in _OsShell.commandList) {
-                    var currentCommand = _OsShell.commandList[i].command;
-                    if (currentCommand.indexOf(buffer) == 0) {
-                        command = currentCommand;
-                    }
-                }
-                _StdOut.putText(command.substr(buffer.length));
-                _Console.buffer = command;
-            }
+            Stdio.putString(this.promptStr, _StdOut);
         };
 
         Shell.prototype.handleInput = function (buffer) {
-            _OsShell.historyList[_OsShell.historyList.length] = buffer;
-            _OsShell.current = -2;
             _Kernel.krnTrace("Shell Command~" + buffer);
 
             //
@@ -360,7 +308,7 @@ var TSOS;
         };
 
         Shell.prototype.shellCrash = function (args) {
-            _Console.bluescreen("Gotta crash... Mmmhh kay.");
+            //_Console.bluescreen("Gotta crash... Mmmhh kay.");
         };
         return Shell;
     })();

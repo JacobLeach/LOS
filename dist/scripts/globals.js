@@ -18,6 +18,7 @@ var TIMER_IRQ = 0;
 
 // NOTE: The timer is different from hardware/host clock pulses. Don't confuse these.
 var KEYBOARD_IRQ = 1;
+var TERMINAL_IRQ = 2;
 
 //
 // Global Variables
