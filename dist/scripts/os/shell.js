@@ -19,6 +19,11 @@ var TSOS;
             this.historyList = [];
             this.current = -2;
         }
+        Shell.prototype.isr = function (params) {
+            this.handleInput(params[0]);
+            console.log("what");
+        };
+
         Shell.prototype.init = function () {
             var sc = null;
 
@@ -83,7 +88,7 @@ var TSOS;
         };
 
         Shell.prototype.putPrompt = function () {
-            Stdio.putString(this.promptStr, _StdOut);
+            TSOS.Stdio.putString(this.promptStr, _StdOut);
         };
 
         Shell.prototype.handleInput = function (buffer) {
@@ -121,7 +126,7 @@ var TSOS;
         // args is an option parameter, ergo the ? which allows TypeScript to understand that
         Shell.prototype.execute = function (fn, args) {
             // We just got a command, so advance the line...
-            _StdOut.advanceLine();
+            TSOS.Stdio.putString(ESCAPE + '[E', _StdOut);
 
             // ... call the command function passing in the args...
             fn(args);

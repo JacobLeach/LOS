@@ -22,6 +22,7 @@ var TIMER_IRQ: number = 0;  // Pages 23 (timer), 9 (interrupts), and 561 (interr
 var KEYBOARD_IRQ: number = 1;
 var TERMINAL_IRQ: number = 2;
 
+var ESCAPE = String.fromCharCode(27);
 
 //
 // Global Variables

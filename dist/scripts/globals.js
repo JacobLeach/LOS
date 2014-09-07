@@ -20,6 +20,8 @@ var TIMER_IRQ = 0;
 var KEYBOARD_IRQ = 1;
 var TERMINAL_IRQ = 2;
 
+var ESCAPE = String.fromCharCode(27);
+
 //
 // Global Variables
 //

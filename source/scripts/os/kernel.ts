@@ -120,7 +120,8 @@ module TSOS {
                     _Console.handleInputChar();
                     break;
                 case TERMINAL_IRQ:
-                    console.log("OH FUCK YES");
+                    console.log("shit fuck whore");
+                    _OsShell.isr(params);
                     break;
                 default:
                     this.krnTrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");

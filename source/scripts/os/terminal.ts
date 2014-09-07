@@ -136,7 +136,7 @@ module TSOS {
   
         this.makeNewLine();
 
-        //_KernelInterruptQueue.enqueue(new Interrupt(TERMINAL_IRQ, [input]));
+        _KernelInterruptQueue.enqueue(new Interrupt(TERMINAL_IRQ, [input]));
       }
 
       //If it is a printable character, print it

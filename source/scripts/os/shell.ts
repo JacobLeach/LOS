@@ -25,6 +25,11 @@ module TSOS {
 
         }
 
+        public isr(params) {
+          this.handleInput(params[0]);
+          console.log("what");
+        }
+
         public init() {
             var sc = null;
             //
@@ -151,7 +156,7 @@ module TSOS {
         // args is an option parameter, ergo the ? which allows TypeScript to understand that
         public execute(fn, args?) {
             // We just got a command, so advance the line...
-            _StdOut.advanceLine();
+            Stdio.putString(ESCAPE + '[E',_StdOut);
             // ... call the command function passing in the args...
             fn(args);
             // Check to see if we need to advance the line again
