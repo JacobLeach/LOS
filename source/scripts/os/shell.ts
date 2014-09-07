@@ -160,11 +160,10 @@ module TSOS {
             // ... call the command function passing in the args...
             fn(args);
             // Check to see if we need to advance the line again
-            if (_StdOut.currentXPosition > 0) {
-                _StdOut.advanceLine();
+            if (_Console.getCursorPosition().x > 0) {
+              Stdio.putString(ESCAPE + '[E',_StdOut);
             }
             // ... and finally write the prompt again.
-            console.log("wtf");
             this.putPrompt();
         }
 
