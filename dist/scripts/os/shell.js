@@ -94,8 +94,28 @@ var TSOS;
             TSOS.Stdio.putString(this.promptStr, _StdOut);
         };
 
+        Shell.prototype.handleTabCompletion = function () {
+            var command = "";
+
+            for (var current in this.commandList) {
+                var currentCommand = this.commandList[current].command;
+                if (currentCommand.indexOf(this.inputBuffer) == 0) {
+                    command = currentCommand;
+                }
+            }
+
+            //Firgure out what part of the command we need to print
+            var toPrint = command.substr(this.inputBuffer.length);
+
+            //Correct the input buffer
+            this.inputBuffer = command;
+
+            //Make the screen look correct
+            TSOS.Stdio.putString(toPrint, _StdOut);
+        };
+
         Shell.prototype.handleCharacter = function (character) {
-            if (character === String.fromCharCode(13)) {
+            if (character === ENTER) {
                 //Remove leading and trailing spaces.
                 this.inputBuffer = TSOS.Utils.trim(this.inputBuffer);
 
@@ -104,6 +124,12 @@ var TSOS;
 
                 //Flush the buffer after we handle the command
                 this.inputBuffer = "";
+            } else if (character === TAB) {
+                console.log("WHAT");
+
+                //Erase the tab that got printed to the screen
+                TSOS.Stdio.putString(BACKSPACE, _StdOut);
+                this.handleTabCompletion();
             } else {
                 this.inputBuffer += character + "";
             }
@@ -141,9 +167,7 @@ var TSOS;
         * indexing by String which is valid javascript
         */
         Shell.prototype.executeCommand = function (command, parameters) {
-            //See if the command exists
             if (this.commandList[command] != undefined) {
-                //Execute the command's function
                 this.commandList[command].func(parameters);
             } else {
                 this.shellInvalidCommand();

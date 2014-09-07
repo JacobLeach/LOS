@@ -130,9 +130,28 @@ module TSOS {
             Stdio.putString(this.promptStr, _StdOut);
         }
 
-        private handleCharacter(character: String): void {
-          if(character === String.fromCharCode(13)) {
+        private handleTabCompletion() {
+          var command = "";
 
+          for(var current in this.commandList) {
+            var currentCommand = this.commandList[current].command;
+            if(currentCommand.indexOf(this.inputBuffer) == 0) {
+              command = currentCommand;
+            }
+          }
+          //Firgure out what part of the command we need to print
+          var toPrint = command.substr(this.inputBuffer.length);
+
+          //Correct the input buffer
+          this.inputBuffer = command;
+
+          //Make the screen look correct
+          Stdio.putString(toPrint, _StdOut);
+
+        }
+
+        private handleCharacter(character: String): void {
+          if(character === ENTER) {
             //Remove leading and trailing spaces.
             this.inputBuffer = Utils.trim(this.inputBuffer);
             
@@ -141,6 +160,12 @@ module TSOS {
 
             //Flush the buffer after we handle the command
             this.inputBuffer = "";
+          }
+          else if(character === TAB) {
+            console.log("WHAT");
+            //Erase the tab that got printed to the screen
+            Stdio.putString(BACKSPACE, _StdOut);
+            this.handleTabCompletion();  
           }
           else {
             this.inputBuffer += character + "";
@@ -179,9 +204,7 @@ module TSOS {
         * indexing by String which is valid javascript
         */
         private executeCommand(command: any, parameters: String[]): void {
-          //See if the command exists
           if(this.commandList[command] != undefined) {
-            //Execute the command's function
             this.commandList[command].func(parameters);
           }
           else {
