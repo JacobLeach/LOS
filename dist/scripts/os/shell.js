@@ -377,7 +377,7 @@ var TSOS;
 
         Shell.prototype.shellDate = function (args) {
             var date = new Date();
-            var formatted = (date.getMonth() + 1) + "/" + date.getDay() + "/" + date.getFullYear() + " " + date.getHours() + ":" + date.getMinutes() + ":" + ((date.getSeconds() < 10) ? ("0" + date.getSeconds()) : ("" + date.getSeconds()));
+            var formatted = (date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear() + " " + date.getHours() + ":" + date.getMinutes() + ":" + ((date.getSeconds() < 10) ? ("0" + date.getSeconds()) : ("" + date.getSeconds()));
             TSOS.Stdio.putString(formatted, _StdOut);
         };
 

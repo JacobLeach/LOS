@@ -429,7 +429,7 @@ module TSOS {
         public shellDate(args) {
           var date = new Date();
           var formatted =  (date.getMonth() + 1) + "/" +
-                            date.getDay() + "/" +
+                            date.getDate() + "/" +
                             date.getFullYear() + " " + 
                             date.getHours() + ":" +
                             date.getMinutes() + ":" +
