@@ -214,7 +214,9 @@ module TSOS {
               else {
                 amount= parseInt(this.ansiNumber, 10);
               }
+              //Handle ANSI control codes
               switch(character) {
+                //Handle an up arrow, aka command history
                 case 'A':
                   if(this.current == -2) {
                     this.current = this.historyList.length;
@@ -222,12 +224,16 @@ module TSOS {
                   if(this.current != 0) {
                     this.current--;
                   }
+                  //These are ANSI control codes to control the cursor
+                  //And to erase characters and stuff
+                  //http://en.wikipedia.org/wiki/ANSI_escape_code
                   Stdio.putString(ESCAPE + "[K", _StdOut);
                   Stdio.putString(ESCAPE + "[0G", _StdOut);
                   this.putPrompt();
                   Stdio.putString(this.historyList[this.current], _StdOut);
                   this.inputBuffer = this.historyList[this.current]; 
                   break;
+                //Handle a down arrow, aka command history
                 case 'B':
                   if(this.current >= 0) {
                     if(this.current != this.historyList.length -1) {

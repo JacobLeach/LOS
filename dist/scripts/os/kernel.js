@@ -109,6 +109,7 @@ var TSOS;
                     break;
                 case KEYBOARD_IRQ:
                     _krnKeyboardDriver.isr(params); // Kernel mode device driver
+
                     while (_KernelInputQueue.getSize() > 0) {
                         _OsShell.isr(_KernelInputQueue.dequeue());
                     }
