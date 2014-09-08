@@ -7,6 +7,7 @@ var TSOS;
     var Stdio = (function () {
         function Stdio() {
         }
+        //Wrapper to write text to output
         Stdio.putString = function (text, terminal) {
             for (var i = 0; i < text.length; i++) {
                 terminal.putChar(text.charAt(i));

@@ -166,6 +166,7 @@ var TSOS;
                     } else {
                         amount = parseInt(this.ansiNumber, 10);
                     }
+
                     switch (character) {
                         case 'A':
                             if (this.current == -2) {
@@ -174,12 +175,16 @@ var TSOS;
                             if (this.current != 0) {
                                 this.current--;
                             }
+
+                            //These are ANSI control codes to control the cursor
+                            //And to erase characters and stuff
                             TSOS.Stdio.putString(ESCAPE + "[K", _StdOut);
                             TSOS.Stdio.putString(ESCAPE + "[0G", _StdOut);
                             this.putPrompt();
                             TSOS.Stdio.putString(this.historyList[this.current], _StdOut);
                             this.inputBuffer = this.historyList[this.current];
                             break;
+
                         case 'B':
                             if (this.current >= 0) {
                                 if (this.current != this.historyList.length - 1) {

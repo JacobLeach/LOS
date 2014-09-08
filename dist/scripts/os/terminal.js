@@ -25,6 +25,7 @@ var TSOS;
             *
             * TODO: Make the shell do ALL the buffering
             *       AKA, put this in non-canonical mode
+            *       AKA, make this SUPER dumb
             */
             this.canonical = false;
             this.canvas = canvas;
@@ -40,7 +41,13 @@ var TSOS;
             this.columns = Math.round(this.canvas.height / this.charWidth) - 2;
             this.rows = Math.round(this.canvas.width / this.lineHeight) - 2;
         }
-        //HACKS HACKS HACKS!
+        /*
+        * HACKS HACKS HACKS!
+        *
+        * But seriously, this is a hack. Should be done with ANSI control codes,
+        * not a function call. That would be more true to a real life terminal.
+        * However, I am a bit lazy and ANSI and color is a lot of crap.
+        */
         Terminal.prototype.bluescreen = function () {
             this.cursor.x = 0;
             console.log("FUCK");
@@ -51,6 +58,7 @@ var TSOS;
         };
 
         //HACKS HACKS HACKS!
+        //Yea same here. ANSI control codes but that's too much work.
         Terminal.prototype.writeWhiteText = function (text) {
             this.context.fillStyle = '#FFFFFF';
             for (var i = 0; i < text.length; i++) {
@@ -71,6 +79,7 @@ var TSOS;
 
         Terminal.prototype.handleChar = function (character, isInput) {
             //Add character to the input buffer
+            //Wow. This is totally a bug somehow. I bet in canonical mode this is broken.
             this.inputBuffer.push(character);
 
             var printable = true;
@@ -211,8 +220,13 @@ var TSOS;
         Terminal.prototype.makeNewLine = function () {
             this.cursor.x = 0;
             if (this.cursor.y === this.rows) {
+                //Get an image of the canvas of all but the top line
                 var image = this.context.getImageData(0, this.lineHeight, this.context.canvas.width, this.rows * this.lineHeight);
+
+                //Draw it at the top (aka scroll up)
                 this.context.putImageData(image, 0, 0);
+
+                //Clear the line that was just created (aka the bottom)
                 this.clearLine();
             } else {
                 this.moveCursorDown(1);

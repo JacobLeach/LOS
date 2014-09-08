@@ -117,6 +117,8 @@ module TSOS {
                     break;
                 case KEYBOARD_IRQ:
                     _krnKeyboardDriver.isr(params);   // Kernel mode device driver
+                    //Handle all the characters in the queue
+                    //Multiple can come in at once because of the ANSI control codes
                     while(_KernelInputQueue.getSize() > 0) {
                       _OsShell.isr(_KernelInputQueue.dequeue());
                     }

@@ -35,7 +35,7 @@ var TSOS;
 
             //Is a character
             if ((scanCode >= 65) && (scanCode <= 90)) {
-                //If it is lower case, add 32 to get the ASCII lowercase character
+                //If it is not shifted, add 32 to get the ASCII lowercase character
                 if (!isShifted) {
                     character = String.fromCharCode(scanCode + 32);
                 } else {

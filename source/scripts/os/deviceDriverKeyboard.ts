@@ -34,7 +34,7 @@ module TSOS {
             
             //Is a character
             if ((scanCode >= 65) && (scanCode <= 90)) {
-              //If it is lower case, add 32 to get the ASCII lowercase character
+              //If it is not shifted, add 32 to get the ASCII lowercase character
               if (!isShifted) {
                 character = String.fromCharCode(scanCode + 32);
               }
@@ -51,7 +51,7 @@ module TSOS {
               }
               //Otherwise it is not
               else {
-                //Implement a standard keyboard
+                //Based on a standard keyboard
                 switch(scanCode) {
                   case 48:
                     character = ')';
@@ -177,8 +177,9 @@ module TSOS {
                      (scanCode == 9)) {
               character = String.fromCharCode(scanCode);
             }
-            //Arrow key
+            //Arrow keys
             else if(scanCode >= 37 && scanCode <= 40) {
+              //This implements ANSI control codes
               switch(scanCode) {
                 case 37:
                   _KernelInputQueue.enqueue(String.fromCharCode(27));
@@ -202,6 +203,7 @@ module TSOS {
                   break;
               }
             }
+            //Non-handled characters are just made null
             else {
               character = String.fromCharCode(0); 
             }
