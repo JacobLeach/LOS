@@ -10,7 +10,7 @@ Operating System Concepts 8th edition by Silberschatz, Galvin, and Gagne.  ISBN 
 // TODO: Make a global object and use that instead of the "_" naming convention in the global namespace.
 //
 var APP_NAME = "LOS";
-var APP_VERSION = "0.0.0.1";
+var APP_VERSION = "1.0.0";
 
 var CPU_CLOCK_INTERVAL = 100;
 
@@ -18,6 +18,13 @@ var TIMER_IRQ = 0;
 
 // NOTE: The timer is different from hardware/host clock pulses. Don't confuse these.
 var KEYBOARD_IRQ = 1;
+var TERMINAL_IRQ = 2;
+
+var ESCAPE = String.fromCharCode(27);
+var TAB = String.fromCharCode(9);
+var ENTER = String.fromCharCode(13);
+var BELL = String.fromCharCode(7);
+var BACKSPACE = String.fromCharCode(8);
 
 //
 // Global Variables

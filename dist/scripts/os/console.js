@@ -11,7 +11,7 @@ var TSOS;
         function Console(currentFont, currentFontSize, currentXPosition, currentYPosition, buffer) {
             if (typeof currentFont === "undefined") { currentFont = _DefaultFontFamily; }
             if (typeof currentFontSize === "undefined") { currentFontSize = _DefaultFontSize; }
-            if (typeof currentXPosition === "undefined") { currentXPosition = 0; }
+            if (typeof currentXPosition === "undefined") { currentXPosition = Console.START_OF_LINE; }
             if (typeof currentYPosition === "undefined") { currentYPosition = _DefaultFontSize; }
             if (typeof buffer === "undefined") { buffer = ""; }
             this.currentFont = currentFont;
@@ -19,6 +19,7 @@ var TSOS;
             this.currentXPosition = currentXPosition;
             this.currentYPosition = currentYPosition;
             this.buffer = buffer;
+            this.ansi = false;
         }
         Console.prototype.init = function () {
             this.clearScreen();
@@ -26,7 +27,6 @@ var TSOS;
         };
 
         Console.prototype.clearScreen = function () {
-            _DrawingContext.clearRect(0, 0, _Canvas.width, _Canvas.height);
         };
 
         Console.prototype.resetXY = function () {
@@ -34,53 +34,116 @@ var TSOS;
             this.currentYPosition = this.currentFontSize;
         };
 
+        Console.prototype.clearLine = function () {
+            var ascent = _DrawingContext.fontAscent(this.currentFont, this.currentFontSize);
+
+            var descent = _DrawingContext.fontDescent(this.currentFont, this.currentFontSize);
+
+            //Add one because it doesn't erase it all without it
+            var charHeight = 1 + ascent + descent;
+
+            _DrawingContext.clearRect(Console.START_OF_LINE, this.currentYPosition - ascent, _Canvas.width, charHeight + 1);
+        };
+
+        Console.prototype.moveCursorToStartOfLine = function () {
+            this.currentXPosition = Console.START_OF_LINE;
+        };
+
+        Console.prototype.moveCursorUpOneLine = function () {
+            this.currentYPosition -= _DefaultFontSize + _FontHeightMargin;
+        };
+
+        Console.prototype.moveCursorDownOneLine = function () {
+            this.currentYPosition += _DefaultFontSize + _FontHeightMargin;
+        };
+
         Console.prototype.handleInput = function () {
             while (_KernelInputQueue.getSize() > 0) {
-                // Get the next character from the kernel input queue.
                 var chr = _KernelInputQueue.dequeue();
 
-                // Check to see if it's "special" (enter or ctrl-c) or "normal" (anything else that the keyboard device driver gave us).
-                if (chr === String.fromCharCode(13)) {
-                    // The enter key marks the end of a console command, so ...
-                    // ... tell the shell ...
+                //Set flag for whether the last character is escape
+                var lastEscape = (this.buffer.substr(-1) === String.fromCharCode(27));
+
+                //Handle the new character
+                //If the ANSI CSI squence has been set, handle the control code
+                //This is simplified... aka no numbers
+                //Also since we are not monospace, I can only do a subset
+                if (this.ansi) {
+                    //Character is a shift or something
+                    if (chr != String.fromCharCode(0)) {
+                        //Cursor Start of next line
+                        if (chr === 'E') {
+                            this.moveCursorToStartOfLine();
+                            this.moveCursorDownOneLine();
+                        } else if (chr === 'F') {
+                            this.moveCursorToStartOfLine();
+                            this.moveCursorUpOneLine();
+                        } else if (chr == 'A') {
+                            _OsShell.handleUp();
+                        } else if (chr == 'B') {
+                            _OsShell.handleDown();
+                        } else if (chr == 'C') {
+                            _OsShell.handleRight();
+                        } else if (chr == 'D') {
+                            _OsShell.handleLeft();
+                        }
+                        this.ansi = false;
+                    }
+                } else if (chr === String.fromCharCode(13)) {
                     _OsShell.handleInput(this.buffer);
-
-                    // ... and reset our buffer.
                     this.buffer = "";
-                } else {
-                    // This is a "normal" character, so ...
-                    // ... draw it on the screen...
-                    this.putText(chr);
+                } else if (chr === String.fromCharCode(8)) {
+                    var charWidth = _DrawingContext.measureText(this.currentFont, this.currentFontSize, this.buffer.substr(-1));
 
-                    // ... and add it to our buffer.
+                    var ascent = _DrawingContext.fontAscent(this.currentFont, this.currentFontSize);
+
+                    var descent = _DrawingContext.fontDescent(this.currentFont, this.currentFontSize);
+
+                    //Add one because it doesn't erase it all without it
+                    var charHeight = 1 + ascent + descent;
+
+                    //If escape is the last character, we have nothing to delete
+                    if (!lastEscape) {
+                        _DrawingContext.clearRect(this.currentXPosition - charWidth, this.currentYPosition - ascent, charWidth, charHeight + 1);
+
+                        //Move the cursor back one character
+                        this.currentXPosition -= charWidth;
+                    }
+
+                    //Remove the last character from the buffer
+                    this.buffer = this.buffer.substr(0, this.buffer.length - 1);
+                } else if (chr === String.fromCharCode(27) && !lastEscape) {
                     this.buffer += chr;
+                } else if ((chr === '[') && lastEscape) {
+                    this.ansi = true;
+                } else if (chr === '\t') {
+                    _OsShell.tabCompletion(this.buffer);
+                } else {
+                    this.buffer += chr;
+                    this.putText(chr);
                 }
                 // TODO: Write a case for Ctrl-C.
             }
         };
 
         Console.prototype.putText = function (text) {
-            // My first inclination here was to write two functions: putChar() and putString().
-            // Then I remembered that JavaScript is (sadly) untyped and it won't differentiate
-            // between the two.  So rather than be like PHP and write two (or more) functions that
-            // do the same thing, thereby encouraging confusion and decreasing readability, I
-            // decided to write one function and use the term "text" to connote string or char.
-            // UPDATE: Even though we are now working in TypeScript, char and string remain undistinguished.
+            //Check to see that we have something to write
+            //If we do, write it to the current position on the screen
             if (text !== "") {
-                // Draw the text at the current X and Y coordinates.
                 _DrawingContext.drawText(this.currentFont, this.currentFontSize, this.currentXPosition, this.currentYPosition, text);
 
-                // Move the current X position.
                 var offset = _DrawingContext.measureText(this.currentFont, this.currentFontSize, text);
+
                 this.currentXPosition = this.currentXPosition + offset;
             }
         };
 
         Console.prototype.advanceLine = function () {
-            this.currentXPosition = 0;
+            this.currentXPosition = Console.START_OF_LINE;
             this.currentYPosition += _DefaultFontSize + _FontHeightMargin;
             // TODO: Handle scrolling. (Project 1)
         };
+        Console.START_OF_LINE = 0;
         return Console;
     })();
     TSOS.Console = Console;

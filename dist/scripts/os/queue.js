@@ -20,6 +20,10 @@ var TSOS;
             return (this.q.length == 0);
         };
 
+        Queue.prototype.peek = function () {
+            return this.q[0];
+        };
+
         Queue.prototype.enqueue = function (element) {
             this.q.push(element);
         };

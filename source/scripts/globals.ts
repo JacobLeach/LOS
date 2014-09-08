@@ -13,14 +13,20 @@
 // TODO: Make a global object and use that instead of the "_" naming convention in the global namespace.
 //
 var APP_NAME: string    = "LOS";   
-var APP_VERSION: string = "0.0.0.1"; 
+var APP_VERSION: string = "1.0.0"; 
 
 var CPU_CLOCK_INTERVAL: number = 100;   // This is in ms, or milliseconds, so 1000 = 1 second.
 
 var TIMER_IRQ: number = 0;  // Pages 23 (timer), 9 (interrupts), and 561 (interrupt priority).
                             // NOTE: The timer is different from hardware/host clock pulses. Don't confuse these.
 var KEYBOARD_IRQ: number = 1;
+var TERMINAL_IRQ: number = 2;
 
+var ESCAPE    = String.fromCharCode(27);
+var TAB       = String.fromCharCode(9);
+var ENTER     = String.fromCharCode(13);
+var BELL      = String.fromCharCode(7);
+var BACKSPACE = String.fromCharCode(8);
 
 //
 // Global Variables
@@ -51,7 +57,7 @@ var _StdIn  = null;
 var _StdOut = null;
 
 // UI
-var _Console: TSOS.Console;
+var _Console: TSOS.Terminal;
 var _OsShell: TSOS.Shell;
 
 // At least this OS is not trying to kill you. (Yet.)

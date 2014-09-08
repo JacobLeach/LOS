@@ -1,6 +1,4 @@
 ///<reference path="../globals.ts" />
-///<reference path="../os/canvastext.ts" />
-
 /* ------------
      Control.ts
 
@@ -31,12 +29,6 @@ module TSOS {
             // Get a global reference to the canvas.  TODO: Move this stuff into a Display Device Driver, maybe?
             _Canvas = <HTMLCanvasElement>document.getElementById('display');
 
-            // Get a global reference to the drawing context.
-            _DrawingContext = _Canvas.getContext('2d');
-
-            // Enable the added-in canvas text functions (see canvastext.ts for provenance and details).
-            CanvasTextFunctions.enable(_DrawingContext);   // Text functionality is now built in to the HTML5 canvas. But this is old-school, and fun.
-
             // Clear the log text box.
             // Use the TypeScript cast to HTMLInputElement
             (<HTMLInputElement> document.getElementById("taHostLog")).value="";
@@ -44,6 +36,18 @@ module TSOS {
             // Set focus on the start button.
             // Use the TypeScript cast to HTMLInputElement
             (<HTMLInputElement> document.getElementById("btnStartOS")).focus();
+          
+            function updateTime() {
+              var date = new Date();
+              var formatted = (date.getMonth() + 1) + "/" + 
+                               date.getDate() + "/" + 
+                               date.getFullYear() + " " + 
+                               date.getHours() + ":" + 
+                               date.getMinutes() + ":" + 
+                             ((date.getSeconds() < 10) ? ("0" + date.getSeconds()) : ("" + date.getSeconds()));
+              document.getElementById("time").innerHTML = formatted;
+            }
+            setInterval(updateTime, 1000);
 
             // Check for our testing and enrichment core.
             if (typeof Glados === "function") {
