@@ -23,8 +23,11 @@ module TSOS {
     private accumulator: number;
     private xRegister: number;
     private yRegister: number;
+
     private zFlag: boolean;
     public isExecuting: boolean;
+
+    private memory: Memory;
 
     constructor() {
       this.init();
@@ -37,10 +40,18 @@ module TSOS {
       this.yRegister = 0;
       this.zFlag = false;
       this.isExecuting = false;
+
+      this.memory = new Memory();
     }
 
     public cycle(): void {
-      _Kernel.krnTrace('CPU cycle');
+      _Kernel.krnTrace('CPU cycle');      
+
+      
+
+      this.programCounter++;
     }
+
+    this.
   }
 }

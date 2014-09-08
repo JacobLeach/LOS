@@ -23,10 +23,14 @@ var TSOS;
             this.yRegister = 0;
             this.zFlag = false;
             this.isExecuting = false;
+
+            this.memory = new TSOS.Memory();
         };
 
         Cpu.prototype.cycle = function () {
             _Kernel.krnTrace('CPU cycle');
+
+            this.programCounter++;
         };
         return Cpu;
     })();
