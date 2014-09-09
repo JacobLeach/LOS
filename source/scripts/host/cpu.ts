@@ -23,6 +23,7 @@ module TSOS {
     private accumulator: number;
     private xRegister: number;
     private yRegister: number;
+    private instructionRegister: number;
 
     private zFlag: boolean;
     public isExecuting: boolean;
@@ -46,12 +47,82 @@ module TSOS {
 
     public cycle(): void {
       _Kernel.krnTrace('CPU cycle');      
-
-      
+      this.loadInstruction(); 
+      this.executeInstruction();
 
       this.programCounter++;
     }
 
-    this.
+    private loadInstruction(): void {
+      this.instructionRegister = this.memory.getByte(this.programCounter);
+    }
+
+    private executeInstruction(): void {
+      switch(this.instructionRegister) {
+        case 0:
+          break;
+        case 109:
+          break;
+        case 141:
+          break;
+        case 160:
+          break;
+        case 162:
+          break;
+        case 169:
+          break;
+        case 172:
+          break;
+        case 173:
+          break;
+        case 174:
+          break;
+        case 208:
+          break;
+        case 234:
+          break;
+        case 236:
+          break;
+        case 238:
+          break;
+        case 255:
+          break;
+      }
+    }
+  
+    private loadAccumulatorWithConstant() {
+      //The constant is one byte ahead of the instruction so incremenet the PC
+      this.programCounter++;
+
+      //Read the constant from memory and put it in the accumulator
+      this.accumulator = this.memory.getByte(this.programCounter);
+    }
+    
+    private loadAccumulatorFromMemory() {
+      //The low-order memory address byte is one byte ahead of the instruction so incremenet the PC
+      this.programCounter++;
+    
+      //Read the low-order memory address byte from memory
+      var lowOrderAddress: number = this.memory.getByte(this.programCounter);
+      
+      //The high-order memory address byte is two bytes ahead of the instruction so incremenet the PC again
+      this.programCounter++;
+      
+      //Read the high-order memory address byte from memory
+      var highOrderAddress: number = this.memory.getByte(this.programCounter);
+
+      //Convert both to strings that represent their binary values and concat them in the correct order
+      var addressAsString = highOrderAddress.toString(2) + lowOrderAddress.toString(2);
+
+      //Parse the binary string into an integer
+      var address = parseInt(addressAsString, 2);
+
+      //Read the constant from memory at the address loaded and put it in the accumulator
+      this.accumulator = this.memory.getByte(address);
+    }
+
+    private storeAccumulatorInMemory() {
+      
+    }
   }
 }

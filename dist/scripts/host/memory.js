@@ -8,6 +8,7 @@ var TSOS;
         function Memory(size) {
             if (typeof size === "undefined") { size = Memory.DEFAULT_SIZE; }
             this.size = size;
+            this.ram = new Array();
 
             for (var i = 0; i < size; i++) {
                 this.ram[i] = new Byte();
