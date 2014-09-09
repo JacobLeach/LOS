@@ -46,10 +46,10 @@ var TSOS;
             this.value = 0;
         }
         Byte.prototype.setValue = function (value) {
-            if (value > 128) {
-                this.value = 128;
+            if (value > 256) {
+                new Error("Tried setting byte value higher than 256");
             } else if (value < -128) {
-                this.value = -128;
+                new Error("Tried setting byte value less than -128");
             } else {
                 this.value = value;
             }
