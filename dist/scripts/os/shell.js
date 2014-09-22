@@ -139,7 +139,6 @@ var TSOS;
                 this.inputBuffer = "";
             } else if (character === TAB) {
                 //Erase the tab that got printed to the screen
-                TSOS.Stdio.putString(BACKSPACE, _StdOut);
                 this.handleTabCompletion();
             } else if (character === ESCAPE) {
                 this.lastCharEscape = true;
@@ -178,6 +177,7 @@ var TSOS;
 
                             //These are ANSI control codes to control the cursor
                             //And to erase characters and stuff
+                            //http://en.wikipedia.org/wiki/ANSI_escape_code
                             TSOS.Stdio.putString(ESCAPE + "[K", _StdOut);
                             TSOS.Stdio.putString(ESCAPE + "[0G", _StdOut);
                             this.putPrompt();
