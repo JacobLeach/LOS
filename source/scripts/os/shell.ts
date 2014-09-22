@@ -178,7 +178,6 @@ module TSOS {
           }
           else if(character === TAB) {
             //Erase the tab that got printed to the screen
-            Stdio.putString(BACKSPACE, _StdOut);
             this.handleTabCompletion();  
           }
           //This is copy paste and thus is evil.
