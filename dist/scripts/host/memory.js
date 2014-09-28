@@ -10,16 +10,16 @@ var TSOS;
             this.size = size;
 
             for (var i = 0; i < size; i++) {
-                this.ram[i] = new Byte();
+                this.memory[i] = new Byte();
             }
         }
         Memory.prototype.setByte = function (address, value) {
             if (address > this.size) {
-                this.ram[this.size - 1].setValue(value);
+                this.memory[this.size - 1].setValue(value);
             } else if (address < this.size) {
-                this.ram[0].setValue(value);
+                this.memory[0].setValue(value);
             } else {
-                this.ram[address].setValue(value);
+                this.memory[address].setValue(value);
             }
         };
 
@@ -27,16 +27,16 @@ var TSOS;
             var toReturn;
 
             if (address > this.size) {
-                toReturn = this.ram[this.size - 1].getValue();
+                toReturn = this.memory[this.size - 1].getValue();
             } else if (address < this.size) {
-                toReturn = this.ram[0].getValue();
+                toReturn = this.memory[0].getValue();
             } else {
-                toReturn = this.ram[address].getValue();
+                toReturn = this.memory[address].getValue();
             }
 
             return toReturn;
         };
-        Memory.DEFAULT_SIZE = 256;
+        Memory.DEFAULT_SIZE = 768;
         return Memory;
     })();
     TSOS.Memory = Memory;
