@@ -141,5 +141,13 @@ module TSOS {
              
       this.yRegister = this.memory.getByte(this.programCounter);
     }
+
+    private loadXRegisterWithConstant() {
+      //The constant is one byte ahead of the instruction in memory so incremenet the PC
+      this.programCounter++;
+             
+      this.xRegister = this.memory.getByte(this.programCounter);
+    }
+
   }
 }
