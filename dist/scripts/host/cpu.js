@@ -118,6 +118,18 @@ var TSOS;
             this.accumulator = this.memory.getByte(this.programCounter);
         };
 
+        Cpu.prototype.loadYRegisterFromMemory = function () {
+            //The low-order memory address byte is one byte ahead of the instruction so incremenet the PC
+            this.programCounter++;
+
+            var address = this.memory.getByte(this.programCounter);
+            this.yRegister = this.memory.getByte(address);
+
+            //There is an extra byte (for high order addresses we ignore)
+            //So we have to increment the PC again
+            this.programCounter++;
+        };
+
         Cpu.prototype.loadAccumulatorFromMemory = function () {
             //The low-order memory address byte is one byte ahead of the instruction so incremenet the PC
             this.programCounter++;
