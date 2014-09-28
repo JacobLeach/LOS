@@ -132,7 +132,15 @@ module TSOS {
     }
 
     private storeAccumulatorInMemory() {
-      
+      //The address is one byte ahread of the instruction so increment the PC
+      this.programCounter++;
+
+      var address: number = this.memory.getByte(this.programCounter);
+      this.memory.setByte(address, this.accumulator);
+
+      //There is an extra byte (for high order addresses we ignore)
+      //So we have to increment the PC again
+      this.programCounter++;
     }
   }
 }
