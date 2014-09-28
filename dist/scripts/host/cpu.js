@@ -12,6 +12,19 @@ Operating System Concepts 8th edition by Silberschatz, Galvin, and Gagne.  ISBN 
 ------------ */
 var TSOS;
 (function (TSOS) {
+    function numberToBytes(value) {
+        var toReturn = [];
+
+        var lowByte = new TSOS.Byte(value & 0xFF);
+        var highByte = new TSOS.Byte((value & 0xFF00) >> 8);
+
+        toReturn[0] = lowByte;
+        toReturn[1] = highByte;
+
+        return toReturn;
+    }
+    TSOS.numberToBytes = numberToBytes;
+
     var Cpu = (function () {
         function Cpu() {
             this.init();

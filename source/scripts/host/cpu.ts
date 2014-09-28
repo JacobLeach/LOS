@@ -17,6 +17,18 @@
 
 module TSOS {
 
+  export function numberToBytes(value: number): Byte[] {
+    var toReturn: Byte[] = [];
+
+    var lowByte: Byte = new Byte(value & 0xFF);
+    var highByte: Byte = new Byte((value & 0xFF00) >> 8);
+
+    toReturn[0] = lowByte;
+    toReturn[1] = highByte;
+
+    return toReturn;
+  }
+
   export class Cpu {
 
     private programCounter: number;
