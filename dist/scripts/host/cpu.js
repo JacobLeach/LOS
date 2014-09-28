@@ -48,36 +48,45 @@ var TSOS;
                     break;
 
                 case 0x8D:
+                    this.storeAccumulatorInMemory();
                     break;
 
                 case 0xA0:
+                    this.loadYRegisterWithConstant();
                     break;
 
                 case 0xA2:
+                    this.loadXRegisterWithConstant();
                     break;
 
                 case 0xA9:
+                    this.loadAccumulatorWithConstant();
                     break;
 
                 case 0xAC:
+                    this.loadYRegisterFromMemory();
                     break;
 
                 case 0xAD:
+                    this.loadAccumulatorFromMemory();
                     break;
 
                 case 0xAE:
+                    this.loadXRegisterFromMemory();
                     break;
 
                 case 0xD0:
                     break;
 
                 case 0xEA:
+                    this.noOperation();
                     break;
 
                 case 0xEC:
                     break;
 
                 case 0xEE:
+                    this.increment();
                     break;
 
                 case 0xFF:

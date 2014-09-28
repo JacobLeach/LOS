@@ -67,36 +67,45 @@ module TSOS {
           break;
         //Store accumulator in memory
         case 0x8D:
+          this.storeAccumulatorInMemory();
           break;
         //Load Y register with a constant
         case 0xA0:
+          this.loadYRegisterWithConstant();
           break;
         //Load X register with a constant
         case 0xA2:
+          this.loadXRegisterWithConstant();
           break;
         //Load accumulator with a constant
         case 0xA9:
+          this.loadAccumulatorWithConstant();
           break;
         //Load Y register from memory  
         case 0xAC:
+          this.loadYRegisterFromMemory();
           break;
         //Load accumulator from memory
         case 0xAD:
+          this.loadAccumulatorFromMemory();
           break;
         //Load X register from memory
         case 0xAE:
+          this.loadXRegisterFromMemory();
           break;
         //Branch
         case 0xD0:
           break;
         //No Operation
         case 0xEA:
+          this.noOperation();
           break;
         //Compare memory to X register
         case 0xEC:
           break;
         //Increment
         case 0xEE:
+          this.increment();
           break;
         //System call
         case 0xFF:
