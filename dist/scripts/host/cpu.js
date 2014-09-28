@@ -96,20 +96,12 @@ var TSOS;
             //The low-order memory address byte is one byte ahead of the instruction so incremenet the PC
             this.programCounter++;
 
-            var lowOrderAddress = this.memory.getByte(this.programCounter);
-
-            //The high-order memory address byte is two bytes ahead of the instruction so incremenet the PC again
-            this.programCounter++;
-
-            var highOrderAddress = this.memory.getByte(this.programCounter);
-
-            //Convert both to strings that represent their binary values and concat them in the correct order
-            var addressAsString = highOrderAddress.toString(2) + lowOrderAddress.toString(2);
-
-            //Parse the address string into a number
-            var address = parseInt(addressAsString, 2);
-
+            var address = this.memory.getByte(this.programCounter);
             this.accumulator = this.memory.getByte(address);
+
+            //There is an extra byte (for high order addresses we ignore)
+            //So we have to increment the PC again
+            this.programCounter++;
         };
 
         Cpu.prototype.storeAccumulatorInMemory = function () {
