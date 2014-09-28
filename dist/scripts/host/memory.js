@@ -13,8 +13,8 @@ var TSOS;
                 this.memory[i] = new Byte(0);
             }
         }
-        Memory.prototype.setByte = function (lowByte, highByte, value) {
-            var address = twoBytesToNumber(lowByte, highByte);
+        Memory.prototype.setByte = function (bytes, value) {
+            var address = twoBytesToNumber(bytes[0], bytes[1]);
 
             if (address < this.size) {
                 this.memory[address].setValue(value);
@@ -23,9 +23,9 @@ var TSOS;
             }
         };
 
-        Memory.prototype.getByte = function (lowByte, highByte) {
+        Memory.prototype.getByte = function (bytes) {
             var toReturn;
-            var address = twoBytesToNumber(lowByte, highByte);
+            var address = twoBytesToNumber(bytes[0], bytes[1]);
 
             if (address < this.size) {
                 toReturn = this.memory[address].asNumber();

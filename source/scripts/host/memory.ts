@@ -20,8 +20,8 @@ module TSOS {
       }
     }
 
-    public setByte(lowByte: Byte, highByte: Byte, value: number): void {
-      var address: number = twoBytesToNumber(lowByte, highByte);
+    public setByte(bytes: Byte[], value: number): void {
+      var address: number = twoBytesToNumber(bytes[0], bytes[1]);
 
       if(address < this.size) {
         this.memory[address].setValue(value);
@@ -31,9 +31,9 @@ module TSOS {
       }
     }
 
-    public getByte(lowByte: Byte, highByte: Byte): number {
+    public getByte(bytes: Byte[]): number {
       var toReturn: number;
-      var address: number = twoBytesToNumber(lowByte, highByte);
+      var address: number = twoBytesToNumber(bytes[0], bytes[1]);
 
       if(address < this.size) {
         toReturn = this.memory[address].asNumber();
