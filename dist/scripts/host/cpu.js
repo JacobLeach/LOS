@@ -45,6 +45,7 @@ var TSOS;
                     break;
 
                 case 0x6D:
+                    this.addWithCarry();
                     break;
 
                 case 0x8D:
@@ -92,6 +93,22 @@ var TSOS;
                 case 0xFF:
                     break;
             }
+        };
+
+        Cpu.prototype.addWithCarry = function () {
+            //The low-order memory address byte is one byte ahead of the instruction so incremenet the PC
+            this.programCounter++;
+
+            var address = this.memory.getByte(this.programCounter);
+            var value = this.memory.getByte(address);
+
+            //We are not implementing carry.
+            //Instead we are just wrapping the value around
+            this.accumulator = (this.accumulator + value) % 256;
+
+            //There is an extra byte (for high order addresses we ignore)
+            //So we have to increment the PC again
+            this.programCounter++;
         };
 
         Cpu.prototype.storeAccumulatorInMemory = function () {
