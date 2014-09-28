@@ -41,33 +41,46 @@ var TSOS;
 
         Cpu.prototype.executeInstruction = function () {
             switch (this.instructionRegister) {
-                case 0:
+                case 0x00:
                     break;
-                case 109:
+
+                case 0x6D:
                     break;
-                case 141:
+
+                case 0x8D:
                     break;
-                case 160:
+
+                case 0xA0:
                     break;
-                case 162:
+
+                case 0xA2:
                     break;
-                case 169:
+
+                case 0xA9:
                     break;
-                case 172:
+
+                case 0xAC:
                     break;
-                case 173:
+
+                case 0xAD:
                     break;
-                case 174:
+
+                case 0xAE:
                     break;
-                case 208:
+
+                case 0xD0:
                     break;
-                case 234:
+
+                case 0xEA:
                     break;
-                case 236:
+
+                case 0xEC:
                     break;
-                case 238:
+
+                case 0xEE:
                     break;
-                case 255:
+
+                case 0xFF:
                     break;
             }
         };

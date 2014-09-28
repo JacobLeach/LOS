@@ -59,33 +59,47 @@ module TSOS {
 
     private executeInstruction(): void {
       switch(this.instructionRegister) {
-        case 0:
+        //Break
+        case 0x00:
           break;
-        case 109:
+        //Add with carry
+        case 0x6D:
           break;
-        case 141:
+        //Store accumulator in memory
+        case 0x8D:
           break;
-        case 160:
+        //Load Y register with a constant
+        case 0xA0:
           break;
-        case 162:
+        //Load X register with a constant
+        case 0xA2:
           break;
-        case 169:
+        //Load accumulator with a constant
+        case 0xA9:
           break;
-        case 172:
+        //Load Y register from memory  
+        case 0xAC:
           break;
-        case 173:
+        //Load accumulator from memory
+        case 0xAD:
           break;
-        case 174:
+        //Load X register from memory
+        case 0xAE:
           break;
-        case 208:
+        //Branch
+        case 0xD0:
           break;
-        case 234:
+        //No Operation
+        case 0xEA:
           break;
-        case 236:
+        //Compare memory to X register
+        case 0xEC:
           break;
-        case 238:
+        //Increment
+        case 0xEE:
           break;
-        case 255:
+        //System call
+        case 0xFF:
           break;
       }
     }
