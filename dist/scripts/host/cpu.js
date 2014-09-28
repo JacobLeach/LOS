@@ -49,7 +49,7 @@ var TSOS;
         };
 
         Cpu.prototype.loadInstruction = function () {
-            this.instructionRegister = this.memory.getByte(this.programCounter);
+            this.instructionRegister = this.memory.getByte(numberToBytes(this.programCounter));
         };
 
         Cpu.prototype.executeInstruction = function () {
@@ -112,7 +112,7 @@ var TSOS;
             //The low-order memory address byte is one byte ahead of the instruction so incremenet the PC
             this.programCounter++;
 
-            var address = this.memory.getByte(this.programCounter);
+            var address = this.memory.getByte(numberToBytes(this.programCounter));
             var value = this.memory.getByte(address);
 
             //We are not implementing carry.
@@ -128,7 +128,7 @@ var TSOS;
             //The address is one byte ahread of the instruction so increment the PC
             this.programCounter++;
 
-            var address = this.memory.getByte(this.programCounter);
+            var address = this.memory.getByte(numberToBytes(this.programCounter));
             this.memory.setByte(address, this.accumulator);
 
             //There is an extra byte (for high order addresses we ignore)
@@ -140,28 +140,28 @@ var TSOS;
             //The constant is one byte ahead of the instruction in memory so incremenet the PC
             this.programCounter++;
 
-            this.yRegister = this.memory.getByte(this.programCounter);
+            this.yRegister = this.memory.getByte(numberToBytes(this.programCounter));
         };
 
         Cpu.prototype.loadXRegisterWithConstant = function () {
             //The constant is one byte ahead of the instruction in memory so incremenet the PC
             this.programCounter++;
 
-            this.xRegister = this.memory.getByte(this.programCounter);
+            this.xRegister = this.memory.getByte(numberToBytes(this.programCounter));
         };
 
         Cpu.prototype.loadAccumulatorWithConstant = function () {
             //The constant is one byte ahead of the instruction in memory so incremenet the PC
             this.programCounter++;
 
-            this.accumulator = this.memory.getByte(this.programCounter);
+            this.accumulator = this.memory.getByte(numberToBytes(this.programCounter));
         };
 
         Cpu.prototype.loadYRegisterFromMemory = function () {
             //The low-order memory address byte is one byte ahead of the instruction so incremenet the PC
             this.programCounter++;
 
-            var address = this.memory.getByte(this.programCounter);
+            var address = this.memory.getByte(numberToBytes(this.programCounter));
             this.yRegister = this.memory.getByte(address);
 
             //There is an extra byte (for high order addresses we ignore)
@@ -173,7 +173,7 @@ var TSOS;
             //The low-order memory address byte is one byte ahead of the instruction so incremenet the PC
             this.programCounter++;
 
-            var address = this.memory.getByte(this.programCounter);
+            var address = this.memory.getByte(numberToBytes(this.programCounter));
             this.accumulator = this.memory.getByte(address);
 
             //There is an extra byte (for high order addresses we ignore)
@@ -185,7 +185,7 @@ var TSOS;
             //The low-order memory address byte is one byte ahead of the instruction so incremenet the PC
             this.programCounter++;
 
-            var address = this.memory.getByte(this.programCounter);
+            var address = this.memory.getByte(numberToBytes(this.programCounter));
             this.xRegister = this.memory.getByte(address);
 
             //There is an extra byte (for high order addresses we ignore)
@@ -199,7 +199,7 @@ var TSOS;
                 //The constant is one byte ahead of the instruction in memory so incremenet the PC
                 this.programCounter++;
 
-                var branchAmount = this.memory.getByte(this.programCounter);
+                var branchAmount = this.memory.getByte(numberToBytes(this.programCounter));
 
                 //We have to wrap when branch goes above our memory range
                 this.programCounter = (this.programCounter + branchAmount) % 256;
