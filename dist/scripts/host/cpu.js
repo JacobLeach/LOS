@@ -89,7 +89,6 @@ var TSOS;
             //The constant is one byte ahead of the instruction so incremenet the PC
             this.programCounter++;
 
-            //Read the constant from memory and put it in the accumulator
             this.accumulator = this.memory.getByte(this.programCounter);
         };
 
@@ -97,22 +96,19 @@ var TSOS;
             //The low-order memory address byte is one byte ahead of the instruction so incremenet the PC
             this.programCounter++;
 
-            //Read the low-order memory address byte from memory
             var lowOrderAddress = this.memory.getByte(this.programCounter);
 
             //The high-order memory address byte is two bytes ahead of the instruction so incremenet the PC again
             this.programCounter++;
 
-            //Read the high-order memory address byte from memory
             var highOrderAddress = this.memory.getByte(this.programCounter);
 
             //Convert both to strings that represent their binary values and concat them in the correct order
             var addressAsString = highOrderAddress.toString(2) + lowOrderAddress.toString(2);
 
-            //Parse the binary string into an integer
+            //Parse the address string into a number
             var address = parseInt(addressAsString, 2);
 
-            //Read the constant from memory at the address loaded and put it in the accumulator
             this.accumulator = this.memory.getByte(address);
         };
 
