@@ -32,16 +32,16 @@ module TSOS {
       }
     }
 
-    public getByte(bytes: Byte[]): number {
-      var toReturn: number;
+    public getByte(bytes: Byte[]): Byte {
+      var toReturn: Byte;
       var address: number = twoBytesToNumber(bytes[0], bytes[1]);
 
       if(address < this.size) {
-        toReturn = this.memory[address].asNumber();
+        toReturn = this.memory[address];
       }
       else {
         //Should throw an interrupt
-        toReturn = 0;
+        toReturn = undefined;
       }
 
       return toReturn;
