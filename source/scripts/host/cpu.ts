@@ -199,6 +199,19 @@ module TSOS {
       this.programCounter++;
     }
 
+    private branch() {
+      //If zFlag is true, we want to branch
+      if(this.zFlag) {
+        //The constant is one byte ahead of the instruction in memory so incremenet the PC
+        this.programCounter++;
+
+        var branchAmount: number = this.memory.getByte(this.programCounter);
+
+        //We have to wrap when branch goes above our memory range
+        this.programCounter = (this.programCounter + branchAmount) % 256;
+      }
+    }
+
     private noOperation() {
       //Do nothing
     }
