@@ -154,6 +154,10 @@ var TSOS;
             this.programCounter++;
         };
 
+        Cpu.prototype.noOperation = function () {
+            //Do nothing
+        };
+
         Cpu.prototype.increment = function () {
             //The low-order memory address byte is one byte ahead of the instruction so incremenet the PC
             this.programCounter++;

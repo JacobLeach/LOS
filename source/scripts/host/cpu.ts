@@ -173,6 +173,10 @@ module TSOS {
       this.programCounter++;
     }
 
+    private noOperation() {
+      //Do nothing
+    }
+
     private increment() {
       //The low-order memory address byte is one byte ahead of the instruction so incremenet the PC
       this.programCounter++;
