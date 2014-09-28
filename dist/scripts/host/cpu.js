@@ -85,25 +85,6 @@ var TSOS;
             }
         };
 
-        Cpu.prototype.loadAccumulatorWithConstant = function () {
-            //The constant is one byte ahead of the instruction in memory so incremenet the PC
-            this.programCounter++;
-
-            this.accumulator = this.memory.getByte(this.programCounter);
-        };
-
-        Cpu.prototype.loadAccumulatorFromMemory = function () {
-            //The low-order memory address byte is one byte ahead of the instruction so incremenet the PC
-            this.programCounter++;
-
-            var address = this.memory.getByte(this.programCounter);
-            this.accumulator = this.memory.getByte(address);
-
-            //There is an extra byte (for high order addresses we ignore)
-            //So we have to increment the PC again
-            this.programCounter++;
-        };
-
         Cpu.prototype.storeAccumulatorInMemory = function () {
             //The address is one byte ahread of the instruction so increment the PC
             this.programCounter++;
@@ -121,6 +102,32 @@ var TSOS;
             this.programCounter++;
 
             this.yRegister = this.memory.getByte(this.programCounter);
+        };
+
+        Cpu.prototype.loadXRegisterWithConstant = function () {
+            //The constant is one byte ahead of the instruction in memory so incremenet the PC
+            this.programCounter++;
+
+            this.xRegister = this.memory.getByte(this.programCounter);
+        };
+
+        Cpu.prototype.loadAccumulatorWithConstant = function () {
+            //The constant is one byte ahead of the instruction in memory so incremenet the PC
+            this.programCounter++;
+
+            this.accumulator = this.memory.getByte(this.programCounter);
+        };
+
+        Cpu.prototype.loadAccumulatorFromMemory = function () {
+            //The low-order memory address byte is one byte ahead of the instruction so incremenet the PC
+            this.programCounter++;
+
+            var address = this.memory.getByte(this.programCounter);
+            this.accumulator = this.memory.getByte(address);
+
+            //There is an extra byte (for high order addresses we ignore)
+            //So we have to increment the PC again
+            this.programCounter++;
         };
         return Cpu;
     })();
