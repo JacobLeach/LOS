@@ -86,7 +86,7 @@ var TSOS;
         };
 
         Cpu.prototype.loadAccumulatorWithConstant = function () {
-            //The constant is one byte ahead of the instruction so incremenet the PC
+            //The constant is one byte ahead of the instruction in memory so incremenet the PC
             this.programCounter++;
 
             this.accumulator = this.memory.getByte(this.programCounter);
@@ -114,6 +114,13 @@ var TSOS;
             //There is an extra byte (for high order addresses we ignore)
             //So we have to increment the PC again
             this.programCounter++;
+        };
+
+        Cpu.prototype.loadYRegisterWithConstant = function () {
+            //The constant is one byte ahead of the instruction in memory so incremenet the PC
+            this.programCounter++;
+
+            this.yRegister = this.memory.getByte(this.programCounter);
         };
         return Cpu;
     })();
