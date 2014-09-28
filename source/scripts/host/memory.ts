@@ -16,60 +16,58 @@ module TSOS {
       this.size = size;
 
       for(var i: number = 0; i < size; i++) {
-        this.memory[i] = new Byte();
+        this.memory[i] = new Byte(0);
       }
     }
 
-    public setByte(address: number, value: number): void {
-      if(address > this.size) {
-        this.memory[this.size - 1].setValue(value);
-      }
-      else if(address < this.size) {
-        this.memory[0].setValue(value); 
-      }
-      else {
+    public setByte(lowByte: Byte, highByte: Byte, value: number): void {
+      var address: number = twoBytesToNumber(lowByte, highByte);
+
+      if(address < this.size) {
         this.memory[address].setValue(value);
       }
+      else {
+        //Should throw an interrupt
+      }
     }
 
-    public getByte(address): number {
+    public getByte(lowByte: Byte, highByte: Byte): number {
       var toReturn: number;
-      
-      if(address > this.size) {
-        toReturn = this.memory[this.size - 1].getValue();
-      }
-      else if(address < this.size) {
-        toReturn = this.memory[0].getValue();
+      var address: number = twoBytesToNumber(lowByte, highByte);
+
+      if(address < this.size) {
+        toReturn = this.memory[address].asNumber();
       }
       else {
-        toReturn = this.memory[address].getValue();
+        //Should throw an interrupt
+        toReturn = 0;
       }
 
       return toReturn;
     }
   }
 
-  class Byte {
+  export class Byte {
     private value: number;
 
-    constructor() {
-      this.value = 0;
-    }
+    constructor(value: number) {
+      this.setValue(value);  
+    } 
 
     public setValue(value: number): void {
-      if(value > 256) {
-        new Error("Tried setting byte value higher than 256");
-      }
-      else if(value < -128) {
-        new Error("Tried setting byte value less than -128");
-      }
-      else {
-        this.value = value;
-      }
+      this.value = value & 255;
     }
 
-    public getValue(): number {
+    public asNumber(): number {
       return this.value;
     }
+  
+  }
+  
+  export function twoBytesToNumber(lowByte: Byte, highByte: Byte): number {
+    var addressAsString: string = highByte.asNumber().toString(2) + lowByte.asNumber().toString(2);
+    var address = parseInt(addressAsString, 2);
+    
+    return address;
   }
 }
