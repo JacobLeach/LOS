@@ -141,6 +141,33 @@ var TSOS;
             //So we have to increment the PC again
             this.programCounter++;
         };
+
+        Cpu.prototype.loadXRegisterFromMemory = function () {
+            //The low-order memory address byte is one byte ahead of the instruction so incremenet the PC
+            this.programCounter++;
+
+            var address = this.memory.getByte(this.programCounter);
+            this.xRegister = this.memory.getByte(address);
+
+            //There is an extra byte (for high order addresses we ignore)
+            //So we have to increment the PC again
+            this.programCounter++;
+        };
+
+        Cpu.prototype.increment = function () {
+            //The low-order memory address byte is one byte ahead of the instruction so incremenet the PC
+            this.programCounter++;
+
+            var address = this.memory.getByte(this.programCounter);
+            var value = this.memory.getByte(address);
+
+            value++;
+            this.memory.setByte(address, value);
+
+            //There is an extra byte (for high order addresses we ignore)
+            //So we have to increment the PC again
+            this.programCounter++;
+        };
         return Cpu;
     })();
     TSOS.Cpu = Cpu;
