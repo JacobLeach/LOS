@@ -32,10 +32,10 @@ module TSOS {
   export class Cpu {
 
     private programCounter: number;
-    private accumulator: number;
-    private xRegister: number;
-    private yRegister: number;
-    private instructionRegister: number;
+    private accumulator: Byte;
+    private xRegister: Byte;
+    private yRegister: Byte;
+    private instructionRegister: Byte;
 
     private zFlag: boolean;
     public isExecuting: boolean;
@@ -48,9 +48,9 @@ module TSOS {
 
     public init(): void {
       this.programCounter = 0;
-      this.accumulator = 0;
-      this.xRegister = 0;
-      this.yRegister = 0;
+      this.accumulator = new Byte(0);
+      this.xRegister = new Byte(0);
+      this.yRegister = new Byte(0);
       this.zFlag = false;
       this.isExecuting = false;
 
@@ -66,11 +66,11 @@ module TSOS {
     }
 
     private loadInstruction(): void {
-      this.instructionRegister = this.memory.getByte(numberToBytes(this.programCounter)).asNumber();
+      this.instructionRegister = this.memory.getByte(numberToBytes(this.programCounter));
     }
 
     private executeInstruction(): void {
-      switch(this.instructionRegister) {
+      switch(this.instructionRegister.asNumber()) {
         //Break
         case 0x00:
           break;
@@ -147,7 +147,7 @@ module TSOS {
 
       //We are not implementing carry.
       //Instead we are just wrapping the value around
-      this.accumulator = (this.accumulator + value.asNumber()) % 256;
+      this.accumulator = new Byte((this.accumulator.asNumber() + value.asNumber()) % 256);
       
       //There is an extra byte (for high order addresses we ignore)
       //So we have to increment the PC again
@@ -166,25 +166,25 @@ module TSOS {
       //The constant is one byte ahead of the instruction in memory so incremenet the PC
       this.programCounter++;
              
-      this.yRegister = this.memory.getByte(numberToBytes(this.programCounter)).asNumber();
+      this.yRegister = this.memory.getByte(numberToBytes(this.programCounter));
     }
 
     private loadXRegisterWithConstant() {
       //The constant is one byte ahead of the instruction in memory so incremenet the PC
       this.programCounter++;
              
-      this.xRegister = this.memory.getByte(numberToBytes(this.programCounter)).asNumber();
+      this.xRegister = this.memory.getByte(numberToBytes(this.programCounter));
     }
     
     private loadAccumulatorWithConstant() {
       //The constant is one byte ahead of the instruction in memory so incremenet the PC
       this.programCounter++;
 
-      this.accumulator = this.memory.getByte(numberToBytes(this.programCounter)).asNumber();
+      this.accumulator = this.memory.getByte(numberToBytes(this.programCounter));
     }
     
     private loadYRegisterFromMemory() {
-      this.yRegister = this.memory.getByte(this.loadAddressFromMemory()).asNumber();
+      this.yRegister = this.memory.getByte(this.loadAddressFromMemory());
       
       //There is an extra byte (for high order addresses we ignore)
       //So we have to increment the PC again
@@ -192,7 +192,7 @@ module TSOS {
     }
 
     private loadAccumulatorFromMemory() {
-      this.accumulator = this.memory.getByte(this.loadAddressFromMemory()).asNumber();
+      this.accumulator = this.memory.getByte(this.loadAddressFromMemory());
       
       //There is an extra byte (for high order addresses we ignore)
       //So we have to increment the PC again
@@ -200,7 +200,7 @@ module TSOS {
     }
     
     private loadXRegisterFromMemory() {
-      this.xRegister = this.memory.getByte(this.loadAddressFromMemory()).asNumber();
+      this.xRegister = this.memory.getByte(this.loadAddressFromMemory());
       
       //There is an extra byte (for high order addresses we ignore)
       //So we have to increment the PC again
@@ -229,7 +229,7 @@ module TSOS {
       var value: number = this.memory.getByte(address).asNumber();
 
       value++;
-      this.memory.setByte(address, value);
+      this.memory.setByte(address, new Byte(value));
       
       //There is an extra byte (for high order addresses we ignore)
       //So we have to increment the PC again

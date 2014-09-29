@@ -21,11 +21,11 @@ module TSOS {
       }
     }
 
-    public setByte(bytes: Byte[], value: number): void {
+    public setByte(bytes: Byte[], value: Byte): void {
       var address: number = twoBytesToNumber(bytes[0], bytes[1]);
 
       if(address < this.size) {
-        this.memory[address].setValue(value);
+        this.memory[address] = value;
       }
       else {
         //Should throw an interrupt
