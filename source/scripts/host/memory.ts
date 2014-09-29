@@ -14,7 +14,7 @@ module TSOS {
 
     constructor(size: number = Memory.DEFAULT_SIZE) {
       this.size = size;
-      this.ram = new Array();
+      this.memory = [];
 
       for(var i: number = 0; i < size; i++) {
         this.memory[i] = new Byte(0);
