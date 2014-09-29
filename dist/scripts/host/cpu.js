@@ -51,49 +51,39 @@ var TSOS;
             switch (this.instructionRegister.asNumber()) {
                 case 0x00:
                     break;
-
                 case 0x6D:
                     this.addWithCarry();
                     break;
-
                 case 0x8D:
                     this.storeAccumulatorInMemory();
                     break;
-
                 case 0xA0:
                     this.loadYRegisterWithConstant();
                     break;
-
                 case 0xA2:
                     this.loadXRegisterWithConstant();
                     break;
-
                 case 0xA9:
                     this.loadAccumulatorWithConstant();
                     break;
-
                 case 0xAC:
                     this.loadYRegisterFromMemory();
                     break;
-
                 case 0xAD:
                     this.loadAccumulatorFromMemory();
                     break;
-
                 case 0xAE:
                     this.loadXRegisterFromMemory();
                     break;
 
                 case 0xD0:
                     break;
-
                 case 0xEA:
                     this.noOperation();
                     break;
 
                 case 0xEC:
                     break;
-
                 case 0xEE:
                     this.increment();
                     break;
@@ -101,29 +91,6 @@ var TSOS;
                 case 0xFF:
                     break;
             }
-        };
-
-        Cpu.prototype.loadInstructionConstant = function () {
-            //The constant is one byte ahead of the instruction in memory so incremenet the PC
-            this.programCounter.increment();
-
-            return this.memory.getByte(this.programCounter);
-        };
-
-        Cpu.prototype.loadAddressFromMemory = function () {
-            //The lower address byte is one byte ahread of the instruction so increment the PC
-            this.programCounter.increment();
-            var lowByte = this.memory.getByte(this.programCounter);
-
-            //The high address byte is two bytes ahread of the instruction so increment the PC
-            this.programCounter.increment();
-            var highByte = this.memory.getByte(this.programCounter);
-
-            return TSOS.bytesToShort(lowByte, highByte);
-        };
-
-        Cpu.prototype.loadValueFromAddress = function () {
-            return this.memory.getByte(this.loadAddressFromMemory());
         };
 
         Cpu.prototype.addWithCarry = function () {
@@ -186,6 +153,29 @@ var TSOS;
             value.increment();
 
             this.memory.setByte(address, value);
+        };
+
+        Cpu.prototype.loadInstructionConstant = function () {
+            //The constant is one byte ahead of the instruction in memory so incremenet the PC
+            this.programCounter.increment();
+
+            return this.memory.getByte(this.programCounter);
+        };
+
+        Cpu.prototype.loadAddressFromMemory = function () {
+            //The lower address byte is one byte ahread of the instruction so increment the PC
+            this.programCounter.increment();
+            var lowByte = this.memory.getByte(this.programCounter);
+
+            //The high address byte is two bytes ahread of the instruction so increment the PC
+            this.programCounter.increment();
+            var highByte = this.memory.getByte(this.programCounter);
+
+            return TSOS.bytesToShort(lowByte, highByte);
+        };
+
+        Cpu.prototype.loadValueFromAddress = function () {
+            return this.memory.getByte(this.loadAddressFromMemory());
         };
         return Cpu;
     })();

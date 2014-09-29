@@ -25,7 +25,6 @@ module TSOS {
   }
 
   export class Cpu {
-
     private programCounter: Short;
     private accumulator: Byte;
     private xRegister: Byte;
@@ -69,49 +68,39 @@ module TSOS {
         //Break
         case 0x00:
           break;
-        //Add with carry
         case 0x6D:
           this.addWithCarry();
           break;
-        //Store accumulator in memory
         case 0x8D:
           this.storeAccumulatorInMemory();
           break;
-        //Load Y register with a constant
         case 0xA0:
           this.loadYRegisterWithConstant();
           break;
-        //Load X register with a constant
         case 0xA2:
           this.loadXRegisterWithConstant();
           break;
-        //Load accumulator with a constant
         case 0xA9:
           this.loadAccumulatorWithConstant();
           break;
-        //Load Y register from memory  
         case 0xAC:
           this.loadYRegisterFromMemory();
           break;
-        //Load accumulator from memory
         case 0xAD:
           this.loadAccumulatorFromMemory();
           break;
-        //Load X register from memory
         case 0xAE:
           this.loadXRegisterFromMemory();
           break;
         //Branch
         case 0xD0:
           break;
-        //No Operation
         case 0xEA:
           this.noOperation();
           break;
         //Compare memory to X register
         case 0xEC:
           break;
-        //Increment
         case 0xEE:
           this.increment();
           break;
@@ -119,29 +108,6 @@ module TSOS {
         case 0xFF:
           break;
       }
-    }
-
-    private loadInstructionConstant(): Byte {
-      //The constant is one byte ahead of the instruction in memory so incremenet the PC
-      this.programCounter.increment();
-             
-      return this.memory.getByte(this.programCounter);
-    }
-
-    private loadAddressFromMemory(): Short {
-      //The lower address byte is one byte ahread of the instruction so increment the PC
-      this.programCounter.increment();
-      var lowByte: Byte = this.memory.getByte(this.programCounter);
-
-      //The high address byte is two bytes ahread of the instruction so increment the PC
-      this.programCounter.increment();
-      var highByte: Byte = this.memory.getByte(this.programCounter);
-
-      return bytesToShort(lowByte, highByte);
-    }
-
-    private loadValueFromAddress(): Byte {
-      return this.memory.getByte(this.loadAddressFromMemory());
     }
 
     private addWithCarry() {
@@ -204,6 +170,29 @@ module TSOS {
       value.increment();
 
       this.memory.setByte(address, value);
+    }
+    
+    private loadInstructionConstant(): Byte {
+      //The constant is one byte ahead of the instruction in memory so incremenet the PC
+      this.programCounter.increment();
+             
+      return this.memory.getByte(this.programCounter);
+    }
+
+    private loadAddressFromMemory(): Short {
+      //The lower address byte is one byte ahread of the instruction so increment the PC
+      this.programCounter.increment();
+      var lowByte: Byte = this.memory.getByte(this.programCounter);
+
+      //The high address byte is two bytes ahread of the instruction so increment the PC
+      this.programCounter.increment();
+      var highByte: Byte = this.memory.getByte(this.programCounter);
+
+      return bytesToShort(lowByte, highByte);
+    }
+
+    private loadValueFromAddress(): Byte {
+      return this.memory.getByte(this.loadAddressFromMemory());
     }
   }
 }
