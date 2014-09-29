@@ -31,9 +31,9 @@ module TSOS {
 
     public cycle(): void {
       _Kernel.krnTrace('CPU cycle');      
+      
       this.loadInstruction(); 
       this.executeInstruction();
-
       this.programCounter.increment();
     }
 
