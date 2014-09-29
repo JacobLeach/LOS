@@ -6,13 +6,6 @@
 
 module TSOS {
 
-  export function numberToShort(value: number): Short {
-    var lowByte: Byte = new Byte(value & 0xFF);
-    var highByte: Byte = new Byte((value & 0xFF00) >> 8);
-
-    return bytesToShort(lowByte, highByte);
-  }
-
   export class Cpu {
     private programCounter: Short;
     private accumulator: Byte;

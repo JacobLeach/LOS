@@ -4,14 +4,6 @@ A basic modifed 6502 CPU simulation.
 ------------ */
 var TSOS;
 (function (TSOS) {
-    function numberToShort(value) {
-        var lowByte = new TSOS.Byte(value & 0xFF);
-        var highByte = new TSOS.Byte((value & 0xFF00) >> 8);
-
-        return TSOS.bytesToShort(lowByte, highByte);
-    }
-    TSOS.numberToShort = numberToShort;
-
     var Cpu = (function () {
         function Cpu() {
             this.init();
