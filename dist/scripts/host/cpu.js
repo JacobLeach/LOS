@@ -6,9 +6,6 @@ var TSOS;
 (function (TSOS) {
     var Cpu = (function () {
         function Cpu() {
-            this.init();
-        }
-        Cpu.prototype.init = function () {
             this.programCounter = new TSOS.Short(0);
             this.accumulator = new TSOS.Byte(0);
             this.xRegister = new TSOS.Byte(0);
@@ -17,8 +14,7 @@ var TSOS;
             this.isExecuting = false;
 
             this.memory = new TSOS.Memory();
-        };
-
+        }
         Cpu.prototype.cycle = function () {
             _Kernel.krnTrace('CPU cycle');
             this.loadInstruction();

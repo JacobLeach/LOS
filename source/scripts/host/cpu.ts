@@ -19,10 +19,6 @@ module TSOS {
     private memory: Memory;
 
     constructor() {
-      this.init();
-    }
-
-    public init(): void {
       this.programCounter = new Short(0);
       this.accumulator = new Byte(0);
       this.xRegister = new Byte(0);
