@@ -14,7 +14,7 @@ module TSOS {
     private instructionRegister: Byte;
 
     private zFlag: boolean;
-    public isExecuting: boolean;
+    private executing: boolean;
 
     private memory: Memory;
 
@@ -24,7 +24,7 @@ module TSOS {
       this.xRegister = new Byte(0);
       this.yRegister = new Byte(0);
       this.zFlag = false;
-      this.isExecuting = false;
+      this.executing = false;
 
       this.memory = new Memory();
     }
@@ -35,6 +35,10 @@ module TSOS {
       this.executeInstruction();
 
       this.programCounter.increment();
+    }
+
+    public isExecuting(): boolean {
+      return this.executing;
     }
 
     private loadInstruction(): void {

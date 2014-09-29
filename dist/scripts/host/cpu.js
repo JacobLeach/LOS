@@ -11,7 +11,7 @@ var TSOS;
             this.xRegister = new TSOS.Byte(0);
             this.yRegister = new TSOS.Byte(0);
             this.zFlag = false;
-            this.isExecuting = false;
+            this.executing = false;
 
             this.memory = new TSOS.Memory();
         }
@@ -21,6 +21,10 @@ var TSOS;
             this.executeInstruction();
 
             this.programCounter.increment();
+        };
+
+        Cpu.prototype.isExecuting = function () {
+            return this.executing;
         };
 
         Cpu.prototype.loadInstruction = function () {
