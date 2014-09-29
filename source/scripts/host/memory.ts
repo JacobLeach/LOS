@@ -21,23 +21,20 @@ module TSOS {
       }
     }
 
-    public setByte(bytes: Byte[], value: Byte): void {
-      var address: number = twoBytesToNumber(bytes[0], bytes[1]);
-
-      if(address < this.size) {
-        this.memory[address] = value;
+    public setByte(address: Short, value: Byte): void {
+      if(address.asNumber() < this.size) {
+        this.memory[address.asNumber()] = value;
       }
       else {
         //Should throw an interrupt
       }
     }
 
-    public getByte(bytes: Byte[]): Byte {
+    public getByte(address: Short): Byte {
       var toReturn: Byte;
-      var address: number = twoBytesToNumber(bytes[0], bytes[1]);
 
-      if(address < this.size) {
-        toReturn = this.memory[address];
+      if(address.asNumber() < this.size) {
+        toReturn = this.memory[address.asNumber()];
       }
       else {
         //Should throw an interrupt
@@ -55,20 +52,41 @@ module TSOS {
       this.setValue(value);  
     } 
 
-    public setValue(value: number): void {
-      this.value = value & 255;
+    private setValue(value: number): void {
+      this.value = value & 0xFF;
+    }
+
+    public increment(): void {
+      this.setValue(++this.value);
     }
 
     public asNumber(): number {
       return this.value;
     }
-  
   }
-  
-  export function twoBytesToNumber(lowByte: Byte, highByte: Byte): number {
-    var addressAsString: string = highByte.asNumber().toString(2) + lowByte.asNumber().toString(2);
-    var address = parseInt(addressAsString, 2);
-    
-    return address;
+
+  export class Short {
+    private lowByte: Byte;
+    private highByte: Byte;
+
+    constructor(value: number) {
+      this.lowByte = new Byte(value & 0xFF);
+      this.highByte = new Byte((value & 0xFF00) >> 8);
+    }
+
+    public increment() {
+      
+    }
+
+    public asNumber(): number {
+      var shortAsString: string = this.highByte.asNumber().toString(2) + this.lowByte.asNumber().toString(2);
+      var shortAsNumber = parseInt(shortAsString, 2);
+      
+      return shortAsNumber;
+    }
+  }
+
+  export function bytesToShort(lowByte: Byte, highByte: Byte): Short {
+    return new Short(lowByte.asNumber() + (highByte.asNumber() << 8));
   }
 }

@@ -12,25 +12,20 @@ Operating System Concepts 8th edition by Silberschatz, Galvin, and Gagne.  ISBN 
 ------------ */
 var TSOS;
 (function (TSOS) {
-    function numberToBytes(value) {
-        var toReturn = [];
-
+    function numberToShort(value) {
         var lowByte = new TSOS.Byte(value & 0xFF);
         var highByte = new TSOS.Byte((value & 0xFF00) >> 8);
 
-        toReturn[0] = lowByte;
-        toReturn[1] = highByte;
-
-        return toReturn;
+        return TSOS.bytesToShort(lowByte, highByte);
     }
-    TSOS.numberToBytes = numberToBytes;
+    TSOS.numberToShort = numberToShort;
 
     var Cpu = (function () {
         function Cpu() {
             this.init();
         }
         Cpu.prototype.init = function () {
-            this.programCounter = 0;
+            this.programCounter = new TSOS.Short(0);
             this.accumulator = new TSOS.Byte(0);
             this.xRegister = new TSOS.Byte(0);
             this.yRegister = new TSOS.Byte(0);
@@ -45,11 +40,11 @@ var TSOS;
             this.loadInstruction();
             this.executeInstruction();
 
-            this.programCounter++;
+            this.programCounter.increment();
         };
 
         Cpu.prototype.loadInstruction = function () {
-            this.instructionRegister = this.memory.getByte(numberToBytes(this.programCounter));
+            this.instructionRegister = this.memory.getByte(this.programCounter);
         };
 
         Cpu.prototype.executeInstruction = function () {
@@ -110,18 +105,14 @@ var TSOS;
 
         Cpu.prototype.loadAddressFromMemory = function () {
             //The lower address byte is one byte ahread of the instruction so increment the PC
-            this.programCounter++;
-            var lowByte = this.memory.getByte(numberToBytes(this.programCounter));
+            this.programCounter.increment();
+            var lowByte = this.memory.getByte(this.programCounter);
 
             //The high address byte is two bytes ahread of the instruction so increment the PC
-            this.programCounter++;
-            var highByte = this.memory.getByte(numberToBytes(this.programCounter));
+            this.programCounter.increment();
+            var highByte = this.memory.getByte(this.programCounter);
 
-            var address = [];
-            address[0] = lowByte;
-            address[1] = highByte;
-
-            return address;
+            return TSOS.bytesToShort(lowByte, highByte);
         };
 
         Cpu.prototype.addWithCarry = function () {
@@ -133,7 +124,7 @@ var TSOS;
 
             //There is an extra byte (for high order addresses we ignore)
             //So we have to increment the PC again
-            this.programCounter++;
+            this.programCounter.increment();
         };
 
         Cpu.prototype.storeAccumulatorInMemory = function () {
@@ -141,28 +132,28 @@ var TSOS;
 
             //There is an extra byte (for high order addresses we ignore)
             //So we have to increment the PC again
-            this.programCounter++;
+            this.programCounter.increment();
         };
 
         Cpu.prototype.loadYRegisterWithConstant = function () {
             //The constant is one byte ahead of the instruction in memory so incremenet the PC
-            this.programCounter++;
+            this.programCounter.increment();
 
-            this.yRegister = this.memory.getByte(numberToBytes(this.programCounter));
+            this.yRegister = this.memory.getByte(this.programCounter);
         };
 
         Cpu.prototype.loadXRegisterWithConstant = function () {
             //The constant is one byte ahead of the instruction in memory so incremenet the PC
-            this.programCounter++;
+            this.programCounter.increment();
 
-            this.xRegister = this.memory.getByte(numberToBytes(this.programCounter));
+            this.xRegister = this.memory.getByte(this.programCounter);
         };
 
         Cpu.prototype.loadAccumulatorWithConstant = function () {
             //The constant is one byte ahead of the instruction in memory so incremenet the PC
-            this.programCounter++;
+            this.programCounter.increment();
 
-            this.accumulator = this.memory.getByte(numberToBytes(this.programCounter));
+            this.accumulator = this.memory.getByte(this.programCounter);
         };
 
         Cpu.prototype.loadYRegisterFromMemory = function () {
@@ -170,7 +161,7 @@ var TSOS;
 
             //There is an extra byte (for high order addresses we ignore)
             //So we have to increment the PC again
-            this.programCounter++;
+            this.programCounter.increment();
         };
 
         Cpu.prototype.loadAccumulatorFromMemory = function () {
@@ -178,7 +169,7 @@ var TSOS;
 
             //There is an extra byte (for high order addresses we ignore)
             //So we have to increment the PC again
-            this.programCounter++;
+            this.programCounter.increment();
         };
 
         Cpu.prototype.loadXRegisterFromMemory = function () {
@@ -186,19 +177,19 @@ var TSOS;
 
             //There is an extra byte (for high order addresses we ignore)
             //So we have to increment the PC again
-            this.programCounter++;
+            this.programCounter.increment();
         };
 
         Cpu.prototype.branch = function () {
             //If zFlag is true, we want to branch
             if (this.zFlag) {
                 //The constant is one byte ahead of the instruction in memory so incremenet the PC
-                this.programCounter++;
+                this.programCounter.increment();
 
-                var branchAmount = this.memory.getByte(numberToBytes(this.programCounter)).asNumber();
+                var branchAmount = this.memory.getByte(this.programCounter).asNumber();
 
                 //We have to wrap when branch goes above our memory range
-                this.programCounter = (this.programCounter + branchAmount) % 256;
+                this.programCounter = new TSOS.Short((this.programCounter.asNumber() + branchAmount) % 256);
             }
         };
 
@@ -215,7 +206,7 @@ var TSOS;
 
             //There is an extra byte (for high order addresses we ignore)
             //So we have to increment the PC again
-            this.programCounter++;
+            this.programCounter.increment();
         };
         return Cpu;
     })();

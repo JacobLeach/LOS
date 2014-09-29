@@ -14,22 +14,19 @@ var TSOS;
                 this.memory[i] = new Byte(0);
             }
         }
-        Memory.prototype.setByte = function (bytes, value) {
-            var address = twoBytesToNumber(bytes[0], bytes[1]);
-
-            if (address < this.size) {
-                this.memory[address] = value;
+        Memory.prototype.setByte = function (address, value) {
+            if (address.asNumber() < this.size) {
+                this.memory[address.asNumber()] = value;
             } else {
                 //Should throw an interrupt
             }
         };
 
-        Memory.prototype.getByte = function (bytes) {
+        Memory.prototype.getByte = function (address) {
             var toReturn;
-            var address = twoBytesToNumber(bytes[0], bytes[1]);
 
-            if (address < this.size) {
-                toReturn = this.memory[address];
+            if (address.asNumber() < this.size) {
+                toReturn = this.memory[address.asNumber()];
             } else {
                 //Should throw an interrupt
                 toReturn = undefined;
@@ -47,7 +44,11 @@ var TSOS;
             this.setValue(value);
         }
         Byte.prototype.setValue = function (value) {
-            this.value = value & 255;
+            this.value = value & 0xFF;
+        };
+
+        Byte.prototype.increment = function () {
+            this.setValue(++this.value);
         };
 
         Byte.prototype.asNumber = function () {
@@ -57,11 +58,26 @@ var TSOS;
     })();
     TSOS.Byte = Byte;
 
-    function twoBytesToNumber(lowByte, highByte) {
-        var addressAsString = highByte.asNumber().toString(2) + lowByte.asNumber().toString(2);
-        var address = parseInt(addressAsString, 2);
+    var Short = (function () {
+        function Short(value) {
+            this.lowByte = new Byte(value & 0xFF);
+            this.highByte = new Byte((value & 0xFF00) >> 8);
+        }
+        Short.prototype.increment = function () {
+        };
 
-        return address;
+        Short.prototype.asNumber = function () {
+            var shortAsString = this.highByte.asNumber().toString(2) + this.lowByte.asNumber().toString(2);
+            var shortAsNumber = parseInt(shortAsString, 2);
+
+            return shortAsNumber;
+        };
+        return Short;
+    })();
+    TSOS.Short = Short;
+
+    function bytesToShort(lowByte, highByte) {
+        return new Short(lowByte.asNumber() + (highByte.asNumber() << 8));
     }
-    TSOS.twoBytesToNumber = twoBytesToNumber;
+    TSOS.bytesToShort = bytesToShort;
 })(TSOS || (TSOS = {}));
