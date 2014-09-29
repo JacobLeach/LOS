@@ -121,6 +121,13 @@ module TSOS {
       }
     }
 
+    private loadInstructionConstant(): Byte {
+      //The constant is one byte ahead of the instruction in memory so incremenet the PC
+      this.programCounter.increment();
+             
+      return this.memory.getByte(this.programCounter);
+    }
+
     private loadAddressFromMemory(): Short {
       //The lower address byte is one byte ahread of the instruction so increment the PC
       this.programCounter.increment();
@@ -133,69 +140,44 @@ module TSOS {
       return bytesToShort(lowByte, highByte);
     }
 
+    private loadValueFromAddress(): Byte {
+      return this.memory.getByte(this.loadAddressFromMemory());
+    }
+
     private addWithCarry() {
       var value: Byte = this.memory.getByte(this.loadAddressFromMemory());
 
       //We are not implementing carry.
       //Instead we are just wrapping the value around
       this.accumulator = new Byte((this.accumulator.asNumber() + value.asNumber()) % 256);
-      
-      //There is an extra byte (for high order addresses we ignore)
-      //So we have to increment the PC again
-      this.programCounter.increment();
     }
     
     private storeAccumulatorInMemory() {
       this.memory.setByte(this.loadAddressFromMemory(), this.accumulator);
-
-      //There is an extra byte (for high order addresses we ignore)
-      //So we have to increment the PC again
-      this.programCounter.increment();
     }
 
     private loadYRegisterWithConstant() {
-      //The constant is one byte ahead of the instruction in memory so incremenet the PC
-      this.programCounter.increment();
-             
-      this.yRegister = this.memory.getByte(this.programCounter);
+      this.yRegister = this.loadInstructionConstant(); 
     }
 
     private loadXRegisterWithConstant() {
-      //The constant is one byte ahead of the instruction in memory so incremenet the PC
-      this.programCounter.increment();
-             
-      this.xRegister = this.memory.getByte(this.programCounter);
+      this.xRegister = this.loadInstructionConstant(); 
     }
     
     private loadAccumulatorWithConstant() {
-      //The constant is one byte ahead of the instruction in memory so incremenet the PC
-      this.programCounter.increment();
-
-      this.accumulator = this.memory.getByte(this.programCounter);
+      this.accumulator = this.loadInstructionConstant();
     }
     
     private loadYRegisterFromMemory() {
-      this.yRegister = this.memory.getByte(this.loadAddressFromMemory());
-      
-      //There is an extra byte (for high order addresses we ignore)
-      //So we have to increment the PC again
-      this.programCounter.increment();
+      this.yRegister = this.loadValueFromAddress();
     }
 
     private loadAccumulatorFromMemory() {
-      this.accumulator = this.memory.getByte(this.loadAddressFromMemory());
-      
-      //There is an extra byte (for high order addresses we ignore)
-      //So we have to increment the PC again
-      this.programCounter.increment();
+      this.accumulator = this.loadValueFromAddress();
     }
     
     private loadXRegisterFromMemory() {
-      this.xRegister = this.memory.getByte(this.loadAddressFromMemory());
-      
-      //There is an extra byte (for high order addresses we ignore)
-      //So we have to increment the PC again
-      this.programCounter.increment();
+      this.xRegister = this.loadValueFromAddress();
     }
 
     private branch() {
@@ -217,14 +199,11 @@ module TSOS {
 
     private increment() {
       var address: Short = this.loadAddressFromMemory();
-      var value: number = this.memory.getByte(address).asNumber();
+      var value: Byte = this.memory.getByte(address);
 
-      value++;
-      this.memory.setByte(address, new Byte(value));
-      
-      //There is an extra byte (for high order addresses we ignore)
-      //So we have to increment the PC again
-      this.programCounter.increment();
+      value.increment();
+
+      this.memory.setByte(address, value);
     }
   }
 }

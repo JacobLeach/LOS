@@ -103,6 +103,13 @@ var TSOS;
             }
         };
 
+        Cpu.prototype.loadInstructionConstant = function () {
+            //The constant is one byte ahead of the instruction in memory so incremenet the PC
+            this.programCounter.increment();
+
+            return this.memory.getByte(this.programCounter);
+        };
+
         Cpu.prototype.loadAddressFromMemory = function () {
             //The lower address byte is one byte ahread of the instruction so increment the PC
             this.programCounter.increment();
@@ -115,69 +122,44 @@ var TSOS;
             return TSOS.bytesToShort(lowByte, highByte);
         };
 
+        Cpu.prototype.loadValueFromAddress = function () {
+            return this.memory.getByte(this.loadAddressFromMemory());
+        };
+
         Cpu.prototype.addWithCarry = function () {
             var value = this.memory.getByte(this.loadAddressFromMemory());
 
             //We are not implementing carry.
             //Instead we are just wrapping the value around
             this.accumulator = new TSOS.Byte((this.accumulator.asNumber() + value.asNumber()) % 256);
-
-            //There is an extra byte (for high order addresses we ignore)
-            //So we have to increment the PC again
-            this.programCounter.increment();
         };
 
         Cpu.prototype.storeAccumulatorInMemory = function () {
             this.memory.setByte(this.loadAddressFromMemory(), this.accumulator);
-
-            //There is an extra byte (for high order addresses we ignore)
-            //So we have to increment the PC again
-            this.programCounter.increment();
         };
 
         Cpu.prototype.loadYRegisterWithConstant = function () {
-            //The constant is one byte ahead of the instruction in memory so incremenet the PC
-            this.programCounter.increment();
-
-            this.yRegister = this.memory.getByte(this.programCounter);
+            this.yRegister = this.loadInstructionConstant();
         };
 
         Cpu.prototype.loadXRegisterWithConstant = function () {
-            //The constant is one byte ahead of the instruction in memory so incremenet the PC
-            this.programCounter.increment();
-
-            this.xRegister = this.memory.getByte(this.programCounter);
+            this.xRegister = this.loadInstructionConstant();
         };
 
         Cpu.prototype.loadAccumulatorWithConstant = function () {
-            //The constant is one byte ahead of the instruction in memory so incremenet the PC
-            this.programCounter.increment();
-
-            this.accumulator = this.memory.getByte(this.programCounter);
+            this.accumulator = this.loadInstructionConstant();
         };
 
         Cpu.prototype.loadYRegisterFromMemory = function () {
-            this.yRegister = this.memory.getByte(this.loadAddressFromMemory());
-
-            //There is an extra byte (for high order addresses we ignore)
-            //So we have to increment the PC again
-            this.programCounter.increment();
+            this.yRegister = this.loadValueFromAddress();
         };
 
         Cpu.prototype.loadAccumulatorFromMemory = function () {
-            this.accumulator = this.memory.getByte(this.loadAddressFromMemory());
-
-            //There is an extra byte (for high order addresses we ignore)
-            //So we have to increment the PC again
-            this.programCounter.increment();
+            this.accumulator = this.loadValueFromAddress();
         };
 
         Cpu.prototype.loadXRegisterFromMemory = function () {
-            this.xRegister = this.memory.getByte(this.loadAddressFromMemory());
-
-            //There is an extra byte (for high order addresses we ignore)
-            //So we have to increment the PC again
-            this.programCounter.increment();
+            this.xRegister = this.loadValueFromAddress();
         };
 
         Cpu.prototype.branch = function () {
@@ -199,14 +181,11 @@ var TSOS;
 
         Cpu.prototype.increment = function () {
             var address = this.loadAddressFromMemory();
-            var value = this.memory.getByte(address).asNumber();
+            var value = this.memory.getByte(address);
 
-            value++;
-            this.memory.setByte(address, new TSOS.Byte(value));
+            value.increment();
 
-            //There is an extra byte (for high order addresses we ignore)
-            //So we have to increment the PC again
-            this.programCounter.increment();
+            this.memory.setByte(address, value);
         };
         return Cpu;
     })();
