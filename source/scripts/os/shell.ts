@@ -357,8 +357,7 @@ module TSOS {
         }
 
         public shellCls(args) {
-            _StdOut.clearScreen();
-            _StdOut.resetXY();
+          Stdio.putString(ESCAPE + '[J', _StdOut);
         }
 
         public shellMan(args) {
