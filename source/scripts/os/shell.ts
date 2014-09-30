@@ -462,6 +462,7 @@ module TSOS {
         public shellCrash(args) {
           _Console.bluescreen();
           _Console.writeWhiteText("Gotta crash... Mmmhh kay.");
+          _Kernel.krnShutdown();
         }
         
         public shellStatus(args) {
