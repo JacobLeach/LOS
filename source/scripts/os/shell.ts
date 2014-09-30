@@ -344,7 +344,7 @@ module TSOS {
         public shellHelp(args) {
             Stdio.putString("Commands:", _StdOut);
             for (var i in _OsShell.commandList) {
-                _StdOut.advanceLine();
+                Stdio.putString(ESCAPE + '[E', _StdOut);
                 Stdio.putString("  " + _OsShell.commandList[i].command + " " + _OsShell.commandList[i].description, _StdOut);
             }
         }
