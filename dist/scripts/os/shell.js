@@ -308,8 +308,7 @@ var TSOS;
         };
 
         Shell.prototype.shellCls = function (args) {
-            _StdOut.clearScreen();
-            _StdOut.resetXY();
+            TSOS.Stdio.putString(ESCAPE + '[J', _StdOut);
         };
 
         Shell.prototype.shellMan = function (args) {

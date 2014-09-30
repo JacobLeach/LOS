@@ -155,6 +155,9 @@ module TSOS {
             case 'G':
               this.cursor.x = amount;
               break;
+            case 'J':
+              this.clearAll();
+              break;
             case 'K':
               this.clearLine();
               break;
@@ -299,6 +302,12 @@ module TSOS {
       this.context.clearRect(0, topLeft.y, this.canvas.width, this.lineHeight + this.lineSpacing);
     }
 
+    private clearAll(): void {
+      this.cursor.x = 0;
+      this.cursor.y = 0;
+      this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    }
+    
     private cursorToCoords() {
       var newX = (this.cursor.x * this.charWidth) + 1;
       var newY = ((this.cursor.y + 1) * this.lineHeight) - this.lineSpacing;

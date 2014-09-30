@@ -133,6 +133,9 @@ var TSOS;
                         case 'G':
                             this.cursor.x = amount;
                             break;
+                        case 'J':
+                            this.clearAll();
+                            break;
                         case 'K':
                             this.clearLine();
                             break;
@@ -267,6 +270,12 @@ var TSOS;
             //Get topleft corner of the cursor location
             var topLeft = this.cursorTopLeft();
             this.context.clearRect(0, topLeft.y, this.canvas.width, this.lineHeight + this.lineSpacing);
+        };
+
+        Terminal.prototype.clearAll = function () {
+            this.cursor.x = 0;
+            this.cursor.y = 0;
+            this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
         };
 
         Terminal.prototype.cursorToCoords = function () {
