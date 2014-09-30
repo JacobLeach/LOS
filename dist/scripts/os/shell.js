@@ -294,7 +294,7 @@ var TSOS;
         Shell.prototype.shellHelp = function (args) {
             TSOS.Stdio.putString("Commands:", _StdOut);
             for (var i in _OsShell.commandList) {
-                _StdOut.advanceLine();
+                TSOS.Stdio.putString(ESCAPE + '[E', _StdOut);
                 TSOS.Stdio.putString("  " + _OsShell.commandList[i].command + " " + _OsShell.commandList[i].description, _StdOut);
             }
         };
