@@ -10,7 +10,7 @@ var TSOS;
         //Wrapper to write text to output
         Stdio.putString = function (text, terminal) {
             for (var i = 0; i < text.length; i++) {
-                terminal.putChar(text.charAt(i));
+                //    terminal.putChar(text.charAt(i));
             }
         };
         return Stdio;

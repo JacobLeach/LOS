@@ -19,6 +19,17 @@ module TSOS {
       for(var i: number = 0; i < size; i++) {
         this.memory[i] = new Byte(0);
       }
+
+      this.memory[0] = new Byte(0xA9);
+      this.memory[1] = new Byte(65);
+      this.memory[2] = new Byte(0x8D);
+      this.memory[3] = new Byte(0x00);
+      this.memory[4] = new Byte(0xFF);
+
+    }
+
+    public getSize(): number {
+      return this.size;
     }
 
     public setByte(address: Short, value: Byte): void {
@@ -75,11 +86,27 @@ module TSOS {
     }
 
     public increment() {
+      if(this.lowByte.asNumber() == 255) {
+        this.highByte.increment();
+      }
       
+      this.lowByte.increment();
     }
 
     public asNumber(): number {
-      var shortAsString: string = this.highByte.asNumber().toString(2) + this.lowByte.asNumber().toString(2);
+      var lowAsString: string = this.lowByte.asNumber().toString(2); 
+      
+      while(lowAsString.length < 8) {
+        lowAsString = "0" + lowAsString;
+      }
+      
+      var highAsString: string = this.highByte.asNumber().toString(2);
+      
+      while(highAsString.length < 8) {
+        highAsString = "0" + highAsString;
+      }
+
+      var shortAsString: string = highAsString + lowAsString;
       var shortAsNumber = parseInt(shortAsString, 2);
       
       return shortAsNumber;

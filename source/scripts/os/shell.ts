@@ -287,9 +287,9 @@ module TSOS {
           * we need to advance it to the next line before we 
           * print the prompt
           */
-          if(_Console.getCursorPosition().x > 0) {
-            Stdio.putString(ESCAPE + '[E', _StdOut);
-          }
+          //if(_Console.getCursorPosition().x > 0) {
+          //  Stdio.putString(ESCAPE + '[E', _StdOut);
+          //}
           
           if(command != "crash") {
             this.putPrompt();
@@ -460,9 +460,7 @@ module TSOS {
        
         //HACKS HACKS HACKS
         public shellCrash(args) {
-          _Console.bluescreen();
-          _Console.writeWhiteText("Gotta crash... Mmmhh kay.");
-          _Kernel.krnShutdown();
+          //TODO
         }
         
         public shellStatus(args) {

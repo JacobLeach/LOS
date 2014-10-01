@@ -10,7 +10,7 @@ module TSOS {
     //Wrapper to write text to output
     public static putString(text: String, terminal: Terminal) {
       for(var i = 0; i < text.length; i++) {
-        terminal.putChar(text.charAt(i));
+    //    terminal.putChar(text.charAt(i));
       }
     }
   }

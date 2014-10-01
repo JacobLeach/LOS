@@ -16,7 +16,7 @@ module TSOS {
     private zFlag: boolean;
     private executing: boolean;
 
-    private memory: Memory;
+    private deviceController: DeviceController;
 
     constructor() {
       this.programCounter = new Short(0);
@@ -24,14 +24,13 @@ module TSOS {
       this.xRegister = new Byte(0);
       this.yRegister = new Byte(0);
       this.zFlag = false;
-      this.executing = false;
+      this.executing = true;
 
-      this.memory = new Memory();
+      this.deviceController = new DeviceController();
     }
 
     public cycle(): void {
       _Kernel.krnTrace('CPU cycle');      
-      
       this.loadInstruction(); 
       this.executeInstruction();
       this.programCounter.increment();
@@ -42,7 +41,7 @@ module TSOS {
     }
 
     private loadInstruction(): void {
-      this.instructionRegister = this.memory.getByte(this.programCounter);
+      this.instructionRegister = this.deviceController.getByte(this.programCounter);
     }
 
     private executeInstruction(): void {
@@ -93,7 +92,7 @@ module TSOS {
     }
 
     private addWithCarry() {
-      var value: Byte = this.memory.getByte(this.loadAddressFromMemory());
+      var value: Byte = this.deviceController.getByte(this.loadAddressFromMemory());
 
       //We are not implementing carry.
       //Instead we are just wrapping the value around
@@ -101,7 +100,7 @@ module TSOS {
     }
     
     private storeAccumulatorInMemory() {
-      this.memory.setByte(this.loadAddressFromMemory(), this.accumulator);
+      this.deviceController.setByte(this.loadAddressFromMemory(), this.accumulator);
     }
 
     private loadYRegisterWithConstant() {
@@ -134,7 +133,7 @@ module TSOS {
         //The constant is one byte ahead of the instruction in memory so incremenet the PC
         this.programCounter.increment();
 
-        var branchAmount: number = this.memory.getByte(this.programCounter).asNumber();
+        var branchAmount: number = this.deviceController.getByte(this.programCounter).asNumber();
 
         //We have to wrap when branch goes above our memory range
         this.programCounter = new Short((this.programCounter.asNumber() + branchAmount) % 256);
@@ -147,34 +146,34 @@ module TSOS {
 
     private increment() {
       var address: Short = this.loadAddressFromMemory();
-      var value: Byte = this.memory.getByte(address);
+      var value: Byte = this.deviceController.getByte(address);
 
       value.increment();
 
-      this.memory.setByte(address, value);
+      this.deviceController.setByte(address, value);
     }
     
     private loadInstructionConstant(): Byte {
       //The constant is one byte ahead of the instruction in memory so incremenet the PC
       this.programCounter.increment();
              
-      return this.memory.getByte(this.programCounter);
+      return this.deviceController.getByte(this.programCounter);
     }
 
     private loadAddressFromMemory(): Short {
       //The lower address byte is one byte ahread of the instruction so increment the PC
       this.programCounter.increment();
-      var lowByte: Byte = this.memory.getByte(this.programCounter);
+      var lowByte: Byte = this.deviceController.getByte(this.programCounter);
 
       //The high address byte is two bytes ahread of the instruction so increment the PC
       this.programCounter.increment();
-      var highByte: Byte = this.memory.getByte(this.programCounter);
+      var highByte: Byte = this.deviceController.getByte(this.programCounter);
 
       return bytesToShort(lowByte, highByte);
     }
 
     private loadValueFromAddress(): Byte {
-      return this.memory.getByte(this.loadAddressFromMemory());
+      return this.deviceController.getByte(this.loadAddressFromMemory());
     }
   }
 }

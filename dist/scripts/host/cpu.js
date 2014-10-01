@@ -11,13 +11,12 @@ var TSOS;
             this.xRegister = new TSOS.Byte(0);
             this.yRegister = new TSOS.Byte(0);
             this.zFlag = false;
-            this.executing = false;
+            this.executing = true;
 
-            this.memory = new TSOS.Memory();
+            this.deviceController = new TSOS.DeviceController();
         }
         Cpu.prototype.cycle = function () {
             _Kernel.krnTrace('CPU cycle');
-
             this.loadInstruction();
             this.executeInstruction();
             this.programCounter.increment();
@@ -28,7 +27,7 @@ var TSOS;
         };
 
         Cpu.prototype.loadInstruction = function () {
-            this.instructionRegister = this.memory.getByte(this.programCounter);
+            this.instructionRegister = this.deviceController.getByte(this.programCounter);
         };
 
         Cpu.prototype.executeInstruction = function () {
@@ -78,7 +77,7 @@ var TSOS;
         };
 
         Cpu.prototype.addWithCarry = function () {
-            var value = this.memory.getByte(this.loadAddressFromMemory());
+            var value = this.deviceController.getByte(this.loadAddressFromMemory());
 
             //We are not implementing carry.
             //Instead we are just wrapping the value around
@@ -86,7 +85,7 @@ var TSOS;
         };
 
         Cpu.prototype.storeAccumulatorInMemory = function () {
-            this.memory.setByte(this.loadAddressFromMemory(), this.accumulator);
+            this.deviceController.setByte(this.loadAddressFromMemory(), this.accumulator);
         };
 
         Cpu.prototype.loadYRegisterWithConstant = function () {
@@ -119,7 +118,7 @@ var TSOS;
                 //The constant is one byte ahead of the instruction in memory so incremenet the PC
                 this.programCounter.increment();
 
-                var branchAmount = this.memory.getByte(this.programCounter).asNumber();
+                var branchAmount = this.deviceController.getByte(this.programCounter).asNumber();
 
                 //We have to wrap when branch goes above our memory range
                 this.programCounter = new TSOS.Short((this.programCounter.asNumber() + branchAmount) % 256);
@@ -132,34 +131,34 @@ var TSOS;
 
         Cpu.prototype.increment = function () {
             var address = this.loadAddressFromMemory();
-            var value = this.memory.getByte(address);
+            var value = this.deviceController.getByte(address);
 
             value.increment();
 
-            this.memory.setByte(address, value);
+            this.deviceController.setByte(address, value);
         };
 
         Cpu.prototype.loadInstructionConstant = function () {
             //The constant is one byte ahead of the instruction in memory so incremenet the PC
             this.programCounter.increment();
 
-            return this.memory.getByte(this.programCounter);
+            return this.deviceController.getByte(this.programCounter);
         };
 
         Cpu.prototype.loadAddressFromMemory = function () {
             //The lower address byte is one byte ahread of the instruction so increment the PC
             this.programCounter.increment();
-            var lowByte = this.memory.getByte(this.programCounter);
+            var lowByte = this.deviceController.getByte(this.programCounter);
 
             //The high address byte is two bytes ahread of the instruction so increment the PC
             this.programCounter.increment();
-            var highByte = this.memory.getByte(this.programCounter);
+            var highByte = this.deviceController.getByte(this.programCounter);
 
             return TSOS.bytesToShort(lowByte, highByte);
         };
 
         Cpu.prototype.loadValueFromAddress = function () {
-            return this.memory.getByte(this.loadAddressFromMemory());
+            return this.deviceController.getByte(this.loadAddressFromMemory());
         };
         return Cpu;
     })();
