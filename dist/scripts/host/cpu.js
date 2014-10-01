@@ -38,8 +38,14 @@ var TSOS;
                 case 0x6D:
                     this.addWithCarry();
                     break;
+                case 0x8A:
+                    this.transferXRegisterToAccumulator();
+                    break;
                 case 0x8D:
                     this.storeAccumulatorInMemory();
+                    break;
+                case 0x98:
+                    this.transferYRegisterToAccumulator();
                     break;
                 case 0xA0:
                     this.loadYRegisterWithConstant();
@@ -47,8 +53,14 @@ var TSOS;
                 case 0xA2:
                     this.loadXRegisterWithConstant();
                     break;
+                case 0xA8:
+                    this.transferAccumulatorToYRegister();
+                    break;
                 case 0xA9:
                     this.loadAccumulatorWithConstant();
+                    break;
+                case 0xAA:
+                    this.transferAccumulatorToXRegister();
                     break;
                 case 0xAC:
                     this.loadYRegisterFromMemory();
@@ -75,6 +87,22 @@ var TSOS;
                 case 0xFF:
                     break;
             }
+        };
+
+        Cpu.prototype.transferXRegisterToAccumulator = function () {
+            this.accumulator = this.xRegister;
+        };
+
+        Cpu.prototype.transferYRegisterToAccumulator = function () {
+            this.accumulator = this.yRegister;
+        };
+
+        Cpu.prototype.transferAccumulatorToXRegister = function () {
+            this.xRegister = this.accumulator;
+        };
+
+        Cpu.prototype.transferAccumulatorToYRegister = function () {
+            this.yRegister = this.accumulator;
         };
 
         Cpu.prototype.addWithCarry = function () {
