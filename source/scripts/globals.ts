@@ -17,11 +17,6 @@ var APP_VERSION: string = "1.0.0";
 
 var CPU_CLOCK_INTERVAL: number = 100;   // This is in ms, or milliseconds, so 1000 = 1 second.
 
-var TIMER_IRQ: number = 0;  // Pages 23 (timer), 9 (interrupts), and 561 (interrupt priority).
-                            // NOTE: The timer is different from hardware/host clock pulses. Don't confuse these.
-var KEYBOARD_IRQ: number = 1;
-var TERMINAL_IRQ: number = 2;
-
 var ESCAPE    = String.fromCharCode(27);
 var TAB       = String.fromCharCode(9);
 var ENTER     = String.fromCharCode(13);

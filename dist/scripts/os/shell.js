@@ -294,7 +294,7 @@ var TSOS;
         Shell.prototype.shellHelp = function (args) {
             TSOS.Stdio.putString("Commands:", _StdOut);
             for (var i in _OsShell.commandList) {
-                _StdOut.advanceLine();
+                TSOS.Stdio.putString(ESCAPE + '[E', _StdOut);
                 TSOS.Stdio.putString("  " + _OsShell.commandList[i].command + " " + _OsShell.commandList[i].description, _StdOut);
             }
         };
@@ -308,8 +308,7 @@ var TSOS;
         };
 
         Shell.prototype.shellCls = function (args) {
-            _StdOut.clearScreen();
-            _StdOut.resetXY();
+            TSOS.Stdio.putString(ESCAPE + '[J', _StdOut);
         };
 
         Shell.prototype.shellMan = function (args) {
@@ -405,6 +404,7 @@ var TSOS;
         Shell.prototype.shellCrash = function (args) {
             _Console.bluescreen();
             _Console.writeWhiteText("Gotta crash... Mmmhh kay.");
+            _Kernel.krnShutdown();
         };
 
         Shell.prototype.shellStatus = function (args) {

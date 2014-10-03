@@ -39,11 +39,8 @@ var TSOS;
             this.krnTrace("Creating and Launching the shell.");
             _OsShell = new TSOS.Shell();
             _OsShell.init();
-
             // Finally, initiate testing.
-            if (_GLaDOS) {
-                _GLaDOS.afterStartup();
-            }
+            //_GLaDOS.afterStartup();
         };
 
         Kernel.prototype.krnShutdown = function () {
@@ -72,7 +69,7 @@ var TSOS;
                 // TODO: Implement a priority queue based on the IRQ number/id to enforce interrupt priority.
                 var interrupt = _KernelInterruptQueue.dequeue();
                 this.krnInterruptHandler(interrupt.irq, interrupt.params);
-            } else if (_CPU.isExecuting) {
+            } else if (_CPU.isExecuting()) {
                 _CPU.cycle();
             } else {
                 this.krnTrace("Idle");
@@ -100,15 +97,17 @@ var TSOS;
             this.krnTrace("Handling IRQ~" + irq);
 
             switch (irq) {
-                case TIMER_IRQ:
+                case Kernel.TIMER_IRQ:
                     this.krnTimerISR(); // Kernel built-in routine for timers (not the clock).
                     break;
-                case KEYBOARD_IRQ:
+                case Kernel.KEYBOARD_IRQ:
                     _krnKeyboardDriver.isr(params); // Kernel mode device driver
 
                     while (_KernelInputQueue.getSize() > 0) {
                         _OsShell.isr(_KernelInputQueue.dequeue());
                     }
+                    break;
+                case Kernel.SYSTEM_CALL_IQR:
                     break;
                 default:
                     this.krnTrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");
@@ -159,6 +158,10 @@ var TSOS;
             _Console.writeWhiteText(msg);
             this.krnShutdown();
         };
+        Kernel.TIMER_IRQ = 0;
+        Kernel.KEYBOARD_IRQ = 1;
+        Kernel.TERMINAL_IRQ = 2;
+        Kernel.SYSTEM_CALL_IQR = 3;
         return Kernel;
     })();
     TSOS.Kernel = Kernel;

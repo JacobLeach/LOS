@@ -8,57 +8,76 @@ var TSOS;
         function Memory(size) {
             if (typeof size === "undefined") { size = Memory.DEFAULT_SIZE; }
             this.size = size;
-            this.ram = new Array();
+            this.memory = [];
 
             for (var i = 0; i < size; i++) {
-                this.ram[i] = new Byte();
+                this.memory[i] = new Byte(0);
             }
         }
         Memory.prototype.setByte = function (address, value) {
-            if (address > this.size) {
-                this.ram[this.size - 1].setValue(value);
-            } else if (address < this.size) {
-                this.ram[0].setValue(value);
+            if (address.asNumber() < this.size) {
+                this.memory[address.asNumber()] = value;
             } else {
-                this.ram[address].setValue(value);
+                //Should throw an interrupt
             }
         };
 
         Memory.prototype.getByte = function (address) {
             var toReturn;
 
-            if (address > this.size) {
-                toReturn = this.ram[this.size - 1].getValue();
-            } else if (address < this.size) {
-                toReturn = this.ram[0].getValue();
+            if (address.asNumber() < this.size) {
+                toReturn = this.memory[address.asNumber()];
             } else {
-                toReturn = this.ram[address].getValue();
+                //Should throw an interrupt
+                toReturn = undefined;
             }
 
             return toReturn;
         };
-        Memory.DEFAULT_SIZE = 256;
+        Memory.DEFAULT_SIZE = 768;
         return Memory;
     })();
     TSOS.Memory = Memory;
 
     var Byte = (function () {
-        function Byte() {
-            this.value = 0;
+        function Byte(value) {
+            this.setValue(value);
         }
         Byte.prototype.setValue = function (value) {
-            if (value > 256) {
-                new Error("Tried setting byte value higher than 256");
-            } else if (value < -128) {
-                new Error("Tried setting byte value less than -128");
-            } else {
-                this.value = value;
-            }
+            this.value = value & 0xFF;
         };
 
-        Byte.prototype.getValue = function () {
+        Byte.prototype.increment = function () {
+            this.setValue(++this.value);
+        };
+
+        Byte.prototype.asNumber = function () {
             return this.value;
         };
         return Byte;
     })();
+    TSOS.Byte = Byte;
+
+    var Short = (function () {
+        function Short(value) {
+            this.lowByte = new Byte(value & 0xFF);
+            this.highByte = new Byte((value & 0xFF00) >> 8);
+        }
+        Short.prototype.increment = function () {
+        };
+
+        Short.prototype.asNumber = function () {
+            var shortAsString = this.highByte.asNumber().toString(2) + this.lowByte.asNumber().toString(2);
+            var shortAsNumber = parseInt(shortAsString, 2);
+
+            return shortAsNumber;
+        };
+        return Short;
+    })();
+    TSOS.Short = Short;
+
+    function bytesToShort(lowByte, highByte) {
+        return new Short(lowByte.asNumber() + (highByte.asNumber() << 8));
+    }
+    TSOS.bytesToShort = bytesToShort;
 })(TSOS || (TSOS = {}));

@@ -344,7 +344,7 @@ module TSOS {
         public shellHelp(args) {
             Stdio.putString("Commands:", _StdOut);
             for (var i in _OsShell.commandList) {
-                _StdOut.advanceLine();
+                Stdio.putString(ESCAPE + '[E', _StdOut);
                 Stdio.putString("  " + _OsShell.commandList[i].command + " " + _OsShell.commandList[i].description, _StdOut);
             }
         }
@@ -357,8 +357,7 @@ module TSOS {
         }
 
         public shellCls(args) {
-            _StdOut.clearScreen();
-            _StdOut.resetXY();
+          Stdio.putString(ESCAPE + '[J', _StdOut);
         }
 
         public shellMan(args) {
@@ -463,6 +462,7 @@ module TSOS {
         public shellCrash(args) {
           _Console.bluescreen();
           _Console.writeWhiteText("Gotta crash... Mmmhh kay.");
+          _Kernel.krnShutdown();
         }
         
         public shellStatus(args) {
