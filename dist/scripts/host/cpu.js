@@ -34,6 +34,7 @@ var TSOS;
         Cpu.prototype.executeInstruction = function () {
             switch (this.instructionRegister.asNumber()) {
                 case 0x00:
+                    this.programEnd();
                     break;
                 case 0x6D:
                     this.addWithCarry();
@@ -87,6 +88,10 @@ var TSOS;
                 case 0xFF:
                     break;
             }
+        };
+
+        Cpu.prototype.programEnd = function () {
+            this.executing = false;
         };
 
         Cpu.prototype.transferXRegisterToAccumulator = function () {
