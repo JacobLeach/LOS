@@ -7,30 +7,28 @@
 module TSOS {
 
   export class PCB {
-    private static next_pid = 0;
-
-    private programCounter: number;
-    private accumulator: number;
-    private xRegister: number;
-    private yRegister: number;
+    private programCounter: Short;
+    private accumulator: Byte;
+    private xRegister: Byte;
+    private yRegister: Byte;
     private zFlag: boolean;
+    private kernelMode: boolean;
+    
+    private executing: boolean;
 
     private pid: number;
-    private lowAddress: number;
-    private highAddress: number;
+    private lowAddress: Short;
+    private highAddress: Short;
 
     constructor() {
-      this.programCounter = 0;
-      this.accumulator = 0;
-      this.xRegister = 0;
-      this.yRegister = 0;
+      this.programCounter = new Short(0);
+      this.accumulator = new Byte(0);
+      this.xRegister = new Byte(0);
+      this.yRegister = new Byte(0);
       this.zFlag = false;
+      this.kernelMode = false; 
 
-      this.pid = PCB.next_pid;
-      PCB.next_pid++;
-
-      
+      this.executing = false;
     }
   }
-
 }
