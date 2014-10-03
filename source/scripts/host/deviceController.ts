@@ -21,6 +21,9 @@ module TSOS {
           //Get terminal height
           case 0xFF02:
             break;
+          //Input from OS
+          case 0xFFF0:
+            break;
         }
       }
       return undefined;

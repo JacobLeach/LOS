@@ -14,11 +14,13 @@ var TSOS;
                 this.memory[i] = new Byte(0);
             }
 
+            //System calls
             this.memory[0] = new Byte(0xA9);
             this.memory[1] = new Byte(65);
             this.memory[2] = new Byte(0x8D);
             this.memory[3] = new Byte(0x00);
             this.memory[4] = new Byte(0xFF);
+            this.memory[4] = new Byte(0x00);
         }
         Memory.prototype.getSize = function () {
             return this.size;
@@ -44,7 +46,7 @@ var TSOS;
 
             return toReturn;
         };
-        Memory.DEFAULT_SIZE = 768;
+        Memory.DEFAULT_SIZE = 1024;
         return Memory;
     })();
     TSOS.Memory = Memory;

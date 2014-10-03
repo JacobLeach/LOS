@@ -15,6 +15,9 @@ var TSOS;
 
                     case 0xFF02:
                         break;
+
+                    case 0xFFF0:
+                        break;
                 }
             }
             return undefined;
