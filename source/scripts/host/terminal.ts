@@ -179,10 +179,6 @@ module TSOS {
       if(((this.echo && isInput) || !isInput)  && printable) {
         this.printChar(character, true); 
       }
-
-      if((!this.canonical || character === ENTER) && isInput) {
-        _KernelInterruptQueue.enqueue(new Interrupt(TERMINAL_IRQ, input));
-      }
     }
 
     private putChar(character: String): void {

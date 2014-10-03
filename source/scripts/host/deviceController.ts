@@ -34,15 +34,12 @@ module TSOS {
         this.memory.setByte(address, data);
       }
       else if(address.asNumber() >= 0xFF00 && address.asNumber() <= 0xFFFF) {
-          console.log("fuck");
         switch(address.asNumber()) {
-          //Write char to terminal
           case 0xFF00:
             this.terminal.write(data); 
             break;
         }
       }
-          console.log("balls");
     }
   }
 }

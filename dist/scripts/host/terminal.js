@@ -154,10 +154,6 @@ var TSOS;
             if (((this.echo && isInput) || !isInput) && printable) {
                 this.printChar(character, true);
             }
-
-            if ((!this.canonical || character === ENTER) && isInput) {
-                _KernelInterruptQueue.enqueue(new TSOS.Interrupt(TERMINAL_IRQ, input));
-            }
         };
 
         Terminal.prototype.putChar = function (character) {

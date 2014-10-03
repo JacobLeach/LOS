@@ -26,7 +26,7 @@ module TSOS {
       this.memory[2] = new Byte(0x8D);
       this.memory[3] = new Byte(0x00);
       this.memory[4] = new Byte(0xFF);
-      this.memory[4] = new Byte(0x00);
+      this.memory[5] = new Byte(0x00);
     }
 
     public getSize(): number {
