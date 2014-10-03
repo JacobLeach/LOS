@@ -11,11 +11,8 @@ var TSOS;
             this.xRegister = 0;
             this.yRegister = 0;
             this.zFlag = false;
-
-            this.pid = PCB.next_pid;
-            PCB.next_pid++;
+            this.kernelMode = false;
         }
-        PCB.next_pid = 0;
         return PCB;
     })();
     TSOS.PCB = PCB;
