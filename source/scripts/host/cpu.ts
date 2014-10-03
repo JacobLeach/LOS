@@ -48,6 +48,7 @@ module TSOS {
       switch(this.instructionRegister.asNumber()) {
         //Break
         case 0x00:
+          this.programEnd(); 
           break;
         case 0x6D:
           this.addWithCarry();
@@ -103,6 +104,10 @@ module TSOS {
       }
     }
     
+    private programEnd(): void {
+      this.executing = false;
+    }
+
     private transferXRegisterToAccumulator(): void {
       this.accumulator = this.xRegister;
     }
