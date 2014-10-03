@@ -11,6 +11,8 @@ var TSOS;
             this.xRegister = new TSOS.Byte(0);
             this.yRegister = new TSOS.Byte(0);
             this.zFlag = false;
+            this.kernelMode = false;
+
             this.executing = false;
 
             this.memory = new TSOS.Memory();
@@ -25,6 +27,22 @@ var TSOS;
 
         Cpu.prototype.isExecuting = function () {
             return this.executing;
+        };
+
+        Cpu.prototype.isKernelMode = function () {
+            return this.kernelMode;
+        };
+
+        Cpu.prototype.setKernelMode = function () {
+            this.kernelMode = true;
+        };
+
+        Cpu.prototype.isUserMode = function () {
+            return !this.kernelMode;
+        };
+
+        Cpu.prototype.setUserMode = function () {
+            this.kernelMode = false;
         };
 
         Cpu.prototype.loadInstruction = function () {

@@ -12,8 +12,9 @@ module TSOS {
     private xRegister: Byte;
     private yRegister: Byte;
     private instructionRegister: Byte;
-
     private zFlag: boolean;
+    private kernelMode: boolean;
+
     private executing: boolean;
 
     private memory: Memory;
@@ -24,6 +25,8 @@ module TSOS {
       this.xRegister = new Byte(0);
       this.yRegister = new Byte(0);
       this.zFlag = false;
+      this.kernelMode = false;
+
       this.executing = false;
 
       this.memory = new Memory();
@@ -41,6 +44,22 @@ module TSOS {
       return this.executing;
     }
 
+    public isKernelMode(): boolean {
+      return this.kernelMode;
+    }
+
+    public setKernelMode(): void {
+      this.kernelMode = true;
+    }
+
+    public isUserMode(): boolean {
+      return !this.kernelMode;
+    }
+
+    public setUserMode(): void {
+      this.kernelMode = false;
+    }
+    
     private loadInstruction(): void {
       this.instructionRegister = this.memory.getByte(this.programCounter);
     }
