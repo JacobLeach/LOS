@@ -1,9 +1,5 @@
 /* ------------
 Kernel.ts
-Requires globals.ts
-Routines for the Operating System, NOT the host.
-This code references page numbers in the text book:
-Operating System Concepts 8th edition by Silberschatz, Galvin, and Gagne.  ISBN 978-0-470-12872-5
 ------------ */
 var TSOS;
 (function (TSOS) {
@@ -45,9 +41,7 @@ var TSOS;
             _OsShell.init();
 
             // Finally, initiate testing.
-            if (_GLaDOS) {
-                _GLaDOS.afterStartup();
-            }
+            _GLaDOS.afterStartup();
         };
 
         Kernel.prototype.krnShutdown = function () {
@@ -76,7 +70,7 @@ var TSOS;
                 // TODO: Implement a priority queue based on the IRQ number/id to enforce interrupt priority.
                 var interrupt = _KernelInterruptQueue.dequeue();
                 this.krnInterruptHandler(interrupt.irq, interrupt.params);
-            } else if (_CPU.isExecuting()) {
+            } else if (_CPU.isExecuting) {
                 _CPU.cycle();
             } else {
                 this.krnTrace("Idle");
