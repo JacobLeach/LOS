@@ -7,15 +7,16 @@
 module TSOS {
 
   export class Cpu {
-    private programCounter: Short;
-    private accumulator: Byte;
-    private xRegister: Byte;
-    private yRegister: Byte;
-    private instructionRegister: Byte;
-    private zFlag: boolean;
-    private kernelMode: boolean;
-    private lowAddress: Short;
-    private highAddress: Short;
+    public programCounter: Short;
+    public accumulator: Byte;
+    public xRegister: Byte;
+    public yRegister: Byte;
+    public instructionRegister: Byte;
+    public zFlag: boolean;
+    public kernelMode: boolean;
+    
+    public lowAddress: Short;
+    public highAddress: Short;
 
     private executing: boolean;
 

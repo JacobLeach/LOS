@@ -14,8 +14,6 @@ module TSOS {
     private zFlag: boolean;
     private kernelMode: boolean;
     
-    private executing: boolean;
-
     private pid: number;
     private lowAddress: Short;
     private highAddress: Short;
@@ -28,7 +26,18 @@ module TSOS {
       this.zFlag = false;
       this.kernelMode = false; 
 
-      this.executing = false;
+    }
+
+    public setState(pc: Short, acc: Byte, x: Byte, y: Byte, z: boolean, mode: boolean, low: Short, high: Short)
+    {
+      this.programCounter = pc;
+      this.accumulator = acc;
+      this.xRegister = x;
+      this.yRegister = y;
+      this.zFlag = z;
+      this.kernelMode = mode;
+      this.lowAddress = low;
+      this.highAddress = high;
     }
   }
 }

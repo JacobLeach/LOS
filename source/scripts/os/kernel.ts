@@ -12,11 +12,18 @@ module TSOS {
     public static TERMINAL_IRQ:    number  = 2;
     public static SYSTEM_CALL_IQR: number  = 3;
 
+    private readyQueue: PCB[];
+    private running: PCB;
+    private waiting: PCB[];
+
     //
     // OS Startup and Shutdown Routines
     //
     public krnBootstrap() {      // Page 8. {
       Control.hostLog("bootstrap", "host");  // Use hostLog because we ALWAYS want this, even if _Trace is off.
+
+      this.readyQueue = [];
+      this.waiting = [];
 
       // Initialize our global queues.
       _KernelInterruptQueue = new Queue();  // A (currently) non-priority queue for interrupt requests (IRQs).
@@ -102,11 +109,44 @@ module TSOS {
           }
           break;
         case Kernel.SYSTEM_CALL_IQR:
-          
+          this.handleSystemCall();  
           break;
         default:
           this.krnTrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");
       }
+    }
+    
+    private handleSystemCall(): void
+    {
+      if(_CPU.isExecuting())
+      {
+        this.saveState(this.running); 
+      }
+
+      //Give us all the power!
+      _CPU.setKernelMode();
+
+      //X Register tells us what system call the program wants
+      switch(_CPU.xRegister.asNumber())
+      {
+        case 1:
+          break;
+        case 2:
+          _CPU.programCounter = new Short(0x0300);
+          break;
+      }   
+    }
+
+    private saveState(pcb: PCB): void
+    {
+      pcb.setState(_CPU.programCounter, 
+                   _CPU.accumulator, 
+                   _CPU.xRegister, 
+                   _CPU.yRegister, 
+                   _CPU.zFlag, 
+                   _CPU.kernelMode,
+                   _CPU.lowAddress,
+                   _CPU.highAddress);
     }
 
     public krnTimerISR() {

@@ -12,9 +12,17 @@ var TSOS;
             this.yRegister = new TSOS.Byte(0);
             this.zFlag = false;
             this.kernelMode = false;
-
-            this.executing = false;
         }
+        PCB.prototype.setState = function (pc, acc, x, y, z, mode, low, high) {
+            this.programCounter = pc;
+            this.accumulator = acc;
+            this.xRegister = x;
+            this.yRegister = y;
+            this.zFlag = z;
+            this.kernelMode = mode;
+            this.lowAddress = low;
+            this.highAddress = high;
+        };
         return PCB;
     })();
     TSOS.PCB = PCB;
