@@ -7,16 +7,28 @@ module TSOS {
 
   export class Kernel {
 
-    public static TIMER_IRQ:       number  = 0;
-    public static KEYBOARD_IRQ:    number  = 1;
-    public static TERMINAL_IRQ:    number  = 2;
-    public static SYSTEM_CALL_IQR: number  = 3;
+    public static TIMER_IRQ:                number  = 0;
+    public static KEYBOARD_IRQ:             number  = 1;
+    public static TERMINAL_IRQ:             number  = 2;
+    public static SYSTEM_CALL_IQR:          number  = 3;
+    public static SYSTEM_CALL_FINISHED_IQR: number  = 4;
+
+
+    private ready: PCB[];
+    private running: PCB;
+    private waiting: PCB[];
+    private memoryManager: MemoryManager;
 
     //
     // OS Startup and Shutdown Routines
     //
     public krnBootstrap() {      // Page 8. {
       Control.hostLog("bootstrap", "host");  // Use hostLog because we ALWAYS want this, even if _Trace is off.
+      
+      this.memoryManager = new MemoryManager();
+       
+      this.ready = [];
+      this.waiting = [];
 
       // Initialize our global queues.
       _KernelInterruptQueue = new Queue();  // A (currently) non-priority queue for interrupt requests (IRQs).
@@ -102,11 +114,39 @@ module TSOS {
           }
           break;
         case Kernel.SYSTEM_CALL_IQR:
-          
+          this.handleSystemCall(params);  
           break;
         default:
           this.krnTrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");
       }
+    }
+    
+    private handleSystemCall(call: number): void
+    {
+      switch(call)
+      {
+        case 1:
+          break;
+        case 2:
+          _CPU.programCounter = new Short(0x0300);
+          break;
+      }   
+    }
+
+    private handleSystemCallDone(): void
+    {
+    
+    }
+    private saveState(pcb: PCB): void
+    {
+      pcb.setState(_CPU.programCounter, 
+                   _CPU.accumulator, 
+                   _CPU.xRegister, 
+                   _CPU.yRegister, 
+                   _CPU.zFlag, 
+                   _CPU.kernelMode,
+                   _CPU.lowAddress,
+                   _CPU.highAddress);
     }
 
     public krnTimerISR() {
