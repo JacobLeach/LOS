@@ -180,7 +180,7 @@ var TSOS;
             }
 
             if ((!this.canonical || character === ENTER) && isInput) {
-                _KernelInterruptQueue.enqueue(new TSOS.Interrupt(TERMINAL_IRQ, input));
+                _KernelInterruptQueue.enqueue(new TSOS.Interrupt(TSOS.Kernel.TERMINAL_IRQ, input));
             }
         };
 

@@ -1,9 +1,5 @@
 /* ------------
 Kernel.ts
-Requires globals.ts
-Routines for the Operating System, NOT the host.
-This code references page numbers in the text book:
-Operating System Concepts 8th edition by Silberschatz, Galvin, and Gagne.  ISBN 978-0-470-12872-5
 ------------ */
 var TSOS;
 (function (TSOS) {
@@ -43,11 +39,8 @@ var TSOS;
             this.krnTrace("Creating and Launching the shell.");
             _OsShell = new TSOS.Shell();
             _OsShell.init();
-
             // Finally, initiate testing.
-            if (_GLaDOS) {
-                _GLaDOS.afterStartup();
-            }
+            //_GLaDOS.afterStartup();
         };
 
         Kernel.prototype.krnShutdown = function () {
@@ -104,15 +97,17 @@ var TSOS;
             this.krnTrace("Handling IRQ~" + irq);
 
             switch (irq) {
-                case TIMER_IRQ:
+                case Kernel.TIMER_IRQ:
                     this.krnTimerISR(); // Kernel built-in routine for timers (not the clock).
                     break;
-                case KEYBOARD_IRQ:
+                case Kernel.KEYBOARD_IRQ:
                     _krnKeyboardDriver.isr(params); // Kernel mode device driver
 
                     while (_KernelInputQueue.getSize() > 0) {
                         _OsShell.isr(_KernelInputQueue.dequeue());
                     }
+                    break;
+                case Kernel.SYSTEM_CALL_IQR:
                     break;
                 default:
                     this.krnTrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");
@@ -159,11 +154,12 @@ var TSOS;
 
         Kernel.prototype.krnTrapError = function (msg) {
             TSOS.Control.hostLog("OS ERROR - TRAP: " + msg);
-
-            //    _Console.bluescreen();
-            //    _Console.writeWhiteText(msg);
             this.krnShutdown();
         };
+        Kernel.TIMER_IRQ = 0;
+        Kernel.KEYBOARD_IRQ = 1;
+        Kernel.TERMINAL_IRQ = 2;
+        Kernel.SYSTEM_CALL_IQR = 3;
         return Kernel;
     })();
     TSOS.Kernel = Kernel;
