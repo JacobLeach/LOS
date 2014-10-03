@@ -14,6 +14,8 @@ module TSOS {
     private instructionRegister: Byte;
     private zFlag: boolean;
     private kernelMode: boolean;
+    private lowAddress: Short;
+    private highAddress: Short;
 
     private executing: boolean;
 
