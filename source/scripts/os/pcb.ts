@@ -18,7 +18,7 @@ module TSOS {
     private lowAddress: Short;
     private highAddress: Short;
 
-    constructor() {
+    constructor(memoryBounds: MemoryBounds) {
       this.programCounter = new Short(0);
       this.accumulator = new Byte(0);
       this.xRegister = new Byte(0);
@@ -26,6 +26,8 @@ module TSOS {
       this.zFlag = false;
       this.kernelMode = false; 
 
+      this.lowAddress = memoryBounds.lower();
+      this.highAddress = memoryBounds.upper();
     }
 
     public setState(pc: Short, acc: Byte, x: Byte, y: Byte, z: boolean, mode: boolean, low: Short, high: Short)

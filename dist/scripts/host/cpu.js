@@ -21,8 +21,8 @@ var TSOS;
             _Kernel.krnTrace('CPU cycle');
 
             this.loadInstruction();
-            this.executeInstruction();
             this.programCounter.increment();
+            this.executeInstruction();
         };
 
         Cpu.prototype.isExecuting = function () {
@@ -104,6 +104,7 @@ var TSOS;
                     break;
 
                 case 0xFF:
+                    this.systemCall();
                     break;
             }
         };
@@ -167,9 +168,6 @@ var TSOS;
         Cpu.prototype.branch = function () {
             //If zFlag is true, we want to branch
             if (this.zFlag) {
-                //The constant is one byte ahead of the instruction in memory so incremenet the PC
-                this.programCounter.increment();
-
                 var branchAmount = this.memory.getByte(this.programCounter).asNumber();
 
                 //We have to wrap when branch goes above our memory range
@@ -191,15 +189,10 @@ var TSOS;
         };
 
         Cpu.prototype.loadInstructionConstant = function () {
-            //The constant is one byte ahead of the instruction in memory so incremenet the PC
-            this.programCounter.increment();
-
             return this.memory.getByte(this.programCounter);
         };
 
         Cpu.prototype.loadAddressFromMemory = function () {
-            //The lower address byte is one byte ahread of the instruction so increment the PC
-            this.programCounter.increment();
             var lowByte = this.memory.getByte(this.programCounter);
 
             //The high address byte is two bytes ahread of the instruction so increment the PC
@@ -211,6 +204,12 @@ var TSOS;
 
         Cpu.prototype.loadValueFromAddress = function () {
             return this.memory.getByte(this.loadAddressFromMemory());
+        };
+
+        Cpu.prototype.systemCall = function () {
+            this.setKernelMode();
+            this.returnRegister = this.programCounter;
+            _KernelInterruptQueue.enqueue(new TSOS.Interrupt(TSOS.Kernel.SYSTEM_CALL_IQR, this.xRegister));
         };
         return Cpu;
     })();

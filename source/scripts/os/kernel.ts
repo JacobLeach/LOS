@@ -7,22 +7,27 @@ module TSOS {
 
   export class Kernel {
 
-    public static TIMER_IRQ:       number  = 0;
-    public static KEYBOARD_IRQ:    number  = 1;
-    public static TERMINAL_IRQ:    number  = 2;
-    public static SYSTEM_CALL_IQR: number  = 3;
+    public static TIMER_IRQ:                number  = 0;
+    public static KEYBOARD_IRQ:             number  = 1;
+    public static TERMINAL_IRQ:             number  = 2;
+    public static SYSTEM_CALL_IQR:          number  = 3;
+    public static SYSTEM_CALL_FINISHED_IQR: number  = 4;
 
-    private readyQueue: PCB[];
+
+    private ready: PCB[];
     private running: PCB;
     private waiting: PCB[];
+    private memoryManager: MemoryManager;
 
     //
     // OS Startup and Shutdown Routines
     //
     public krnBootstrap() {      // Page 8. {
       Control.hostLog("bootstrap", "host");  // Use hostLog because we ALWAYS want this, even if _Trace is off.
-
-      this.readyQueue = [];
+      
+      this.memoryManager = new MemoryManager();
+       
+      this.ready = [];
       this.waiting = [];
 
       // Initialize our global queues.
@@ -109,25 +114,16 @@ module TSOS {
           }
           break;
         case Kernel.SYSTEM_CALL_IQR:
-          this.handleSystemCall();  
+          this.handleSystemCall(params);  
           break;
         default:
           this.krnTrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");
       }
     }
     
-    private handleSystemCall(): void
+    private handleSystemCall(call: number): void
     {
-      if(_CPU.isExecuting())
-      {
-        this.saveState(this.running); 
-      }
-
-      //Give us all the power!
-      _CPU.setKernelMode();
-
-      //X Register tells us what system call the program wants
-      switch(_CPU.xRegister.asNumber())
+      switch(call)
       {
         case 1:
           break;
@@ -137,6 +133,10 @@ module TSOS {
       }   
     }
 
+    private handleSystemCallDone(): void
+    {
+    
+    }
     private saveState(pcb: PCB): void
     {
       pcb.setState(_CPU.programCounter, 

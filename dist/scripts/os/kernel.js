@@ -12,7 +12,9 @@ var TSOS;
         Kernel.prototype.krnBootstrap = function () {
             TSOS.Control.hostLog("bootstrap", "host"); // Use hostLog because we ALWAYS want this, even if _Trace is off.
 
-            this.readyQueue = [];
+            this.memoryManager = new TSOS.MemoryManager();
+
+            this.ready = [];
             this.waiting = [];
 
             // Initialize our global queues.
@@ -89,22 +91,15 @@ var TSOS;
                     }
                     break;
                 case Kernel.SYSTEM_CALL_IQR:
-                    this.handleSystemCall();
+                    this.handleSystemCall(params);
                     break;
                 default:
                     this.krnTrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");
             }
         };
 
-        Kernel.prototype.handleSystemCall = function () {
-            if (_CPU.isExecuting()) {
-                this.saveState(this.running);
-            }
-
-            //Give us all the power!
-            _CPU.setKernelMode();
-
-            switch (_CPU.xRegister.asNumber()) {
+        Kernel.prototype.handleSystemCall = function (call) {
+            switch (call) {
                 case 1:
                     break;
                 case 2:
@@ -113,6 +108,8 @@ var TSOS;
             }
         };
 
+        Kernel.prototype.handleSystemCallDone = function () {
+        };
         Kernel.prototype.saveState = function (pcb) {
             pcb.setState(_CPU.programCounter, _CPU.accumulator, _CPU.xRegister, _CPU.yRegister, _CPU.zFlag, _CPU.kernelMode, _CPU.lowAddress, _CPU.highAddress);
         };
@@ -144,6 +141,7 @@ var TSOS;
         Kernel.KEYBOARD_IRQ = 1;
         Kernel.TERMINAL_IRQ = 2;
         Kernel.SYSTEM_CALL_IQR = 3;
+        Kernel.SYSTEM_CALL_FINISHED_IQR = 4;
         return Kernel;
     })();
     TSOS.Kernel = Kernel;
