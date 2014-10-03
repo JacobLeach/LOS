@@ -6,6 +6,11 @@
 module TSOS {
 
   export class Kernel {
+
+    public static TIMER_IRQ:       number  = 0;
+    public static KEYBOARD_IRQ:    number  = 1;
+    public static TERMINAL_IRQ:    number  = 2;
+    public static SYSTEM_CALL_IQR: number  = 3;
     //
     // OS Startup and Shutdown Routines
     //
@@ -42,7 +47,7 @@ module TSOS {
       _OsShell.init();
 
       // Finally, initiate testing.
-      _GLaDOS.afterStartup();
+      //_GLaDOS.afterStartup();
     }
 
     public krnShutdown() {
@@ -71,7 +76,7 @@ module TSOS {
         // TODO: Implement a priority queue based on the IRQ number/id to enforce interrupt priority.
         var interrupt = _KernelInterruptQueue.dequeue();
         this.krnInterruptHandler(interrupt.irq, interrupt.params);
-      } else if (_CPU.isExecuting) { // If there are no interrupts then run one CPU cycle if there is anything being processed. {
+      } else if (_CPU.isExecuting()) { // If there are no interrupts then run one CPU cycle if there is anything being processed. {
         _CPU.cycle();
       } else {                      // If there are no interrupts and there is nothing being executed then just be idle. {
         this.krnTrace("Idle");
@@ -104,16 +109,19 @@ module TSOS {
       // Note: There is no need to "dismiss" or acknowledge the interrupts in our design here.
       //       Maybe the hardware simulation will grow to support/require that in the future.
       switch (irq) {
-        case TIMER_IRQ:
+        case Kernel.TIMER_IRQ:
           this.krnTimerISR();              // Kernel built-in routine for timers (not the clock).
           break;
-        case KEYBOARD_IRQ:
+        case Kernel.KEYBOARD_IRQ:
           _krnKeyboardDriver.isr(params);   // Kernel mode device driver
           //Handle all the characters in the queue
           //Multiple can come in at once because of the ANSI control codes
           while(_KernelInputQueue.getSize() > 0) {
             _OsShell.isr(_KernelInputQueue.dequeue());
           }
+          break;
+        case Kernel.SYSTEM_CALL_IQR:
+          
           break;
         default:
           this.krnTrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");

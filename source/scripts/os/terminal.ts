@@ -205,7 +205,7 @@ module TSOS {
       }
 
       if((!this.canonical || character === ENTER) && isInput) {
-        _KernelInterruptQueue.enqueue(new Interrupt(TERMINAL_IRQ, input));
+        _KernelInterruptQueue.enqueue(new Interrupt(Kernel.TERMINAL_IRQ, input));
       }
     }
 
