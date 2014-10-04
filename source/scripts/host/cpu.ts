@@ -70,7 +70,6 @@ module TSOS {
 
     private executeInstruction(): void {
       switch(this.instructionRegister.asNumber()) {
-        //Break
         case 0x00:
           this.programEnd(); 
           break;
@@ -137,7 +136,6 @@ module TSOS {
         case 0xEE:
           this.increment();
           break;
-        //System call
         case 0xFF:
           this.systemCall();
           break;

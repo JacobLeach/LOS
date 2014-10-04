@@ -116,7 +116,6 @@ var TSOS;
                 case 0xEE:
                     this.increment();
                     break;
-
                 case 0xFF:
                     this.systemCall();
                     break;
