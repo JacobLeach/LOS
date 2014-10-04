@@ -33,6 +33,8 @@ var TSOS;
                         this.terminal.write(data);
                         break;
                 }
+            } else {
+                //Segfault
             }
         };
         return DeviceController;

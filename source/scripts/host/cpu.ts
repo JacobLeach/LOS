@@ -65,7 +65,7 @@ module TSOS {
     }
     
     private loadInstruction(): void {
-      this.instructionRegister = this.deviceController.getByte(this.programCounter);
+      this.instructionRegister = this.getByte(this.programCounter);
     }
 
     private executeInstruction(): void {
@@ -171,7 +171,7 @@ module TSOS {
     }
 
     private addWithCarry() {
-      var value: Byte = this.deviceController.getByte(this.loadAddressFromMemory());
+      var value: Byte = this.getByte(this.loadAddressFromMemory());
 
       //We are not implementing carry.
       //Instead we are just wrapping the value around
@@ -217,7 +217,7 @@ module TSOS {
     private branch() {
       //If zFlag is true, we want to branch
       if(this.zFlag) {
-        var branchAmount: number = this.deviceController.getByte(this.programCounter).asNumber();
+        var branchAmount: number = this.getByte(this.programCounter).asNumber();
 
         //We have to wrap when branch goes above our memory range
         this.programCounter = new Short((this.programCounter.asNumber() + branchAmount) % 256);
@@ -230,7 +230,7 @@ module TSOS {
 
     private increment() {
       var address: Short = this.loadAddressFromMemory();
-      var value: Byte = this.deviceController.getByte(address);
+      var value: Byte = this.getByte(address);
 
       value.increment();
 
@@ -238,7 +238,7 @@ module TSOS {
     }
     
     private loadInstructionConstant(): Byte {
-      var toReturn: Byte = this.deviceController.getByte(this.programCounter);
+      var toReturn: Byte = this.getByte(this.programCounter);
       
       //The next instruction needs to be in the PC, so increment again
       this.programCounter.increment();
@@ -247,11 +247,11 @@ module TSOS {
     }
 
     private loadAddressFromMemory(): Short {
-      var lowByte: Byte = this.deviceController.getByte(this.programCounter);
+      var lowByte: Byte = this.getByte(this.programCounter);
 
       //The high address byte is two bytes ahread of the instruction so increment the PC
       this.programCounter.increment();
-      var highByte: Byte = this.deviceController.getByte(this.programCounter);
+      var highByte: Byte = this.getByte(this.programCounter);
 
       //The next instruction needs to be in the PC, so increment again
       this.programCounter.increment();
@@ -260,13 +260,47 @@ module TSOS {
     }
 
     private loadValueFromAddress(): Byte {
-      return this.deviceController.getByte(this.loadAddressFromMemory());
+      return this.getByte(this.loadAddressFromMemory());
     }
 
     private systemCall(): void {
       this.setKernelMode();
       this.returnRegister = this.programCounter;
       _KernelInterruptQueue.enqueue(new Interrupt(IRQ.SYSTEM_CALL, this.xRegister.asNumber()));
+    }
+    
+    private getByte(address: Short): Byte
+    {
+      return this.deviceController.getByte(this.adjustAddress(address));
+    }
+
+    private setByte(address: Short, data: Byte): void
+    {
+      this.deviceController.setByte(this.adjustAddress(address), data);
+    }
+
+    private adjustAddress(address: Short): Short
+    {
+      //We can access anything, use absolute addressing
+      if(this.kernelMode)
+      {
+        return address;
+      }
+      else
+      {
+        var adjustedAddress: Short = new Short(address.asNumber() + this.lowAddress.asNumber());
+        
+        if(adjustedAddress.asNumber() > this.highAddress.asNumber())
+        {
+          //Segfault
+          console.log("SEGFAULT");
+          return undefined;
+        }
+        else
+        {
+          return adjustedAddress;  
+        }
+      }
     }
   }
 }

@@ -45,7 +45,7 @@ var TSOS;
         };
 
         Cpu.prototype.loadInstruction = function () {
-            this.instructionRegister = this.deviceController.getByte(this.programCounter);
+            this.instructionRegister = this.getByte(this.programCounter);
         };
 
         Cpu.prototype.executeInstruction = function () {
@@ -150,7 +150,7 @@ var TSOS;
         };
 
         Cpu.prototype.addWithCarry = function () {
-            var value = this.deviceController.getByte(this.loadAddressFromMemory());
+            var value = this.getByte(this.loadAddressFromMemory());
 
             //We are not implementing carry.
             //Instead we are just wrapping the value around
@@ -196,7 +196,7 @@ var TSOS;
         Cpu.prototype.branch = function () {
             //If zFlag is true, we want to branch
             if (this.zFlag) {
-                var branchAmount = this.deviceController.getByte(this.programCounter).asNumber();
+                var branchAmount = this.getByte(this.programCounter).asNumber();
 
                 //We have to wrap when branch goes above our memory range
                 this.programCounter = new TSOS.Short((this.programCounter.asNumber() + branchAmount) % 256);
@@ -209,7 +209,7 @@ var TSOS;
 
         Cpu.prototype.increment = function () {
             var address = this.loadAddressFromMemory();
-            var value = this.deviceController.getByte(address);
+            var value = this.getByte(address);
 
             value.increment();
 
@@ -217,7 +217,7 @@ var TSOS;
         };
 
         Cpu.prototype.loadInstructionConstant = function () {
-            var toReturn = this.deviceController.getByte(this.programCounter);
+            var toReturn = this.getByte(this.programCounter);
 
             //The next instruction needs to be in the PC, so increment again
             this.programCounter.increment();
@@ -226,11 +226,11 @@ var TSOS;
         };
 
         Cpu.prototype.loadAddressFromMemory = function () {
-            var lowByte = this.deviceController.getByte(this.programCounter);
+            var lowByte = this.getByte(this.programCounter);
 
             //The high address byte is two bytes ahread of the instruction so increment the PC
             this.programCounter.increment();
-            var highByte = this.deviceController.getByte(this.programCounter);
+            var highByte = this.getByte(this.programCounter);
 
             //The next instruction needs to be in the PC, so increment again
             this.programCounter.increment();
@@ -239,13 +239,38 @@ var TSOS;
         };
 
         Cpu.prototype.loadValueFromAddress = function () {
-            return this.deviceController.getByte(this.loadAddressFromMemory());
+            return this.getByte(this.loadAddressFromMemory());
         };
 
         Cpu.prototype.systemCall = function () {
             this.setKernelMode();
             this.returnRegister = this.programCounter;
             _KernelInterruptQueue.enqueue(new TSOS.Interrupt(2 /* SYSTEM_CALL */, this.xRegister.asNumber()));
+        };
+
+        Cpu.prototype.getByte = function (address) {
+            return this.deviceController.getByte(this.adjustAddress(address));
+        };
+
+        Cpu.prototype.setByte = function (address, data) {
+            this.deviceController.setByte(this.adjustAddress(address), data);
+        };
+
+        Cpu.prototype.adjustAddress = function (address) {
+            //We can access anything, use absolute addressing
+            if (this.kernelMode) {
+                return address;
+            } else {
+                var adjustedAddress = new TSOS.Short(address.asNumber() + this.lowAddress.asNumber());
+
+                if (adjustedAddress.asNumber() > this.highAddress.asNumber()) {
+                    //Segfault
+                    console.log("SEGFAULT");
+                    return undefined;
+                } else {
+                    return adjustedAddress;
+                }
+            }
         };
         return Cpu;
     })();
