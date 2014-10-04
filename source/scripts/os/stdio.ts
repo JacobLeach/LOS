@@ -18,10 +18,19 @@ module TSOS {
     }
     
     //Wrapper to write text to output
-    public static putString(text: String, terminal: Terminal) {
+    public static putString(text: String) {
       for(var i = 0; i < text.length; i++) {
         Stdio.buffer += (text.charAt(i));
       }
+      Stdio.buffer += String.fromCharCode(0);
+      liblos.putString();
+    }
+    
+    public static putStringLn(text: String) {
+      for(var i = 0; i < text.length; i++) {
+        Stdio.buffer += (text.charAt(i));
+      }
+      Stdio.buffer += String.fromCharCode(13);
       Stdio.buffer += String.fromCharCode(0);
       liblos.putString();
     }

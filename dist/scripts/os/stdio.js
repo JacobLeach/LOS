@@ -15,10 +15,19 @@ var TSOS;
         };
 
         //Wrapper to write text to output
-        Stdio.putString = function (text, terminal) {
+        Stdio.putString = function (text) {
             for (var i = 0; i < text.length; i++) {
                 Stdio.buffer += (text.charAt(i));
             }
+            Stdio.buffer += String.fromCharCode(0);
+            TSOS.liblos.putString();
+        };
+
+        Stdio.putStringLn = function (text) {
+            for (var i = 0; i < text.length; i++) {
+                Stdio.buffer += (text.charAt(i));
+            }
+            Stdio.buffer += String.fromCharCode(13);
             Stdio.buffer += String.fromCharCode(0);
             TSOS.liblos.putString();
         };

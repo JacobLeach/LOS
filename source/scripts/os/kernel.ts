@@ -218,7 +218,6 @@ module TSOS
     {
       if(this.running === undefined)
       {
-        console.log(this.shellPCB.getPid());
         this.setProcessorState(this.shellPCB.getPid());
       }
 

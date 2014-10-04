@@ -97,7 +97,7 @@ var TSOS;
         };
 
         Shell.prototype.putPrompt = function () {
-            TSOS.Stdio.putString(this.promptStr, _StdOut);
+            TSOS.Stdio.putString(this.promptStr);
         };
 
         Shell.prototype.handleTabCompletion = function () {
@@ -117,7 +117,7 @@ var TSOS;
             this.inputBuffer = command;
 
             //Make the screen look correct
-            TSOS.Stdio.putString(toPrint, _StdOut);
+            TSOS.Stdio.putString(toPrint);
         };
 
         Shell.prototype.handleCharacter = function (character) {
@@ -127,7 +127,7 @@ var TSOS;
                 this.current = -2;
 
                 //Send the enter to the terminal before processing
-                TSOS.Stdio.putString(character, _StdOut);
+                TSOS.Stdio.putString(character);
 
                 //Remove leading and trailing spaces.
                 this.inputBuffer = TSOS.Utils.trim(this.inputBuffer);
@@ -145,7 +145,7 @@ var TSOS;
             } else if (character === BACKSPACE) {
                 if (this.inputBuffer.length > 0) {
                     this.inputBuffer = this.inputBuffer.substr(0, this.inputBuffer.length - 1);
-                    TSOS.Stdio.putString(character, _StdOut);
+                    TSOS.Stdio.putString(character);
                 }
             } else if (character === '[') {
                 if (this.lastCharEscape) {
@@ -178,10 +178,10 @@ var TSOS;
                             //These are ANSI control codes to control the cursor
                             //And to erase characters and stuff
                             //http://en.wikipedia.org/wiki/ANSI_escape_code
-                            TSOS.Stdio.putString(ESCAPE + "[K", _StdOut);
-                            TSOS.Stdio.putString(ESCAPE + "[0G", _StdOut);
+                            TSOS.Stdio.putString(ESCAPE + "[K");
+                            TSOS.Stdio.putString(ESCAPE + "[0G");
                             this.putPrompt();
-                            TSOS.Stdio.putString(this.historyList[this.current], _StdOut);
+                            TSOS.Stdio.putString(this.historyList[this.current]);
                             this.inputBuffer = this.historyList[this.current];
                             break;
 
@@ -190,10 +190,10 @@ var TSOS;
                                 if (this.current != this.historyList.length - 1) {
                                     this.current++;
                                 }
-                                TSOS.Stdio.putString(ESCAPE + "[K", _StdOut);
-                                TSOS.Stdio.putString(ESCAPE + "[0G", _StdOut);
+                                TSOS.Stdio.putString(ESCAPE + "[K");
+                                TSOS.Stdio.putString(ESCAPE + "[0G");
                                 this.putPrompt();
-                                TSOS.Stdio.putString(this.historyList[this.current], _StdOut);
+                                TSOS.Stdio.putString(this.historyList[this.current]);
                                 this.inputBuffer = this.historyList[this.current];
                             }
                             break;
@@ -214,7 +214,7 @@ var TSOS;
                 this.inputBuffer += character + "";
 
                 //Send it to the terminal to display
-                TSOS.Stdio.putString(character, _StdOut);
+                TSOS.Stdio.putString(character);
             }
         };
 
@@ -239,7 +239,7 @@ var TSOS;
             * print the prompt
             */
             //if(_Console.getCursorPosition().x > 0) {
-            //  Stdio.putString(ESCAPE + '[E', _StdOut);
+            //  Stdio.putString(ESCAPE + '[E');
             //}
             if (command != "crash") {
                 this.putPrompt();
@@ -262,49 +262,48 @@ var TSOS;
         // Shell Command Functions.  Again, not part of Shell() class per se', just called from there.
         //
         Shell.prototype.shellInvalidCommand = function () {
-            TSOS.Stdio.putString("Invalid Command. ", _StdOut);
+            TSOS.Stdio.putStringLn("Invalid Command. ");
             if (_SarcasticMode) {
-                TSOS.Stdio.putString("Duh. Go back to your Speak & Spell.", _StdOut);
+                TSOS.Stdio.putStringLn("Duh. Go back to your Speak & Spell.");
             } else {
-                TSOS.Stdio.putString("Type 'help' for, well... help.", _StdOut);
+                TSOS.Stdio.putStringLn("Type 'help' for, well... help.");
             }
         };
 
         Shell.prototype.shellCurse = function () {
-            TSOS.Stdio.putString("Oh, so that's how it's going to be, eh? Fine.", _StdOut);
+            TSOS.Stdio.putStringLn("Oh, so that's how it's going to be, eh? Fine.");
             _StdOut.advanceLine();
-            TSOS.Stdio.putString("Bitch.", _StdOut);
+            TSOS.Stdio.putStringLn("Bitch.");
             _SarcasticMode = true;
         };
 
         Shell.prototype.shellApology = function () {
             if (_SarcasticMode) {
-                TSOS.Stdio.putString("Okay. I forgive you. This time.", _StdOut);
+                TSOS.Stdio.putStringLn("Okay. I forgive you. This time.");
                 _SarcasticMode = false;
             } else {
-                TSOS.Stdio.putString("For what?", _StdOut);
+                TSOS.Stdio.putStringLn("For what?");
             }
         };
 
         Shell.prototype.shellVer = function (args) {
-            TSOS.Stdio.putString(APP_NAME + " version " + APP_VERSION, _StdOut);
+            TSOS.Stdio.putStringLn(APP_NAME + " version " + APP_VERSION);
         };
 
         Shell.prototype.shellHelp = function (args) {
-            TSOS.Stdio.putString("Commands:", _StdOut);
+            TSOS.Stdio.putStringLn("Commands:");
             for (var i in _OsShell.commandList) {
-                TSOS.Stdio.putString(ESCAPE + '[E', _StdOut);
-                TSOS.Stdio.putString("  " + _OsShell.commandList[i].command + " " + _OsShell.commandList[i].description, _StdOut);
+                TSOS.Stdio.putStringLn("  " + _OsShell.commandList[i].command + " " + _OsShell.commandList[i].description);
             }
         };
 
         Shell.prototype.shellShutdown = function (args) {
-            TSOS.Stdio.putString("Shutting down...", _StdOut);
+            TSOS.Stdio.putStringLn("Shutting down...");
             TSOS.liblos.shutdown();
         };
 
         Shell.prototype.shellCls = function (args) {
-            TSOS.Stdio.putString(ESCAPE + '[J', _StdOut);
+            TSOS.Stdio.putString(ESCAPE + '[J');
         };
 
         Shell.prototype.shellMan = function (args) {
@@ -312,13 +311,13 @@ var TSOS;
                 var topic = args[0];
                 switch (topic) {
                     case "help":
-                        TSOS.Stdio.putString("Help displays a list of (hopefully) valid commands.", _StdOut);
+                        TSOS.Stdio.putStringLn("Help displays a list of (hopefully) valid commands.");
                         break;
                     default:
-                        TSOS.Stdio.putString("No manual entry for " + args[0] + ".", _StdOut);
+                        TSOS.Stdio.putStringLn("No manual entry for " + args[0] + ".");
                 }
             } else {
-                TSOS.Stdio.putString("Usage: man <topic>  Please supply a topic.", _StdOut);
+                TSOS.Stdio.putStringLn("Usage: man <topic>  Please supply a topic.");
             }
         };
 
@@ -328,31 +327,31 @@ var TSOS;
                 switch (setting) {
                     case "on":
                         if (_Trace && _SarcasticMode) {
-                            TSOS.Stdio.putString("Trace is already on, dumbass.", _StdOut);
+                            TSOS.Stdio.putStringLn("Trace is already on, dumbass.");
                         } else {
                             _Trace = true;
-                            TSOS.Stdio.putString("Trace ON", _StdOut);
+                            TSOS.Stdio.putStringLn("Trace ON");
                         }
 
                         break;
                     case "off":
                         _Trace = false;
-                        TSOS.Stdio.putString("Trace OFF", _StdOut);
+                        TSOS.Stdio.putStringLn("Trace OFF");
                         break;
                     default:
-                        TSOS.Stdio.putString("Invalid arguement.  Usage: trace <on | off>.", _StdOut);
+                        TSOS.Stdio.putStringLn("Invalid arguement.  Usage: trace <on | off>.");
                 }
             } else {
-                TSOS.Stdio.putString("Usage: trace <on | off>", _StdOut);
+                TSOS.Stdio.putStringLn("Usage: trace <on | off>");
             }
         };
 
         Shell.prototype.shellRot13 = function (args) {
             if (args.length > 0) {
                 // Requires Utils.ts for rot13() function.
-                TSOS.Stdio.putString(args.join(' ') + " = '" + TSOS.Utils.rot13(args.join(' ')) + "'", _StdOut);
+                TSOS.Stdio.putStringLn(args.join(' ') + " = '" + TSOS.Utils.rot13(args.join(' ')) + "'");
             } else {
-                TSOS.Stdio.putString("Usage: rot13 <string>  Please supply a string.", _StdOut);
+                TSOS.Stdio.putStringLn("Usage: rot13 <string>  Please supply a string.");
             }
         };
 
@@ -360,12 +359,12 @@ var TSOS;
             if (args.length > 0) {
                 _OsShell.promptStr = args[0];
             } else {
-                TSOS.Stdio.putString("Usage: prompt <string>  Please supply a string.", _StdOut);
+                TSOS.Stdio.putStringLn("Usage: prompt <string>  Please supply a string.");
             }
         };
 
         Shell.prototype.shellKirby = function (args) {
-            TSOS.Stdio.putString("<(^.^)>", _StdOut);
+            TSOS.Stdio.putStringLn("<(^.^)>");
         };
 
         Shell.prototype.shellAlias = function (args) {
@@ -376,23 +375,23 @@ var TSOS;
                     _OsShell.commandList[sc.command] = sc;
                 }
             } else {
-                TSOS.Stdio.putString("Usage: alias <alias> <command>  Please supply a alias and a command.", _StdOut);
+                TSOS.Stdio.putStringLn("Usage: alias <alias> <command>  Please supply a alias and a command.");
             }
         };
 
         Shell.prototype.shellDate = function (args) {
             var date = new Date();
             var formatted = (date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear() + " " + date.getHours() + ":" + date.getMinutes() + ":" + ((date.getSeconds() < 10) ? ("0" + date.getSeconds()) : ("" + date.getSeconds()));
-            TSOS.Stdio.putString(formatted, _StdOut);
+            TSOS.Stdio.putStringLn(formatted);
         };
 
         Shell.prototype.shellLocate = function (args) {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(function (position) {
-                    TSOS.Stdio.putString("Latitude: " + position.coords.latitude + " Longitude: " + position.coords.longitude, _StdOut);
+                    TSOS.Stdio.putStringLn("Latitude: " + position.coords.latitude + " Longitude: " + position.coords.longitude);
                 });
             } else {
-                TSOS.Stdio.putString("I've alerted the NSA of your location.", _StdOut);
+                TSOS.Stdio.putStringLn("I've alerted the NSA of your location.");
             }
         };
 
@@ -417,9 +416,9 @@ var TSOS;
             }
 
             if (valid) {
-                TSOS.Stdio.putString("It's valid!", _StdOut);
+                TSOS.Stdio.putStringLn("It's valid!");
             } else {
-                TSOS.Stdio.putString("You done goofed.", _StdOut);
+                TSOS.Stdio.putStringLn("You done goofed.");
             }
         };
         return Shell;
