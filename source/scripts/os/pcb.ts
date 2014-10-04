@@ -15,10 +15,8 @@ module TSOS {
     private yRegister: Byte;
     private zFlag: boolean;
     private kernelMode: boolean; 
-    private lowAddress: Short;
-    private highAddress: Short;
-
-    private segment: number;
+    
+    private memoryBounds: MemoryBounds;
     private pid: number;
 
     constructor(memoryBounds: MemoryBounds) {
@@ -29,16 +27,73 @@ module TSOS {
       this.zFlag = false;
       this.kernelMode = false; 
 
-      this.lowAddress = memoryBounds.lower();
-      this.highAddress = memoryBounds.upper();
-      
-      this.segment = memoryBounds.getSegment();
+      this.memoryBounds = memoryBounds;
       this.pid = PCB.next_pid++;
     }
 
     public getPid(): number
     {
       return this.pid;
+    }
+
+    public getProgramCounter(): Short
+    {
+      return this.programCounter;
+    }
+
+    public getAccumulator(): Byte
+    { 
+      return this.accumulator;
+    }
+
+    public getXRegister(): Byte
+    { 
+      return this.xRegister;
+    }
+    
+    public getYRegister(): Byte
+    { 
+      return this.yRegister;
+    }
+
+    public getZFlag(): boolean
+    {
+      return this.zFlag;
+    }
+
+    public getKernelMode(): boolean
+    {
+      return this.kernelMode;
+    }
+
+    public setProgramCounter(data: Short): void
+    {
+      this.programCounter = data;
+    }
+
+    public setAccumulator(data: Byte): void
+    {
+      this.accumulator = data;
+    }
+
+    public setXRegister(data: Byte): void
+    {
+      this.xRegister = data;
+    }
+    
+    public setYRegister(data: Byte): void
+    {
+      this.yRegister = data;
+    }
+
+    public setZFlag(data: boolean): void
+    {
+      this.zFlag = data;
+    }
+
+    public setKernelMode(data: boolean): void
+    {
+      this.kernelMode = data;
     }
   }
 }
