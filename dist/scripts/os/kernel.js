@@ -20,6 +20,15 @@ var TSOS;
             this.waiting = [];
             this.running = undefined;
 
+            /*
+            * Reserve the segment system calls are stored in.
+            * Save this in the PCB used for system calls from the Shell.
+            * This has to happen because devices require CPU time to use
+            * and since the shell needs to talk to the devices, it needs
+            * to be able to execute system calls on the CPU.
+            */
+            this.shellPCB = new TSOS.PCB(this.memoryManager.reserve(3));
+
             this.interrupt = false;
 
             TSOS.Control.hostLog("bootstrap", "host");
@@ -47,6 +56,9 @@ var TSOS;
             // Finally, initiate testing.
             //_GLaDOS.afterStartup();
         }
+        Kernel.prototype.contextSwitch = function (pid) {
+        };
+
         Kernel.prototype.shutdown = function () {
             this.krnTrace("begin shutdown OS");
             this.krnTrace("Disabling the interrupts.");
@@ -168,6 +180,7 @@ var TSOS;
             TSOS.Control.hostLog("OS ERROR - TRAP: " + msg);
             this.shutdown();
         };
+        Kernel.SHELL_PID = 0;
         return Kernel;
     })();
     TSOS.Kernel = Kernel;

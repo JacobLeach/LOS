@@ -7,16 +7,19 @@
 module TSOS {
 
   export class PCB {
+    private static next_pid = 0;
+
     private programCounter: Short;
     private accumulator: Byte;
     private xRegister: Byte;
     private yRegister: Byte;
     private zFlag: boolean;
-    private kernelMode: boolean;
-    
-    private pid: number;
+    private kernelMode: boolean; 
     private lowAddress: Short;
     private highAddress: Short;
+
+    private segment: number;
+    private pid: number;
 
     constructor(memoryBounds: MemoryBounds) {
       this.programCounter = new Short(0);
@@ -28,6 +31,9 @@ module TSOS {
 
       this.lowAddress = memoryBounds.lower();
       this.highAddress = memoryBounds.upper();
+      
+      this.segment = memoryBounds.getSegment();
+      this.pid = PCB.next_pid++;
     }
 
     public setState(pc: Short, acc: Byte, x: Byte, y: Byte, z: boolean, mode: boolean, low: Short, high: Short)

@@ -17,11 +17,19 @@ module TSOS
   
   export class Kernel 
   {
+    public static SHELL_PID = 0;
+
     private ready: PCB[];
     private waiting: PCB[];
     private running: PCB;
+    private shellPCB: PCB;
     private memoryManager: MemoryManager;
     public interrupt: boolean;
+
+    public contextSwitch(pid: number): void
+    {
+
+    }
 
     constructor()
     { 
@@ -30,7 +38,16 @@ module TSOS
       this.ready = [];
       this.waiting = [];
       this.running = undefined;
-      
+
+      /*
+       * Reserve the segment system calls are stored in.
+       * Save this in the PCB used for system calls from the Shell.
+       * This has to happen because devices require CPU time to use
+       * and since the shell needs to talk to the devices, it needs
+       * to be able to execute system calls on the CPU.
+       */
+      this.shellPCB = new PCB(this.memoryManager.reserve(3));
+
       this.interrupt = false;
       
       Control.hostLog("bootstrap", "host");

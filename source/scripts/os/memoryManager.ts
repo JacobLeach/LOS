@@ -4,41 +4,62 @@
  * A memory manager object. Handles allocating and deallocating memory.
  */
 
-module TSOS {
+module TSOS 
+{
 
-  export class MemoryManager {
+  export class MemoryManager 
+  {
     private static SEGMENT_SIZE: number = 256;
 
-    private nextPid: number;
     private memorySegments: boolean[];
 
-    constructor() {
+    constructor() 
+    {
       this.memorySegments = [];
-      this.memorySegments[3] = true;
     }
 
-    public allocate(): MemoryBounds {
-      var toReturn: MemoryBounds = undefined;
+    public isReserved(segment: number): boolean
+    {
+      return this.memorySegments[segment];
+    }
 
-      for(var i = 0; i < this.memorySegments.length; i++) {
-        if(!this.memorySegments[i] || this.memorySegments[i] === undefined) {
-          var lowerBound = i * MemoryManager.SEGMENT_SIZE;
-          var upperBound = lowerBound + MemoryManager.SEGMENT_SIZE - 1;
-          
-          toReturn = new MemoryBounds(new Short(lowerBound), new Short(upperBound)); 
-          this.memorySegments[i] = true;
-
-          break;
+    public allocate(): MemoryBounds 
+    {
+      for(var i = 0; i < this.memorySegments.length; i++) 
+      {
+        if(!this.memorySegments[i] || this.memorySegments[i] === undefined) 
+        {
+          return this.reserve(i);
         }
       }
+      
+      return undefined;
+    }
+
+    public reserve(segment: number): MemoryBounds
+    {
+      this.memorySegments[segment] = true;
+       
+      return this.getBounds(segment);
+    }
+
+    public getBounds(segment: number): MemoryBounds
+    {
+      var toReturn: MemoryBounds;
+      
+      var lowerBound = segment * MemoryManager.SEGMENT_SIZE;
+      var upperBound = lowerBound + MemoryManager.SEGMENT_SIZE - 1;
+      
+      toReturn = new MemoryBounds(segment, new Short(lowerBound), new Short(upperBound)); 
+       
       return toReturn;
     }
 
-    public deallocate(segment: number): void {
+    public deallocate(segment: number): void 
+    {
       if(segment < 0 || 
          segment > this.memorySegments.length || 
-         !this.memorySegments[segment] ||
-         segment == 3)//Segment 3 is always used for system call functions 
+         !this.memorySegments[segment])
       {
         //SEGFAULT
       }
@@ -49,20 +70,31 @@ module TSOS {
     }
   }
 
-  export class MemoryBounds {
+  export class MemoryBounds 
+  {
+    private segment: number;
     private lowerBound: Short;
     private upperBound: Short;
 
-    constructor(lowerBound: Short, upperBound: Short) {
+    constructor(segment: number, lowerBound: Short, upperBound: Short) 
+    {
+      this.segment = segment;
       this.lowerBound = lowerBound;
       this.upperBound = upperBound;
     }
     
-    public lower(): Short {
+    public getSegment(): number
+    {
+      return this.segment;
+    }
+
+    public lower(): Short 
+    {
       return this.lowerBound;
     }
 
-    public upper(): Short {
+    public upper(): Short 
+    {
       return this.upperBound;
     }
   }
