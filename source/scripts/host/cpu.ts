@@ -293,7 +293,7 @@ module TSOS {
         if(adjustedAddress.asNumber() > this.highAddress.asNumber())
         {
           //Segfault
-          console.log("SEGFAULT");
+          console.log("SEGFAULT: " + adjustedAddress);
           return undefined;
         }
         else

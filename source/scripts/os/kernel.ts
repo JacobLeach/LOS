@@ -95,8 +95,12 @@ module TSOS
        * This has to happen because devices require CPU time to use
        * and since the shell needs to talk to the devices, it needs
        * to be able to execute system calls on the CPU.
+       *
+       * Must be in kernel mode since we only use this for I/O
+       * and all I/O requires kernel mode. 
        */
       this.shellPCB = new PCB(this.memoryManager.reserve(3));
+      this.shellPCB.setKernelMode(true);
 
       this.interrupt = false;
       
