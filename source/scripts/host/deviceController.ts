@@ -23,6 +23,7 @@ module TSOS {
             break;
           //Input from OS
           case 0xFFF0:
+            return new Byte(Stdio.getChar());
             break;
         }
       }

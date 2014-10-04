@@ -10,7 +10,6 @@ var TSOS;
         Stdio.getChar = function () {
             var character = Stdio.buffer[0];
             Stdio.buffer = Stdio.buffer.substring(1, Stdio.buffer.length);
-
             return character.charCodeAt(0);
         };
 
@@ -18,6 +17,8 @@ var TSOS;
         Stdio.putString = function (text, terminal) {
             for (var i = 0; i < text.length; i++) {
                 Stdio.buffer += (text.charAt(i));
+                console.log("THIS SHIT: " + Stdio.buffer);
+                _KernelInterruptQueue.enqueue(new TSOS.Interrupt(TSOS.Kernel.SYSTEM_CALL_IQR, 4));
             }
         };
         Stdio.buffer = "";

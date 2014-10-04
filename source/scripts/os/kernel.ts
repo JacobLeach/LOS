@@ -11,11 +11,26 @@ module TSOS {
     public static KEYBOARD_IRQ:    number  = 1;
     public static TERMINAL_IRQ:    number  = 2;
     public static SYSTEM_CALL_IQR: number  = 3;
+    public static BREAK_IQR:       number  = 4;
+    public static RETURN_IQR:       number  = 5;
+
+
+    private ready: PCB[];
+    private running: PCB;
+    private waiting: PCB[];
+    private memoryManager: MemoryManager;
+    public interrupt: boolean;
+
     //
     // OS Startup and Shutdown Routines
     //
     public krnBootstrap() {      // Page 8. {
       Control.hostLog("bootstrap", "host");  // Use hostLog because we ALWAYS want this, even if _Trace is off.
+      
+      this.memoryManager = new MemoryManager();
+      this.interrupt = false;
+      this.ready = [];
+      this.waiting = [];
 
       // Initialize our global queues.
       _KernelInterruptQueue = new Queue();  // A (currently) non-priority queue for interrupt requests (IRQs).
@@ -33,15 +48,9 @@ module TSOS {
       _krnKeyboardDriver.driverEntry();                    // Call the driverEntry() initialization routine.
       this.krnTrace(_krnKeyboardDriver.status);
 
-      //
-      // ... more?
-      //
-
-      // Enable the OS Interrupts.  (Not the CPU clock interrupt, as that is done in the hardware sim.)
       this.krnTrace("Enabling the interrupts.");
       this.krnEnableInterrupts();
 
-      // Launch the shell.
       this.krnTrace("Creating and Launching the shell.");
       _OsShell = new Shell();
       _OsShell.init();
@@ -52,33 +61,25 @@ module TSOS {
 
     public krnShutdown() {
       this.krnTrace("begin shutdown OS");
-      // TODO: Check for running processes.  Alert if there are some, alert and stop.  Else...
-      // ... Disable the Interrupts.
       this.krnTrace("Disabling the interrupts.");
       this.krnDisableInterrupts();
-      //
-      // Unload the Device Drivers?
-      // More?
-      //
       this.krnTrace("end shutdown OS");
     }
 
 
-    public krnOnCPUClockPulse() {
-      /* This gets called from the host hardware sim every time there is a hardware clock pulse.
-      This is NOT the same as a TIMER, which causes an interrupt and is handled like other interrupts.
-      This, on the other hand, is the clock pulse from the hardware (or host) that tells the kernel
-      that it has to look for interrupts and process them if it finds any.                           */
-
-      // Check for an interrupt, are any. Page 560
-      if (_KernelInterruptQueue.getSize() > 0) {
-        // Process the first interrupt on the interrupt queue.
-        // TODO: Implement a priority queue based on the IRQ number/id to enforce interrupt priority.
+    public krnOnCPUClockPulse() 
+    {
+      if (_KernelInterruptQueue.getSize() > 0 && !this.interrupt) 
+      {
         var interrupt = _KernelInterruptQueue.dequeue();
         this.krnInterruptHandler(interrupt.irq, interrupt.params);
-      } else if (_CPU.isExecuting()) { // If there are no interrupts then run one CPU cycle if there is anything being processed. {
+      } 
+      else if (_CPU.isExecuting()) 
+      { 
         _CPU.cycle();
-      } else {                      // If there are no interrupts and there is nothing being executed then just be idle. {
+      } 
+      else 
+      {                      
         this.krnTrace("Idle");
       }
     }
@@ -100,20 +101,15 @@ module TSOS {
     }
 
     public krnInterruptHandler(irq, params) {
-      // This is the Interrupt Handler Routine.  Pages 8 and 560. {
-      // Trace our entrance here so we can compute Interrupt Latency by analyzing the log file later on.  Page 766.
+      this.interrupt = true;
       this.krnTrace("Handling IRQ~" + irq);
-
-      // Invoke the requested Interrupt Service Routine via Switch/Case rather than an Interrupt Vector.
-      // TODO: Consider using an Interrupt Vector in the future.
-      // Note: There is no need to "dismiss" or acknowledge the interrupts in our design here.
-      //       Maybe the hardware simulation will grow to support/require that in the future.
+      console.log("INTERUPTTT: " + irq);
       switch (irq) {
         case Kernel.TIMER_IRQ:
-          this.krnTimerISR();              // Kernel built-in routine for timers (not the clock).
+          this.krnTimerISR();
           break;
         case Kernel.KEYBOARD_IRQ:
-          _krnKeyboardDriver.isr(params);   // Kernel mode device driver
+          _krnKeyboardDriver.isr(params);
           //Handle all the characters in the queue
           //Multiple can come in at once because of the ANSI control codes
           while(_KernelInputQueue.getSize() > 0) {
@@ -121,11 +117,79 @@ module TSOS {
           }
           break;
         case Kernel.SYSTEM_CALL_IQR:
-          
+          this.handleSystemCall(params);  
+          break;
+        case Kernel.BREAK_IQR:
+          this.handleBreak(params);  
+          break;
+        case Kernel.RETURN_IQR:
+          this.handleReturn(params);  
           break;
         default:
           this.krnTrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");
       }
+    }
+    
+    private handleReturn(address)
+    {
+      console.log("GETY");
+      if(_CPU.returnRegister != undefined)
+      {
+        _CPU.programCounter = address;
+      }
+      else
+      {
+        _CPU.executing = false;
+      }
+    }
+
+    private handleSystemCall(call): void
+    {
+      if(!_CPU.isExecuting())
+      {
+        _CPU.executing = true;
+      }
+      
+      switch(call)
+      {
+        case 1:
+          break;
+        case 2:
+          _CPU.programCounter = new Short(0x0300);
+          break;
+        case 3:
+          _CPU.programCounter = new Short(0x0304);
+          break;
+        case 4:
+          _CPU.returnRegister = undefined;
+          _CPU.programCounter = new Short(0x0308);
+          break;
+      }   
+    }
+
+    private handleBreak(mode): void
+    {
+      //If in kernel mode, return to caller
+      if(mode === true)
+      {
+        _CPU.setUserMode();
+        _CPU.programCounter = _CPU.returnRegister; 
+      }
+      else
+      {
+        _CPU.executing = false;
+      }
+    }
+    private saveState(pcb: PCB): void
+    {
+      pcb.setState(_CPU.programCounter, 
+                   _CPU.accumulator, 
+                   _CPU.xRegister, 
+                   _CPU.yRegister, 
+                   _CPU.zFlag, 
+                   _CPU.kernelMode,
+                   _CPU.lowAddress,
+                   _CPU.highAddress);
     }
 
     public krnTimerISR() {
@@ -133,33 +197,10 @@ module TSOS {
       // Check multiprogramming parameters and enforce quanta here. Call the scheduler / context switch here if necessary.
     }
 
-    //
-    // System Calls... that generate software interrupts via tha Application Programming Interface library routines.
-    //
-    // Some ideas:
-    // - ReadConsole
-    // - WriteConsole
-    // - CreateProcess
-    // - ExitProcess
-    // - WaitForProcessToExit
-    // - CreateFile
-    // - OpenFile
-    // - ReadFile
-    // - WriteFile
-    // - CloseFile
-
-
-    //
-    // OS Utility Routines
-    //
     public krnTrace(msg: string) {
-      // Check globals to see if trace is set ON.  If so, then (maybe) log the message.
       if (_Trace) {
         if (msg === "Idle") {
-          // We can't log every idle clock pulse because it would lag the browser very quickly.
           if (_OSclock % 10 == 0) {
-            // Check the CPU_CLOCK_INTERVAL in globals.ts for an
-            // idea of the tick rate and adjust this line accordingly.
             Control.hostLog(msg, "OS");
           }
         } 

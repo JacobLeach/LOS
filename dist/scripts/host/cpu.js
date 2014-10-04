@@ -20,8 +20,8 @@ var TSOS;
         Cpu.prototype.cycle = function () {
             _Kernel.krnTrace('CPU cycle');
             this.loadInstruction();
-            this.executeInstruction();
             this.programCounter.increment();
+            this.executeInstruction();
         };
 
         Cpu.prototype.isExecuting = function () {
@@ -53,14 +53,23 @@ var TSOS;
                 case 0x00:
                     this.programEnd();
                     break;
+                case 0x40:
+                    this.returnFromInterupt();
+                    break;
                 case 0x6D:
                     this.addWithCarry();
                     break;
                 case 0x8A:
                     this.transferXRegisterToAccumulator();
                     break;
+                case 0x8C:
+                    this.storeYRegisterInMemory();
+                    break;
                 case 0x8D:
                     this.storeAccumulatorInMemory();
+                    break;
+                case 0x8E:
+                    this.storeXRegisterInMemory();
                     break;
                 case 0x98:
                     this.transferYRegisterToAccumulator();
@@ -103,12 +112,18 @@ var TSOS;
                     break;
 
                 case 0xFF:
+                    this.systemCall();
                     break;
             }
         };
 
         Cpu.prototype.programEnd = function () {
-            this.executing = false;
+            _KernelInterruptQueue.enqueue(new TSOS.Interrupt(TSOS.Kernel.BREAK_IQR, this.kernelMode));
+        };
+
+        Cpu.prototype.returnFromInterupt = function () {
+            _Kernel.interrupt = false;
+            _KernelInterruptQueue.enqueue(new TSOS.Interrupt(TSOS.Kernel.RETURN_IQR, this.returnRegister));
         };
 
         Cpu.prototype.transferXRegisterToAccumulator = function () {
@@ -135,8 +150,16 @@ var TSOS;
             this.accumulator = new TSOS.Byte((this.accumulator.asNumber() + value.asNumber()) % 256);
         };
 
+        Cpu.prototype.storeYRegisterInMemory = function () {
+            this.deviceController.setByte(this.loadAddressFromMemory(), this.yRegister);
+        };
+
         Cpu.prototype.storeAccumulatorInMemory = function () {
             this.deviceController.setByte(this.loadAddressFromMemory(), this.accumulator);
+        };
+
+        Cpu.prototype.storeXRegisterInMemory = function () {
+            this.deviceController.setByte(this.loadAddressFromMemory(), this.xRegister);
         };
 
         Cpu.prototype.loadYRegisterWithConstant = function () {
@@ -166,9 +189,6 @@ var TSOS;
         Cpu.prototype.branch = function () {
             //If zFlag is true, we want to branch
             if (this.zFlag) {
-                //The constant is one byte ahead of the instruction in memory so incremenet the PC
-                this.programCounter.increment();
-
                 var branchAmount = this.deviceController.getByte(this.programCounter).asNumber();
 
                 //We have to wrap when branch goes above our memory range
@@ -190,26 +210,35 @@ var TSOS;
         };
 
         Cpu.prototype.loadInstructionConstant = function () {
-            //The constant is one byte ahead of the instruction in memory so incremenet the PC
+            var toReturn = this.deviceController.getByte(this.programCounter);
+
+            //The next instruction needs to be in the PC, so increment again
             this.programCounter.increment();
 
-            return this.deviceController.getByte(this.programCounter);
+            return toReturn;
         };
 
         Cpu.prototype.loadAddressFromMemory = function () {
-            //The lower address byte is one byte ahread of the instruction so increment the PC
-            this.programCounter.increment();
             var lowByte = this.deviceController.getByte(this.programCounter);
 
             //The high address byte is two bytes ahread of the instruction so increment the PC
             this.programCounter.increment();
             var highByte = this.deviceController.getByte(this.programCounter);
 
+            //The next instruction needs to be in the PC, so increment again
+            this.programCounter.increment();
+
             return TSOS.bytesToShort(lowByte, highByte);
         };
 
         Cpu.prototype.loadValueFromAddress = function () {
             return this.deviceController.getByte(this.loadAddressFromMemory());
+        };
+
+        Cpu.prototype.systemCall = function () {
+            this.setKernelMode();
+            this.returnRegister = this.programCounter;
+            _KernelInterruptQueue.enqueue(new TSOS.Interrupt(TSOS.Kernel.SYSTEM_CALL_IQR, this.xRegister.asNumber()));
         };
         return Cpu;
     })();

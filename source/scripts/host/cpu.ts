@@ -7,17 +7,20 @@
 module TSOS {
 
   export class Cpu {
-    private programCounter: Short;
-    private accumulator: Byte;
-    private xRegister: Byte;
-    private yRegister: Byte;
-    private instructionRegister: Byte;
-    private zFlag: boolean;
-    private kernelMode: boolean;
-    private lowAddress: Short;
-    private highAddress: Short;
+    public programCounter: Short;
+    public accumulator: Byte;
+    public xRegister: Byte;
+    public yRegister: Byte;
+    public instructionRegister: Byte;
+    public zFlag: boolean;
+    public kernelMode: boolean;
+    
+    public lowAddress: Short;
+    public highAddress: Short;
 
-    private executing: boolean;
+    public returnRegister: Short;
+
+    public executing: boolean;
 
     private deviceController: DeviceController;
 
@@ -37,8 +40,8 @@ module TSOS {
     public cycle(): void {
       _Kernel.krnTrace('CPU cycle');      
       this.loadInstruction(); 
-      this.executeInstruction();
       this.programCounter.increment();
+      this.executeInstruction();
     }
 
     public isExecuting(): boolean {
@@ -71,14 +74,23 @@ module TSOS {
         case 0x00:
           this.programEnd(); 
           break;
+        case 0x40:
+          this.returnFromInterupt(); 
+          break;
         case 0x6D:
           this.addWithCarry();
           break;
         case 0x8A:
           this.transferXRegisterToAccumulator();
           break;
+        case 0x8C:
+          this.storeYRegisterInMemory();
+          break;
         case 0x8D:
           this.storeAccumulatorInMemory();
+          break;
+        case 0x8E:
+          this.storeXRegisterInMemory();
           break;
         case 0x98:
           this.transferYRegisterToAccumulator();
@@ -121,12 +133,18 @@ module TSOS {
           break;
         //System call
         case 0xFF:
+          this.systemCall();
           break;
       }
     }
     
     private programEnd(): void {
-      this.executing = false;
+      _KernelInterruptQueue.enqueue(new Interrupt(Kernel.BREAK_IQR, this.kernelMode));
+    }
+    
+    private returnFromInterupt(): void {
+      _Kernel.interrupt = false;
+      _KernelInterruptQueue.enqueue(new Interrupt(Kernel.RETURN_IQR, this.returnRegister));
     }
 
     private transferXRegisterToAccumulator(): void {
@@ -153,8 +171,16 @@ module TSOS {
       this.accumulator = new Byte((this.accumulator.asNumber() + value.asNumber()) % 256);
     }
     
+    private storeYRegisterInMemory() {
+      this.deviceController.setByte(this.loadAddressFromMemory(), this.yRegister);
+    }
+    
     private storeAccumulatorInMemory() {
       this.deviceController.setByte(this.loadAddressFromMemory(), this.accumulator);
+    }
+    
+    private storeXRegisterInMemory() {
+      this.deviceController.setByte(this.loadAddressFromMemory(), this.xRegister);
     }
 
     private loadYRegisterWithConstant() {
@@ -184,9 +210,6 @@ module TSOS {
     private branch() {
       //If zFlag is true, we want to branch
       if(this.zFlag) {
-        //The constant is one byte ahead of the instruction in memory so incremenet the PC
-        this.programCounter.increment();
-
         var branchAmount: number = this.deviceController.getByte(this.programCounter).asNumber();
 
         //We have to wrap when branch goes above our memory range
@@ -208,26 +231,35 @@ module TSOS {
     }
     
     private loadInstructionConstant(): Byte {
-      //The constant is one byte ahead of the instruction in memory so incremenet the PC
+      var toReturn: Byte = this.deviceController.getByte(this.programCounter);
+      
+      //The next instruction needs to be in the PC, so increment again
       this.programCounter.increment();
-             
-      return this.deviceController.getByte(this.programCounter);
+
+      return toReturn;
     }
 
     private loadAddressFromMemory(): Short {
-      //The lower address byte is one byte ahread of the instruction so increment the PC
-      this.programCounter.increment();
       var lowByte: Byte = this.deviceController.getByte(this.programCounter);
 
       //The high address byte is two bytes ahread of the instruction so increment the PC
       this.programCounter.increment();
       var highByte: Byte = this.deviceController.getByte(this.programCounter);
 
+      //The next instruction needs to be in the PC, so increment again
+      this.programCounter.increment();
+
       return bytesToShort(lowByte, highByte);
     }
 
     private loadValueFromAddress(): Byte {
       return this.deviceController.getByte(this.loadAddressFromMemory());
+    }
+
+    private systemCall(): void {
+      this.setKernelMode();
+      this.returnRegister = this.programCounter;
+      _KernelInterruptQueue.enqueue(new Interrupt(Kernel.SYSTEM_CALL_IQR, this.xRegister.asNumber()));
     }
   }
 }

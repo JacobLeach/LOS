@@ -15,12 +15,36 @@ var TSOS;
             }
 
             //System calls
-            this.memory[0] = new Byte(0xA9);
-            this.memory[1] = new Byte(65);
-            this.memory[2] = new Byte(0x8D);
-            this.memory[3] = new Byte(0x00);
-            this.memory[4] = new Byte(0xFF);
-            this.memory[5] = new Byte(0x00);
+            this.memory[0] = new Byte(0xA2); //Load X with 3
+            this.memory[1] = new Byte(3);
+            this.memory[2] = new Byte(0xFF); //System call
+            this.memory[3] = new Byte(0xA8); //Transfer acc to Y
+            this.memory[4] = new Byte(0xA2); //Load X with 2
+            this.memory[5] = new Byte(2);
+            this.memory[6] = new Byte(0xFF); //System call
+            this.memory[7] = new Byte(0x00);
+
+            //Print single char
+            this.memory[0x0300] = new Byte(0x8C);
+            this.memory[0x0301] = new Byte(0x00);
+            this.memory[0x0302] = new Byte(0xFF);
+            this.memory[0x0303] = new Byte(0x40);
+
+            //Load char from buffer
+            this.memory[0x0304] = new Byte(0xAD); //Load accumulator from memory
+            this.memory[0x0305] = new Byte(0xF0); //Device address for buffer
+            this.memory[0x0306] = new Byte(0xFF);
+            this.memory[0x0307] = new Byte(0x40);
+
+            //STDIO putChar
+            this.memory[0x0308] = new Byte(0xAD);
+            this.memory[0x0309] = new Byte(0xF0);
+            this.memory[0x030A] = new Byte(0xFF);
+            this.memory[0x030B] = new Byte(0xA8);
+            this.memory[0x030C] = new Byte(0x8C);
+            this.memory[0x030D] = new Byte(0x00);
+            this.memory[0x030E] = new Byte(0xFF);
+            this.memory[0x030F] = new Byte(0x40);
         }
         Memory.prototype.getSize = function () {
             return this.size;

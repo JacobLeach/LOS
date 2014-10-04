@@ -17,6 +17,7 @@ var TSOS;
                         break;
 
                     case 0xFFF0:
+                        return new TSOS.Byte(TSOS.Stdio.getChar());
                         break;
                 }
             }
