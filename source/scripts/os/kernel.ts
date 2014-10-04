@@ -69,6 +69,7 @@ module TSOS {
 
     public krnOnCPUClockPulse() 
     {
+      console.log(this.interrupt);
       if (_KernelInterruptQueue.getSize() > 0 && !this.interrupt) 
       {
         var interrupt = _KernelInterruptQueue.dequeue();
@@ -106,6 +107,7 @@ module TSOS {
       console.log("INTERUPTTT: " + irq);
       switch (irq) {
         case Kernel.TIMER_IRQ:
+          this.interrupt = true;
           this.krnTimerISR();
           break;
         case Kernel.KEYBOARD_IRQ:
@@ -115,6 +117,7 @@ module TSOS {
           while(_KernelInputQueue.getSize() > 0) {
             _OsShell.isr(_KernelInputQueue.dequeue());
           }
+          this.interrupt = false;
           break;
         case Kernel.SYSTEM_CALL_IQR:
           this.handleSystemCall(params);  
@@ -132,7 +135,6 @@ module TSOS {
     
     private handleReturn(address)
     {
-      console.log("GETY");
       if(_CPU.returnRegister != undefined)
       {
         _CPU.programCounter = address;
@@ -141,6 +143,8 @@ module TSOS {
       {
         _CPU.executing = false;
       }
+
+      this.interrupt = false;
     }
 
     private handleSystemCall(call): void

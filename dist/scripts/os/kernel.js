@@ -51,6 +51,7 @@ var TSOS;
         };
 
         Kernel.prototype.krnOnCPUClockPulse = function () {
+            console.log(this.interrupt);
             if (_KernelInterruptQueue.getSize() > 0 && !this.interrupt) {
                 var interrupt = _KernelInterruptQueue.dequeue();
                 this.krnInterruptHandler(interrupt.irq, interrupt.params);
@@ -82,6 +83,7 @@ var TSOS;
             console.log("INTERUPTTT: " + irq);
             switch (irq) {
                 case Kernel.TIMER_IRQ:
+                    this.interrupt = true;
                     this.krnTimerISR();
                     break;
                 case Kernel.KEYBOARD_IRQ:
@@ -90,6 +92,7 @@ var TSOS;
                     while (_KernelInputQueue.getSize() > 0) {
                         _OsShell.isr(_KernelInputQueue.dequeue());
                     }
+                    this.interrupt = false;
                     break;
                 case Kernel.SYSTEM_CALL_IQR:
                     this.handleSystemCall(params);
@@ -106,12 +109,13 @@ var TSOS;
         };
 
         Kernel.prototype.handleReturn = function (address) {
-            console.log("GETY");
             if (_CPU.returnRegister != undefined) {
                 _CPU.programCounter = address;
             } else {
                 _CPU.executing = false;
             }
+
+            this.interrupt = false;
         };
 
         Kernel.prototype.handleSystemCall = function (call) {
