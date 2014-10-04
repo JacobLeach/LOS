@@ -15,7 +15,7 @@
 var APP_NAME: string    = "LOS";   
 var APP_VERSION: string = "1.0.0"; 
 
-var CPU_CLOCK_INTERVAL: number = 100;   // This is in ms, or milliseconds, so 1000 = 1 second.
+var CPU_CLOCK_INTERVAL: number = 1;   // This is in ms, or milliseconds, so 1000 = 1 second.
 
 var ESCAPE    = String.fromCharCode(27);
 var TAB       = String.fromCharCode(9);
@@ -39,7 +39,7 @@ var _DefaultFontSize = 13;
 var _FontHeightMargin = 4;              // Additional space added to font size when advancing a line.
 
 
-var _Trace: boolean = true;  // Default the OS trace to be on.
+var _Trace: boolean = false;  // Default the OS trace to be on.
 
 // The OS Kernel and its queues.
 var _Kernel: TSOS.Kernel;

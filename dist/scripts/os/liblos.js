@@ -3,8 +3,9 @@ var TSOS;
     var liblos = (function () {
         function liblos() {
         }
-        liblos.putChar = function () {
+        liblos.putChar = function (letter) {
             //_Kernel.contextSwitch(_Kernel.getShellPid());
+            _KernelInterruptQueue.enqueue(new TSOS.Interrupt(2 /* SYSTEM_CALL */, 4));
         };
 
         liblos.clockTick = function () {

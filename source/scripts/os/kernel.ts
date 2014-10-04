@@ -165,6 +165,7 @@ module TSOS
 
     public interruptHandler(irq, params) 
     {
+      console.log("HOLY SHIT BNATMAN: "  + irq);
       this.interrupt = true;
       this.krnTrace("Handling IRQ~" + irq);
       switch (irq) 
@@ -198,6 +199,7 @@ module TSOS
     
     private handleReturn(address)
     {
+      console.log("ASHG");
       if(this.running.getPid() === this.shellPCB.getPid())
       {
         this.saveProcessorState();
@@ -214,6 +216,7 @@ module TSOS
     {
       if(this.running === undefined)
       {
+        console.log(this.shellPCB.getPid());
         this.setProcessorState(this.shellPCB.getPid());
       }
 

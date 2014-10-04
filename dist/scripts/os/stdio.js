@@ -18,7 +18,7 @@ var TSOS;
         Stdio.putString = function (text, terminal) {
             for (var i = 0; i < text.length; i++) {
                 Stdio.buffer += (text.charAt(i));
-                _KernelInterruptQueue.enqueue(new TSOS.Interrupt(2 /* SYSTEM_CALL */, 4));
+                TSOS.liblos.putChar(text.charAt(i));
             }
         };
         Stdio.buffer = "";

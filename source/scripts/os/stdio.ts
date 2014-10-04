@@ -21,7 +21,7 @@ module TSOS {
     public static putString(text: String, terminal: Terminal) {
       for(var i = 0; i < text.length; i++) {
         Stdio.buffer += (text.charAt(i));
-        _KernelInterruptQueue.enqueue(new Interrupt(IRQ.SYSTEM_CALL, 4));
+        liblos.putChar(text.charAt(i));
       }
     }
   }

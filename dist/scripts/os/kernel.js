@@ -131,6 +131,7 @@ var TSOS;
         };
 
         Kernel.prototype.interruptHandler = function (irq, params) {
+            console.log("HOLY SHIT BNATMAN: " + irq);
             this.interrupt = true;
             this.krnTrace("Handling IRQ~" + irq);
             switch (irq) {
@@ -161,6 +162,7 @@ var TSOS;
         };
 
         Kernel.prototype.handleReturn = function (address) {
+            console.log("ASHG");
             if (this.running.getPid() === this.shellPCB.getPid()) {
                 this.saveProcessorState();
             } else {
@@ -172,6 +174,7 @@ var TSOS;
 
         Kernel.prototype.handleSystemCall = function (call) {
             if (this.running === undefined) {
+                console.log(this.shellPCB.getPid());
                 this.setProcessorState(this.shellPCB.getPid());
             }
 
