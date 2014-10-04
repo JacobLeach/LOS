@@ -118,12 +118,12 @@ var TSOS;
         };
 
         Cpu.prototype.programEnd = function () {
-            _KernelInterruptQueue.enqueue(new TSOS.Interrupt(TSOS.Kernel.BREAK_IQR, this.kernelMode));
+            _KernelInterruptQueue.enqueue(new TSOS.Interrupt(3 /* BREAK */, this.kernelMode));
         };
 
         Cpu.prototype.returnFromInterupt = function () {
             _Kernel.interrupt = false;
-            _KernelInterruptQueue.enqueue(new TSOS.Interrupt(TSOS.Kernel.RETURN_IQR, this.returnRegister));
+            _KernelInterruptQueue.enqueue(new TSOS.Interrupt(4 /* RETURN */, this.returnRegister));
         };
 
         Cpu.prototype.transferXRegisterToAccumulator = function () {
@@ -238,7 +238,7 @@ var TSOS;
         Cpu.prototype.systemCall = function () {
             this.setKernelMode();
             this.returnRegister = this.programCounter;
-            _KernelInterruptQueue.enqueue(new TSOS.Interrupt(TSOS.Kernel.SYSTEM_CALL_IQR, this.xRegister.asNumber()));
+            _KernelInterruptQueue.enqueue(new TSOS.Interrupt(2 /* SYSTEM_CALL */, this.xRegister.asNumber()));
         };
         return Cpu;
     })();

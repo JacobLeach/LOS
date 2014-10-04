@@ -300,10 +300,7 @@ var TSOS;
 
         Shell.prototype.shellShutdown = function (args) {
             TSOS.Stdio.putString("Shutting down...", _StdOut);
-
-            // Call Kernel shutdown routine.
-            _Kernel.krnShutdown();
-            // TODO: Stop the final prompt from being displayed.  If possible.  Not a high priority.  (Damn OCD!)
+            TSOS.liblos.shutdown();
         };
 
         Shell.prototype.shellCls = function (args) {

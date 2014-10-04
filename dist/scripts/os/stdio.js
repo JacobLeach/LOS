@@ -18,7 +18,7 @@ var TSOS;
             for (var i = 0; i < text.length; i++) {
                 Stdio.buffer += (text.charAt(i));
                 console.log("THIS SHIT: " + Stdio.buffer);
-                _KernelInterruptQueue.enqueue(new TSOS.Interrupt(TSOS.Kernel.SYSTEM_CALL_IQR, 4));
+                _KernelInterruptQueue.enqueue(new TSOS.Interrupt(2 /* SYSTEM_CALL */, 4));
             }
         };
         Stdio.buffer = "";

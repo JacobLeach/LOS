@@ -3,42 +3,43 @@
 
   ------------ */
 
-module TSOS {
-
-  export class Kernel {
-
-    public static TIMER_IRQ:       number  = 0;
-    public static KEYBOARD_IRQ:    number  = 1;
-    public static TERMINAL_IRQ:    number  = 2;
-    public static SYSTEM_CALL_IQR: number  = 3;
-    public static BREAK_IQR:       number  = 4;
-    public static RETURN_IQR:       number  = 5;
-
-
+module TSOS 
+{
+  
+  export enum IRQ
+  {
+    TIMER,
+    KEYBOARD,
+    SYSTEM_CALL,
+    BREAK,
+    RETURN
+  }
+  
+  export class Kernel 
+  {
     private ready: PCB[];
-    private running: PCB;
     private waiting: PCB[];
+    private running: PCB;
     private memoryManager: MemoryManager;
     public interrupt: boolean;
 
-    //
-    // OS Startup and Shutdown Routines
-    //
-    public krnBootstrap() {      // Page 8. {
-      Control.hostLog("bootstrap", "host");  // Use hostLog because we ALWAYS want this, even if _Trace is off.
-      
+    constructor()
+    { 
       this.memoryManager = new MemoryManager();
-      this.interrupt = false;
+
       this.ready = [];
       this.waiting = [];
-
+      this.running = undefined;
+      
+      this.interrupt = false;
+      
+      Control.hostLog("bootstrap", "host");
+      
       // Initialize our global queues.
-      _KernelInterruptQueue = new Queue();  // A (currently) non-priority queue for interrupt requests (IRQs).
-      _KernelBuffers = new Array();         // Buffers... for the kernel.
-      _KernelInputQueue = new Queue();      // Where device input lands before being processed out somewhere.
-      _Console = new Terminal(_Canvas);          // The command line interface / console I/O device.
-
-      // Initialize standard input and output to the _Console.
+      _KernelInterruptQueue = new Queue();  
+      _KernelBuffers = new Array();         
+      _KernelInputQueue = new Queue();      
+      _Console = new Terminal(_Canvas);     
       _StdIn  = _Console;
       _StdOut = _Console;
 
@@ -49,7 +50,7 @@ module TSOS {
       this.krnTrace(_krnKeyboardDriver.status);
 
       this.krnTrace("Enabling the interrupts.");
-      this.krnEnableInterrupts();
+      this.enableInterrupts();
 
       this.krnTrace("Creating and Launching the shell.");
       _OsShell = new Shell();
@@ -59,21 +60,22 @@ module TSOS {
       //_GLaDOS.afterStartup();
     }
 
-    public krnShutdown() {
+    public shutdown() 
+    {
       this.krnTrace("begin shutdown OS");
       this.krnTrace("Disabling the interrupts.");
-      this.krnDisableInterrupts();
+      this.disableInterrupts();
       this.krnTrace("end shutdown OS");
     }
 
 
-    public krnOnCPUClockPulse() 
+    public clockTick() 
     {
       console.log(this.interrupt);
       if (_KernelInterruptQueue.getSize() > 0 && !this.interrupt) 
       {
         var interrupt = _KernelInterruptQueue.dequeue();
-        this.krnInterruptHandler(interrupt.irq, interrupt.params);
+        this.interruptHandler(interrupt.irq, interrupt.params);
       } 
       else if (_CPU.isExecuting()) 
       { 
@@ -85,32 +87,27 @@ module TSOS {
       }
     }
 
-
-    //
-    // Interrupt Handling
-    //
-    public krnEnableInterrupts() {
-      // Keyboard
+    public enableInterrupts() 
+    {
       Devices.hostEnableKeyboardInterrupt();
-      // Put more here.
     }
 
-    public krnDisableInterrupts() {
-      // Keyboard
+    public disableInterrupts() 
+    {
       Devices.hostDisableKeyboardInterrupt();
-      // Put more here.
     }
 
-    public krnInterruptHandler(irq, params) {
+    public interruptHandler(irq, params) 
+    {
       this.interrupt = true;
       this.krnTrace("Handling IRQ~" + irq);
-      console.log("INTERUPTTT: " + irq);
-      switch (irq) {
-        case Kernel.TIMER_IRQ:
+      switch (irq) 
+      {
+        case IRQ.TIMER:
           this.interrupt = true;
           this.krnTimerISR();
           break;
-        case Kernel.KEYBOARD_IRQ:
+        case IRQ.KEYBOARD:
           _krnKeyboardDriver.isr(params);
           //Handle all the characters in the queue
           //Multiple can come in at once because of the ANSI control codes
@@ -119,13 +116,13 @@ module TSOS {
           }
           this.interrupt = false;
           break;
-        case Kernel.SYSTEM_CALL_IQR:
+        case IRQ.SYSTEM_CALL:
           this.handleSystemCall(params);  
           break;
-        case Kernel.BREAK_IQR:
+        case IRQ.BREAK:
           this.handleBreak(params);  
           break;
-        case Kernel.RETURN_IQR:
+        case IRQ.RETURN:
           this.handleReturn(params);  
           break;
         default:
@@ -196,12 +193,14 @@ module TSOS {
                    _CPU.highAddress);
     }
 
-    public krnTimerISR() {
+    public krnTimerISR() 
+    {
       // The built-in TIMER (not clock) Interrupt Service Routine (as opposed to an ISR coming from a device driver). {
       // Check multiprogramming parameters and enforce quanta here. Call the scheduler / context switch here if necessary.
     }
 
-    public krnTrace(msg: string) {
+    public krnTrace(msg: string) 
+    {
       if (_Trace) {
         if (msg === "Idle") {
           if (_OSclock % 10 == 0) {
@@ -214,9 +213,10 @@ module TSOS {
       }
     }
 
-    public krnTrapError(msg) {
+    public krnTrapError(msg) 
+    {
       Control.hostLog("OS ERROR - TRAP: " + msg);
-      this.krnShutdown();
+      this.shutdown();
     }
   }
 }

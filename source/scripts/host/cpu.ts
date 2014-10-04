@@ -139,12 +139,12 @@ module TSOS {
     }
     
     private programEnd(): void {
-      _KernelInterruptQueue.enqueue(new Interrupt(Kernel.BREAK_IQR, this.kernelMode));
+      _KernelInterruptQueue.enqueue(new Interrupt(IRQ.BREAK, this.kernelMode));
     }
     
     private returnFromInterupt(): void {
       _Kernel.interrupt = false;
-      _KernelInterruptQueue.enqueue(new Interrupt(Kernel.RETURN_IQR, this.returnRegister));
+      _KernelInterruptQueue.enqueue(new Interrupt(IRQ.RETURN, this.returnRegister));
     }
 
     private transferXRegisterToAccumulator(): void {
@@ -259,7 +259,7 @@ module TSOS {
     private systemCall(): void {
       this.setKernelMode();
       this.returnRegister = this.programCounter;
-      _KernelInterruptQueue.enqueue(new Interrupt(Kernel.SYSTEM_CALL_IQR, this.xRegister.asNumber()));
+      _KernelInterruptQueue.enqueue(new Interrupt(IRQ.SYSTEM_CALL, this.xRegister.asNumber()));
     }
   }
 }

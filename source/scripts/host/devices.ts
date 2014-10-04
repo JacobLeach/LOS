@@ -34,7 +34,7 @@ module TSOS {
             // Increment the hardware (host) clock.
             _OSclock++;
             // Call the kernel clock pulse event handler.
-            _Kernel.krnOnCPUClockPulse();
+            liblos.clockTick();
         }
 
         //
@@ -59,7 +59,7 @@ module TSOS {
                 // Note the pressed key code in the params (Mozilla-specific).
                 var params = new Array(event.which, event.shiftKey);
                 // Enqueue this interrupt on the kernel interrupt queue so that it gets to the Interrupt handler.
-                _KernelInterruptQueue.enqueue(new Interrupt(Kernel.KEYBOARD_IRQ, params));
+                _KernelInterruptQueue.enqueue(new Interrupt(IRQ.KEYBOARD, params));
             }
         }
     }

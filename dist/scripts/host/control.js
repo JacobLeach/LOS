@@ -86,7 +86,6 @@ var TSOS;
 
             // .. and call the OS Kernel Bootstrap routine.
             _Kernel = new TSOS.Kernel();
-            _Kernel.krnBootstrap();
         };
 
         Control.hostBtnHaltOS_click = function (btn) {
@@ -94,7 +93,7 @@ var TSOS;
             Control.hostLog("Attempting Kernel shutdown.", "host");
 
             // Call the OS shutdown routine.
-            _Kernel.krnShutdown();
+            TSOS.liblos.shutdown();
 
             // Stop the interval that's simulating our clock pulse.
             clearInterval(_hardwareClockID);

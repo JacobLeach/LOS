@@ -350,10 +350,8 @@ module TSOS {
         }
 
         public shellShutdown(args) {
-             Stdio.putString("Shutting down...", _StdOut);
-             // Call Kernel shutdown routine.
-            _Kernel.krnShutdown();
-            // TODO: Stop the final prompt from being displayed.  If possible.  Not a high priority.  (Damn OCD!)
+            Stdio.putString("Shutting down...", _StdOut);
+            liblos.shutdown();
         }
 
         public shellCls(args) {
