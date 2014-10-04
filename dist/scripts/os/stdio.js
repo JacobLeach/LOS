@@ -8,16 +8,16 @@ var TSOS;
         function Stdio() {
         }
         Stdio.getChar = function () {
-            var character = Stdio.buffer[0];
+            var toReturn = Stdio.buffer[0];
             Stdio.buffer = Stdio.buffer.substring(1, Stdio.buffer.length);
-            return character.charCodeAt(0);
+
+            return toReturn.charCodeAt(0);
         };
 
         //Wrapper to write text to output
         Stdio.putString = function (text, terminal) {
             for (var i = 0; i < text.length; i++) {
                 Stdio.buffer += (text.charAt(i));
-                console.log("THIS SHIT: " + Stdio.buffer);
                 _KernelInterruptQueue.enqueue(new TSOS.Interrupt(2 /* SYSTEM_CALL */, 4));
             }
         };

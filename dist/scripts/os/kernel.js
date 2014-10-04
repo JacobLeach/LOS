@@ -55,7 +55,6 @@ var TSOS;
         };
 
         Kernel.prototype.clockTick = function () {
-            console.log(this.interrupt);
             if (_KernelInterruptQueue.getSize() > 0 && !this.interrupt) {
                 var interrupt = _KernelInterruptQueue.dequeue();
                 this.interruptHandler(interrupt.irq, interrupt.params);

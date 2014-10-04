@@ -71,7 +71,6 @@ module TSOS
 
     public clockTick() 
     {
-      console.log(this.interrupt);
       if (_KernelInterruptQueue.getSize() > 0 && !this.interrupt) 
       {
         var interrupt = _KernelInterruptQueue.dequeue();
