@@ -4,8 +4,7 @@ module TSOS
   {
     public static putChar(): void
     {
-      //If executing already, save that state
-      //Update shell PCB with correct address and swap it in
+      _Kernel.contextSwitch(_Kernel.getShellPid());
     }
 
     public static clockTick(): void

@@ -59,6 +59,14 @@ var TSOS;
         Kernel.prototype.contextSwitch = function (pid) {
         };
 
+        Kernel.prototype.getRunning = function () {
+            return this.running.getPid();
+        };
+
+        Kernel.prototype.getShellPid = function () {
+            return this.shellPid;
+        };
+
         Kernel.prototype.shutdown = function () {
             this.krnTrace("begin shutdown OS");
             this.krnTrace("Disabling the interrupts.");
@@ -155,9 +163,6 @@ var TSOS;
                 _CPU.executing = false;
             }
         };
-        Kernel.prototype.saveState = function (pcb) {
-            pcb.setState(_CPU.programCounter, _CPU.accumulator, _CPU.xRegister, _CPU.yRegister, _CPU.zFlag, _CPU.kernelMode, _CPU.lowAddress, _CPU.highAddress);
-        };
 
         Kernel.prototype.krnTimerISR = function () {
             // The built-in TIMER (not clock) Interrupt Service Routine (as opposed to an ISR coming from a device driver). {
@@ -180,7 +185,6 @@ var TSOS;
             TSOS.Control.hostLog("OS ERROR - TRAP: " + msg);
             this.shutdown();
         };
-        Kernel.SHELL_PID = 0;
         return Kernel;
     })();
     TSOS.Kernel = Kernel;

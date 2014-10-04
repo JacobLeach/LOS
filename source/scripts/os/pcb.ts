@@ -36,16 +36,9 @@ module TSOS {
       this.pid = PCB.next_pid++;
     }
 
-    public setState(pc: Short, acc: Byte, x: Byte, y: Byte, z: boolean, mode: boolean, low: Short, high: Short)
+    public getPid(): number
     {
-      this.programCounter = pc;
-      this.accumulator = acc;
-      this.xRegister = x;
-      this.yRegister = y;
-      this.zFlag = z;
-      this.kernelMode = mode;
-      this.lowAddress = low;
-      this.highAddress = high;
+      return this.pid;
     }
   }
 }

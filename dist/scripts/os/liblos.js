@@ -4,8 +4,7 @@ var TSOS;
         function liblos() {
         }
         liblos.putChar = function () {
-            //If executing already, save that state
-            //Update shell PCB with correct address and swap it in
+            _Kernel.contextSwitch(_Kernel.getShellPid());
         };
 
         liblos.clockTick = function () {

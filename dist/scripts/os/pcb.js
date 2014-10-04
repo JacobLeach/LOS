@@ -19,15 +19,8 @@ var TSOS;
             this.segment = memoryBounds.getSegment();
             this.pid = PCB.next_pid++;
         }
-        PCB.prototype.setState = function (pc, acc, x, y, z, mode, low, high) {
-            this.programCounter = pc;
-            this.accumulator = acc;
-            this.xRegister = x;
-            this.yRegister = y;
-            this.zFlag = z;
-            this.kernelMode = mode;
-            this.lowAddress = low;
-            this.highAddress = high;
+        PCB.prototype.getPid = function () {
+            return this.pid;
         };
         PCB.next_pid = 0;
         return PCB;

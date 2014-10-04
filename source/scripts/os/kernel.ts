@@ -17,7 +17,7 @@ module TSOS
   
   export class Kernel 
   {
-    public static SHELL_PID = 0;
+    private shellPid: number;
 
     private ready: PCB[];
     private waiting: PCB[];
@@ -28,7 +28,17 @@ module TSOS
 
     public contextSwitch(pid: number): void
     {
+      
+    }
 
+    public getRunning(): number
+    {
+      return this.running.getPid();
+    }
+
+    public getShellPid(): number
+    {
+      return this.shellPid;
     }
 
     constructor()
@@ -196,17 +206,6 @@ module TSOS
       {
         _CPU.executing = false;
       }
-    }
-    private saveState(pcb: PCB): void
-    {
-      pcb.setState(_CPU.programCounter, 
-                   _CPU.accumulator, 
-                   _CPU.xRegister, 
-                   _CPU.yRegister, 
-                   _CPU.zFlag, 
-                   _CPU.kernelMode,
-                   _CPU.lowAddress,
-                   _CPU.highAddress);
     }
 
     public krnTimerISR() 
