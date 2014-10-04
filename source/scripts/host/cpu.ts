@@ -77,6 +77,9 @@ module TSOS {
         case 0x40:
           this.returnFromInterupt(); 
           break;
+        case 0x4C:
+          this.jump(); 
+          break;
         case 0x6D:
           this.addWithCarry();
           break;
@@ -145,6 +148,10 @@ module TSOS {
     private returnFromInterupt(): void {
       _Kernel.interrupt = false;
       _KernelInterruptQueue.enqueue(new Interrupt(IRQ.RETURN, this.returnRegister));
+    }
+
+    private jump(): void {
+      this.programCounter = this.loadAddressFromMemory();  
     }
 
     private transferXRegisterToAccumulator(): void {

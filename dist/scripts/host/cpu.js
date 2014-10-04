@@ -56,6 +56,9 @@ var TSOS;
                 case 0x40:
                     this.returnFromInterupt();
                     break;
+                case 0x4C:
+                    this.jump();
+                    break;
                 case 0x6D:
                     this.addWithCarry();
                     break;
@@ -124,6 +127,10 @@ var TSOS;
         Cpu.prototype.returnFromInterupt = function () {
             _Kernel.interrupt = false;
             _KernelInterruptQueue.enqueue(new TSOS.Interrupt(4 /* RETURN */, this.returnRegister));
+        };
+
+        Cpu.prototype.jump = function () {
+            this.programCounter = this.loadAddressFromMemory();
         };
 
         Cpu.prototype.transferXRegisterToAccumulator = function () {
