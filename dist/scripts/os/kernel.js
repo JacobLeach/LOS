@@ -56,6 +56,11 @@ var TSOS;
             //_GLaDOS.afterStartup();
         }
         Kernel.prototype.contextSwitch = function (pid) {
+            this.saveProcessorState();
+            this.setProcessorState(pid);
+        };
+
+        Kernel.prototype.saveProcessorState = function () {
             this.running.setProgramCounter(_CPU.programCounter);
             this.running.setAccumulator(_CPU.accumulator);
             this.running.setXRegister(_CPU.xRegister);
@@ -64,7 +69,11 @@ var TSOS;
             this.running.setKernelMode(_CPU.kernelMode);
 
             this.ready.push(this.running);
+            this.running = undefined;
+            _CPU.executing = false;
+        };
 
+        Kernel.prototype.setProcessorState = function (pid) {
             if (pid === this.shellPCB.getPid()) {
                 this.running = this.shellPCB;
             } else {
@@ -82,6 +91,9 @@ var TSOS;
             _CPU.yRegister = this.running.getYRegister();
             _CPU.zFlag = this.running.getZFlag();
             _CPU.kernelMode = this.running.getKernelMode();
+            _CPU.lowAddress = this.running.getLowAddress();
+            _CPU.highAddress = this.running.getHighAddress();
+            _CPU.executing = true;
         };
 
         Kernel.prototype.getRunning = function () {
@@ -149,18 +161,18 @@ var TSOS;
         };
 
         Kernel.prototype.handleReturn = function (address) {
-            if (_CPU.returnRegister != undefined) {
-                _CPU.programCounter = address;
+            if (this.running.getPid() === this.shellPCB.getPid()) {
+                this.saveProcessorState();
             } else {
-                _CPU.executing = false;
+                _CPU.programCounter = address;
             }
 
             this.interrupt = false;
         };
 
         Kernel.prototype.handleSystemCall = function (call) {
-            if (!_CPU.isExecuting()) {
-                _CPU.executing = true;
+            if (this.running === undefined) {
+                this.setProcessorState(this.shellPCB.getPid());
             }
 
             switch (call) {
@@ -173,7 +185,6 @@ var TSOS;
                     _CPU.programCounter = new TSOS.Short(0x0304);
                     break;
                 case 4:
-                    _CPU.returnRegister = undefined;
                     _CPU.programCounter = new TSOS.Short(0x0308);
                     break;
             }

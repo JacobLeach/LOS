@@ -4,7 +4,7 @@ var TSOS;
         function liblos() {
         }
         liblos.putChar = function () {
-            _Kernel.contextSwitch(_Kernel.getShellPid());
+            //_Kernel.contextSwitch(_Kernel.getShellPid());
         };
 
         liblos.clockTick = function () {

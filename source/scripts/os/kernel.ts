@@ -25,6 +25,12 @@ module TSOS
 
     private contextSwitch(pid: number): void
     {
+      this.saveProcessorState();
+      this.setProcessorState(pid);
+    }
+
+    private saveProcessorState()
+    {
       this.running.setProgramCounter(_CPU.programCounter);  
       this.running.setAccumulator(_CPU.accumulator);
       this.running.setXRegister(_CPU.xRegister);
@@ -33,7 +39,12 @@ module TSOS
       this.running.setKernelMode(_CPU.kernelMode);
 
       this.ready.push(this.running);
-      
+      this.running = undefined;
+      _CPU.executing = false;
+    }
+
+    private setProcessorState(pid: number): void
+    {
       if(pid === this.shellPCB.getPid())
       {
         this.running = this.shellPCB;
@@ -56,6 +67,9 @@ module TSOS
       _CPU.yRegister = this.running.getYRegister();
       _CPU.zFlag = this.running.getZFlag();
       _CPU.kernelMode = this.running.getKernelMode();
+      _CPU.lowAddress = this.running.getLowAddress();
+      _CPU.highAddress = this.running.getHighAddress();
+      _CPU.executing = true;
     }
 
     public getRunning(): number
@@ -184,13 +198,13 @@ module TSOS
     
     private handleReturn(address)
     {
-      if(_CPU.returnRegister != undefined)
+      if(this.running.getPid() === this.shellPCB.getPid())
       {
-        _CPU.programCounter = address;
+        this.saveProcessorState();
       }
       else
       {
-        _CPU.executing = false;
+        _CPU.programCounter = address;
       }
 
       this.interrupt = false;
@@ -198,11 +212,11 @@ module TSOS
 
     private handleSystemCall(call): void
     {
-      if(!_CPU.isExecuting())
+      if(this.running === undefined)
       {
-        _CPU.executing = true;
+        this.setProcessorState(this.shellPCB.getPid());
       }
-      
+
       switch(call)
       {
         case 1:
@@ -214,7 +228,6 @@ module TSOS
           _CPU.programCounter = new Short(0x0304);
           break;
         case 4:
-          _CPU.returnRegister = undefined;
           _CPU.programCounter = new Short(0x0308);
           break;
       }   

@@ -4,7 +4,7 @@ module TSOS
   {
     public static putChar(): void
     {
-      _Kernel.contextSwitch(_Kernel.getShellPid());
+      //_Kernel.contextSwitch(_Kernel.getShellPid());
     }
 
     public static clockTick(): void

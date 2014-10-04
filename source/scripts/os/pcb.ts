@@ -66,6 +66,16 @@ module TSOS {
       return this.kernelMode;
     }
 
+    public getLowAddress(): Short
+    {
+      return this.memoryBounds.lower();
+    } 
+    
+    public getHighAddress(): Short
+    {
+      return this.memoryBounds.upper();
+    } 
+
     public setProgramCounter(data: Short): void
     {
       this.programCounter = data;

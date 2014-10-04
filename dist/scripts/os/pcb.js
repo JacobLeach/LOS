@@ -44,6 +44,14 @@ var TSOS;
             return this.kernelMode;
         };
 
+        PCB.prototype.getLowAddress = function () {
+            return this.memoryBounds.lower();
+        };
+
+        PCB.prototype.getHighAddress = function () {
+            return this.memoryBounds.upper();
+        };
+
         PCB.prototype.setProgramCounter = function (data) {
             this.programCounter = data;
         };
