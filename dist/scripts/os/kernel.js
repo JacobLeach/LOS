@@ -17,7 +17,6 @@ var TSOS;
             this.memoryManager = new TSOS.MemoryManager();
 
             this.ready = [];
-            this.waiting = [];
             this.running = undefined;
 
             /*
@@ -57,6 +56,32 @@ var TSOS;
             //_GLaDOS.afterStartup();
         }
         Kernel.prototype.contextSwitch = function (pid) {
+            this.running.setProgramCounter(_CPU.programCounter);
+            this.running.setAccumulator(_CPU.accumulator);
+            this.running.setXRegister(_CPU.xRegister);
+            this.running.setYRegister(_CPU.yRegister);
+            this.running.setZFlag(_CPU.zFlag);
+            this.running.setKernelMode(_CPU.kernelMode);
+
+            this.ready.push(this.running);
+
+            if (pid === this.shellPCB.getPid()) {
+                this.running = this.shellPCB;
+            } else {
+                for (var i = 0; i < this.ready.length; i++) {
+                    if (this.ready[i].getPid() === pid) {
+                        this.running = this.ready[i];
+                        this.ready.splice(i, 1);
+                    }
+                }
+            }
+
+            _CPU.programCounter = this.running.getProgramCounter();
+            _CPU.accumulator = this.running.getAccumulator();
+            _CPU.xRegister = this.running.getXRegister();
+            _CPU.yRegister = this.running.getYRegister();
+            _CPU.zFlag = this.running.getZFlag();
+            _CPU.kernelMode = this.running.getKernelMode();
         };
 
         Kernel.prototype.getRunning = function () {
@@ -64,7 +89,7 @@ var TSOS;
         };
 
         Kernel.prototype.getShellPid = function () {
-            return this.shellPid;
+            return this.shellPCB.getPid();
         };
 
         Kernel.prototype.shutdown = function () {
