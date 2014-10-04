@@ -21,8 +21,9 @@ module TSOS {
     public static putString(text: String, terminal: Terminal) {
       for(var i = 0; i < text.length; i++) {
         Stdio.buffer += (text.charAt(i));
-        liblos.putChar(text.charAt(i));
       }
+      Stdio.buffer += String.fromCharCode(0);
+      liblos.putString();
     }
   }
 }

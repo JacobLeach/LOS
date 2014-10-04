@@ -101,14 +101,17 @@ var TSOS;
                 case 0xAE:
                     this.loadXRegisterFromMemory();
                     break;
-
+                case 0xCC:
+                    this.compareY();
+                    break;
                 case 0xD0:
+                    this.branch();
                     break;
                 case 0xEA:
                     this.noOperation();
                     break;
-
                 case 0xEC:
+                    this.compareX();
                     break;
                 case 0xEE:
                     this.increment();
@@ -120,13 +123,21 @@ var TSOS;
             }
         };
 
+        Cpu.prototype.compareX = function () {
+            this.zFlag = this.xRegister.asNumber() === this.loadValueFromAddress().asNumber();
+        };
+
+        Cpu.prototype.compareY = function () {
+            this.zFlag = this.yRegister.asNumber() === this.loadValueFromAddress().asNumber();
+        };
+
         Cpu.prototype.programEnd = function () {
             _KernelInterruptQueue.enqueue(new TSOS.Interrupt(3 /* BREAK */, this.kernelMode));
         };
 
         Cpu.prototype.returnFromInterupt = function () {
             _Kernel.interrupt = false;
-            _KernelInterruptQueue.enqueue(new TSOS.Interrupt(4 /* RETURN */, this.returnRegister));
+            _KernelInterruptQueue.front(new TSOS.Interrupt(4 /* RETURN */, this.returnRegister));
         };
 
         Cpu.prototype.jump = function () {
@@ -194,12 +205,17 @@ var TSOS;
         };
 
         Cpu.prototype.branch = function () {
+            var branchAmount = this.loadInstructionConstant().asNumber();
+
             //If zFlag is true, we want to branch
             if (this.zFlag) {
-                var branchAmount = this.getByte(this.programCounter).asNumber();
-
-                //We have to wrap when branch goes above our memory range
-                this.programCounter = new TSOS.Short((this.programCounter.asNumber() + branchAmount) % 256);
+                //In kernel mode you address all of memory
+                if (this.kernelMode) {
+                    this.programCounter = new TSOS.Short(this.programCounter.asNumber() + branchAmount);
+                } else {
+                    //We have to wrap when branch goes above our memory range
+                    this.programCounter = new TSOS.Short((this.programCounter.asNumber() + branchAmount) % 256);
+                }
             }
         };
 

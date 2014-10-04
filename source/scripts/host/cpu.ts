@@ -122,14 +122,17 @@ module TSOS {
         case 0xAE:
           this.loadXRegisterFromMemory();
           break;
-        //Branch
+        case 0xCC:
+          this.compareY();
+          break;
         case 0xD0:
+          this.branch();
           break;
         case 0xEA:
           this.noOperation();
           break;
-        //Compare memory to X register
         case 0xEC:
+          this.compareX();
           break;
         case 0xEE:
           this.increment();
@@ -140,6 +143,14 @@ module TSOS {
           break;
       }
     }
+
+    private compareX(): void {
+      this.zFlag = this.xRegister.asNumber() === this.loadValueFromAddress().asNumber();
+    }
+    
+    private compareY(): void {
+      this.zFlag = this.yRegister.asNumber() === this.loadValueFromAddress().asNumber();
+    }
     
     private programEnd(): void {
       _KernelInterruptQueue.enqueue(new Interrupt(IRQ.BREAK, this.kernelMode));
@@ -147,7 +158,7 @@ module TSOS {
     
     private returnFromInterupt(): void {
       _Kernel.interrupt = false;
-      _KernelInterruptQueue.enqueue(new Interrupt(IRQ.RETURN, this.returnRegister));
+      _KernelInterruptQueue.front(new Interrupt(IRQ.RETURN, this.returnRegister));
     }
 
     private jump(): void {
@@ -215,12 +226,20 @@ module TSOS {
     }
 
     private branch() {
+      var branchAmount: number = this.loadInstructionConstant().asNumber();
+      
       //If zFlag is true, we want to branch
       if(this.zFlag) {
-        var branchAmount: number = this.getByte(this.programCounter).asNumber();
-
-        //We have to wrap when branch goes above our memory range
-        this.programCounter = new Short((this.programCounter.asNumber() + branchAmount) % 256);
+        //In kernel mode you address all of memory
+        if(this.kernelMode)
+        {
+          this.programCounter = new Short(this.programCounter.asNumber() + branchAmount);
+        }
+        else
+        {
+          //We have to wrap when branch goes above our memory range
+          this.programCounter = new Short((this.programCounter.asNumber() + branchAmount) % 256);
+        }
       }
     }
 

@@ -169,7 +169,6 @@ module TSOS
 
     public interruptHandler(irq, params) 
     {
-      console.log("HOLY SHIT BNATMAN: "  + irq);
       this.interrupt = true;
       this.krnTrace("Handling IRQ~" + irq);
       switch (irq) 
@@ -203,7 +202,6 @@ module TSOS
     
     private handleReturn(address)
     {
-      console.log("ASHG");
       if(this.running.getPid() === this.shellPCB.getPid())
       {
         this.saveProcessorState();
@@ -242,6 +240,7 @@ module TSOS
 
     private handleBreak(mode): void
     {
+      console.log("BREAKK!!!");
       //If in kernel mode, return to caller
       if(mode === true)
       {

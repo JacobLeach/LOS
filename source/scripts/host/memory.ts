@@ -42,15 +42,29 @@ module TSOS {
       this.memory[0x0306] = new Byte(0xFF);
       this.memory[0x0307] = new Byte(0x40);
 
-      //STDIO putChar
+      //STDIO putString
+      //Load char from liblos buffer
       this.memory[0x0308] = new Byte(0xAD); 
       this.memory[0x0309] = new Byte(0xF0); 
       this.memory[0x030A] = new Byte(0xFF);
       this.memory[0x030B] = new Byte(0xA8);
-      this.memory[0x030C] = new Byte(0x8C);
-      this.memory[0x030D] = new Byte(0x00);
-      this.memory[0x030E] = new Byte(0xFF);
-      this.memory[0x030F] = new Byte(0x40);
+
+      //Compare Y to null
+      this.memory[0x030C] = new Byte(0xCC);
+      this.memory[0x030D] = new Byte(0x18);
+      this.memory[0x030E] = new Byte(0x03);
+      this.memory[0x030F] = new Byte(0xD0);
+      this.memory[0x0310] = new Byte(6);
+
+      //Print char
+      this.memory[0x0311] = new Byte(0x8C);
+      this.memory[0x0312] = new Byte(0x00);
+      this.memory[0x0313] = new Byte(0xFF);
+      this.memory[0x0314] = new Byte(0x4C);
+      this.memory[0x0315] = new Byte(0x08);
+      this.memory[0x0316] = new Byte(0x03);
+      this.memory[0x0317] = new Byte(0x40);
+      this.memory[0x0318] = new Byte(0x00);
     }
 
     public getSize(): number {

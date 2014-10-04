@@ -135,7 +135,6 @@ var TSOS;
         };
 
         Kernel.prototype.interruptHandler = function (irq, params) {
-            console.log("HOLY SHIT BNATMAN: " + irq);
             this.interrupt = true;
             this.krnTrace("Handling IRQ~" + irq);
             switch (irq) {
@@ -166,7 +165,6 @@ var TSOS;
         };
 
         Kernel.prototype.handleReturn = function (address) {
-            console.log("ASHG");
             if (this.running.getPid() === this.shellPCB.getPid()) {
                 this.saveProcessorState();
             } else {
@@ -198,6 +196,8 @@ var TSOS;
         };
 
         Kernel.prototype.handleBreak = function (mode) {
+            console.log("BREAKK!!!");
+
             //If in kernel mode, return to caller
             if (mode === true) {
                 _CPU.setUserMode();
