@@ -467,7 +467,7 @@ module TSOS {
         public shellLoad(args) {
           var valid = true;
           var code  = (<HTMLInputElement>document.getElementById("taProgramInput")).value;
-          console.log(code); 
+          
           for(var i = 0; i < code.length; i++) {
             if(!((code[i] >= '0' && code[i] <= '9') || (code[i] >= 'A' && code[i] <= 'F') 
                   || (code[i] === ' ') || (code[i] === ENTER) || (code[i] === String.fromCharCode(10)))) {
@@ -476,8 +476,8 @@ module TSOS {
             }
           }
 
-          if(valid) {
-            Stdio.putStringLn("It's valid!");
+          if(valid && code != "" && ((code.length % 2) == 0)) {
+            liblos.forkExec(code); 
           }
           else {
             Stdio.putStringLn("You done goofed.");

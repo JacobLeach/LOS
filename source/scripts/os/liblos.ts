@@ -2,6 +2,11 @@ module TSOS
 {
   export class liblos
   {
+    public static forkExec(program: string): void
+    {
+      _Kernel.forkExec(program); 
+    }
+    
     public static putString(): void
     {
       //_Kernel.contextSwitch(_Kernel.getShellPid());

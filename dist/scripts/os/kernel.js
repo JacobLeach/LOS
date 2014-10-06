@@ -59,6 +59,10 @@ var TSOS;
             // Finally, initiate testing.
             //_GLaDOS.afterStartup();
         }
+        Kernel.prototype.forkExec = function (program) {
+            this.ready.push(new TSOS.PCB(this.memoryManager.allocate()));
+        };
+
         Kernel.prototype.contextSwitch = function (pid) {
             this.saveProcessorState();
             this.setProcessorState(pid);

@@ -407,7 +407,7 @@ var TSOS;
         Shell.prototype.shellLoad = function (args) {
             var valid = true;
             var code = document.getElementById("taProgramInput").value;
-            console.log(code);
+
             for (var i = 0; i < code.length; i++) {
                 if (!((code[i] >= '0' && code[i] <= '9') || (code[i] >= 'A' && code[i] <= 'F') || (code[i] === ' ') || (code[i] === ENTER) || (code[i] === String.fromCharCode(10)))) {
                     console.log(code[i].charCodeAt(0));
@@ -415,8 +415,8 @@ var TSOS;
                 }
             }
 
-            if (valid) {
-                TSOS.Stdio.putStringLn("It's valid!");
+            if (valid && code != "" && ((code.length % 2) == 0)) {
+                TSOS.liblos.forkExec(code);
             } else {
                 TSOS.Stdio.putStringLn("You done goofed.");
             }

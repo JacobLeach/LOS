@@ -23,6 +23,11 @@ module TSOS
     private memoryManager: MemoryManager;
     public interrupt: boolean;
 
+    public forkExec(program: string): void
+    {
+      this.ready.push(new PCB(this.memoryManager.allocate()));  
+    }
+
     private contextSwitch(pid: number): void
     {
       this.saveProcessorState();
