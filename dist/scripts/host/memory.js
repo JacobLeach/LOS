@@ -60,9 +60,9 @@ var TSOS;
             this.memory[0x0317] = new Byte(0x40);
             this.memory[0x0318] = new Byte(0x00);
 
-            //Program valid?
-            this.memory[0x0319] = new Byte(0xAE);
-            this.memory[0x031A] = new Byte(0x13);
+            //Load program
+            this.memory[0x0319] = new Byte(0xA9);
+            this.memory[0x031A] = new Byte(0xFF);
             this.memory[0x031B] = new Byte(0xFF);
             this.memory[0x031C] = new Byte(0x8E);
             this.memory[0x031D] = new Byte(0xF1);

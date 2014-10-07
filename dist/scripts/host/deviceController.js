@@ -19,9 +19,6 @@ var TSOS;
                     case 0xFF12:
                         return this.programReader.getByte();
                         break;
-                    case 0xFF13:
-                        return this.programReader.isValid();
-                        break;
 
                     case 0xFFF0:
                         return new TSOS.Byte(TSOS.Stdio.getChar());
@@ -40,10 +37,7 @@ var TSOS;
                         this.terminal.write(data);
                         break;
                     case 0xFF10:
-                        this.programReader.setLowByte(data);
-                        break;
-                    case 0xFF11:
-                        this.programReader.setHighByte(data);
+                        this.programReader.setAddress(data);
                         break;
                     case 0xFFF1:
                         break;
