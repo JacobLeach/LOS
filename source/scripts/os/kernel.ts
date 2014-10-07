@@ -6,15 +6,6 @@
 module TSOS 
 {
   
-  export enum IRQ
-  {
-    TIMER,
-    KEYBOARD,
-    SYSTEM_CALL,
-    BREAK,
-    RETURN
-  }
-  
   export class Kernel 
   {
     private ready: PCB[];
@@ -150,7 +141,7 @@ module TSOS
       if (_KernelInterruptQueue.getSize() > 0 && !this.interrupt) 
       {
         var interrupt = _KernelInterruptQueue.dequeue();
-        this.interruptHandler(interrupt.irq, interrupt.params);
+        this.interruptHandler(interrupt.type(), interrupt.parameters());
       } 
       else if (_CPU.isExecuting()) 
       { 
@@ -175,14 +166,14 @@ module TSOS
     public interruptHandler(irq, params) 
     {
       this.interrupt = true;
-      this.krnTrace("Handling IRQ~" + irq);
+      this.krnTrace("Handling InterruptType~" + irq);
       switch (irq) 
       {
-        case IRQ.TIMER:
+        case InterruptType.TIMER:
           this.interrupt = true;
           this.krnTimerISR();
           break;
-        case IRQ.KEYBOARD:
+        case InterruptType.KEYBOARD:
           _krnKeyboardDriver.isr(params);
           //Handle all the characters in the queue
           //Multiple can come in at once because of the ANSI control codes
@@ -191,13 +182,13 @@ module TSOS
           }
           this.interrupt = false;
           break;
-        case IRQ.SYSTEM_CALL:
+        case InterruptType.SYSTEM_CALL:
           this.handleSystemCall(params);  
           break;
-        case IRQ.BREAK:
+        case InterruptType.BREAK:
           this.handleBreak(params);  
           break;
-        case IRQ.RETURN:
+        case InterruptType.RETURN:
           this.handleReturn(params);  
           break;
         default:

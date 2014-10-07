@@ -4,7 +4,7 @@ module TSOS
   {
     public static loadProgram(): void
     {
-      _KernelInterruptQueue.enqueue(new Interrupt(IRQ.SYSTEM_CALL, 5));
+      _KernelInterruptQueue.enqueue(new Interrupt(InterruptType.SYSTEM_CALL, 5));
     }
     
     public static forkExec(program: string): void
@@ -15,7 +15,7 @@ module TSOS
     public static putString(): void
     {
       //_Kernel.contextSwitch(_Kernel.getShellPid());
-      _KernelInterruptQueue.enqueue(new Interrupt(IRQ.SYSTEM_CALL, 4));
+      _KernelInterruptQueue.enqueue(new Interrupt(InterruptType.SYSTEM_CALL, 4));
     }
 
     public static clockTick(): void

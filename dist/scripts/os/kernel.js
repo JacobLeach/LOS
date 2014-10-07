@@ -3,15 +3,6 @@ Kernel.ts
 ------------ */
 var TSOS;
 (function (TSOS) {
-    (function (IRQ) {
-        IRQ[IRQ["TIMER"] = 0] = "TIMER";
-        IRQ[IRQ["KEYBOARD"] = 1] = "KEYBOARD";
-        IRQ[IRQ["SYSTEM_CALL"] = 2] = "SYSTEM_CALL";
-        IRQ[IRQ["BREAK"] = 3] = "BREAK";
-        IRQ[IRQ["RETURN"] = 4] = "RETURN";
-    })(TSOS.IRQ || (TSOS.IRQ = {}));
-    var IRQ = TSOS.IRQ;
-
     var Kernel = (function () {
         function Kernel() {
             this.memoryManager = new TSOS.MemoryManager();
@@ -122,7 +113,7 @@ var TSOS;
         Kernel.prototype.clockTick = function () {
             if (_KernelInterruptQueue.getSize() > 0 && !this.interrupt) {
                 var interrupt = _KernelInterruptQueue.dequeue();
-                this.interruptHandler(interrupt.irq, interrupt.params);
+                this.interruptHandler(interrupt.type(), interrupt.parameters());
             } else if (_CPU.isExecuting()) {
                 _CPU.cycle();
             } else {
@@ -140,7 +131,7 @@ var TSOS;
 
         Kernel.prototype.interruptHandler = function (irq, params) {
             this.interrupt = true;
-            this.krnTrace("Handling IRQ~" + irq);
+            this.krnTrace("Handling InterruptType~" + irq);
             switch (irq) {
                 case 0 /* TIMER */:
                     this.interrupt = true;
