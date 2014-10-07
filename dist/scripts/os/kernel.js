@@ -183,6 +183,8 @@ var TSOS;
                 this.setProcessorState(this.shellPCB.getPid());
             }
 
+            _CPU.setKernelMode();
+
             switch (call) {
                 case 1:
                     break;

@@ -65,6 +65,14 @@ module TSOS {
       this.memory[0x0316] = new Byte(0x03);
       this.memory[0x0317] = new Byte(0x40);
       this.memory[0x0318] = new Byte(0x00);
+      
+      //Program valid?
+      this.memory[0x0319] = new Byte(0xAE);
+      this.memory[0x031A] = new Byte(0x13);
+      this.memory[0x031B] = new Byte(0xFF);
+      this.memory[0x031C] = new Byte(0x8E);
+      this.memory[0x031D] = new Byte(0xF1);
+      this.memory[0x031E] = new Byte(0xFF);
     }
 
     public getSize(): number {

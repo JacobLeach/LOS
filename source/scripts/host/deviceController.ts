@@ -3,10 +3,12 @@ module TSOS {
   export class DeviceController {
     private memory: Memory;
     private terminal: Terminal;
+    private programReader: ProgramReader;
 
     constructor() {
       this.memory = new Memory();
       this.terminal = new Terminal(_Canvas);
+      this.programReader = new ProgramReader();
     }
     
     public getByte(address: Short): Byte {
@@ -20,6 +22,12 @@ module TSOS {
             break;
           //Get terminal height
           case 0xFF02:
+            break;
+          case 0xFF12:
+            return this.programReader.getByte();
+            break;
+          case 0xFF13:
+            return this.programReader.isValid();
             break;
           //Input from OS
           case 0xFFF0:
@@ -41,6 +49,15 @@ module TSOS {
         {
           case 0xFF00:
             this.terminal.write(data); 
+            break;
+          case 0xFF10:
+            this.programReader.setLowByte(data);
+            break;
+          case 0xFF11:
+            this.programReader.setHighByte(data);
+            break;
+          case 0xFFF1:
+            _Kernel.systemCallReturn(data);
             break;
         }
       }
