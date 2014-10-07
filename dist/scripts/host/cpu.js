@@ -131,6 +131,7 @@ var TSOS;
         };
 
         Cpu.prototype.programEnd = function () {
+            console.log(this.programCounter.asNumber());
             _KernelInterruptQueue.enqueue(new TSOS.Interrupt(3 /* BREAK */, this.kernelMode));
         };
 
@@ -225,7 +226,6 @@ var TSOS;
         Cpu.prototype.increment = function () {
             var address = this.loadAddressFromMemory();
             var value = this.getByte(address);
-
             value.increment();
 
             this.deviceController.setByte(address, value);

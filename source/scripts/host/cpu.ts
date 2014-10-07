@@ -151,6 +151,7 @@ module TSOS {
     }
     
     private programEnd(): void {
+      console.log(this.programCounter.asNumber());
       _KernelInterruptQueue.enqueue(new Interrupt(IRQ.BREAK, this.kernelMode));
     }
     
@@ -248,7 +249,6 @@ module TSOS {
     private increment() {
       var address: Short = this.loadAddressFromMemory();
       var value: Byte = this.getByte(address);
-
       value.increment();
 
       this.deviceController.setByte(address, value);

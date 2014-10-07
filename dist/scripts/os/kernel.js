@@ -198,14 +198,12 @@ var TSOS;
                     _CPU.programCounter = new TSOS.Short(0x0308);
                     break;
                 case 5:
-                    _CPU.programCounter = new TSOS.Short(0x031F);
+                    _CPU.programCounter = new TSOS.Short(0x0319);
                     break;
             }
         };
 
         Kernel.prototype.handleBreak = function (mode) {
-            console.log("BREAKK!!!");
-
             //If in kernel mode, return to caller
             if (mode === true) {
                 _CPU.setUserMode();

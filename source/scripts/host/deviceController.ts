@@ -23,8 +23,11 @@ module TSOS {
           //Get terminal height
           case 0xFF02:
             break;
-          case 0xFF12:
+          case 0xFF11:
             return this.programReader.getByte();
+            break;
+          case 0xFF12:
+            return this.programReader.atEnd();
             break;
           //Input from OS
           case 0xFFF0:

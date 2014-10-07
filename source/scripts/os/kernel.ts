@@ -242,14 +242,13 @@ module TSOS
           _CPU.programCounter = new Short(0x0308);
           break;
         case 5:
-          _CPU.programCounter = new Short(0x031F);
+          _CPU.programCounter = new Short(0x0319);
           break;
       }   
     }
 
     private handleBreak(mode): void
     {
-      console.log("BREAKK!!!");
       //If in kernel mode, return to caller
       if(mode === true)
       {

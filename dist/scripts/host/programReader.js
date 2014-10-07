@@ -21,6 +21,18 @@ var TSOS;
 
             return new TSOS.Byte(asNumber);
         };
+
+        ProgramReader.prototype.atEnd = function () {
+            var code = document.getElementById("taProgramInput").value;
+            code = code.replace(/ /g, '');
+            code = code.replace(/\n/g, '');
+
+            if (this.address.asNumber() * 2 >= code.length) {
+                return new TSOS.Byte(0);
+            } else {
+                return new TSOS.Byte(1);
+            }
+        };
         return ProgramReader;
     })();
     TSOS.ProgramReader = ProgramReader;
