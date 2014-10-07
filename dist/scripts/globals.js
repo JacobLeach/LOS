@@ -12,7 +12,7 @@ Operating System Concepts 8th edition by Silberschatz, Galvin, and Gagne.  ISBN 
 var APP_NAME = "LOS";
 var APP_VERSION = "1.0.0";
 
-var CPU_CLOCK_INTERVAL = 1;
+var CPU_CLOCK_INTERVAL = 100;
 
 var ESCAPE = String.fromCharCode(27);
 var TAB = String.fromCharCode(9);
@@ -35,7 +35,7 @@ var _DefaultFontFamily = "sans";
 var _DefaultFontSize = 13;
 var _FontHeightMargin = 4;
 
-var _Trace = false;
+var _Trace = true;
 
 // The OS Kernel and its queues.
 var _Kernel;

@@ -4,6 +4,7 @@ var TSOS;
         function DeviceController() {
             this.memory = new TSOS.Memory();
             this.terminal = new TSOS.Terminal(_Canvas);
+            this.programReader = new TSOS.ProgramReader();
         }
         DeviceController.prototype.getByte = function (address) {
             if (address.asNumber() < this.memory.getSize()) {
@@ -14,6 +15,12 @@ var TSOS;
                         break;
 
                     case 0xFF02:
+                        break;
+                    case 0xFF11:
+                        return this.programReader.getByte();
+                        break;
+                    case 0xFF12:
+                        return this.programReader.atEnd();
                         break;
 
                     case 0xFFF0:
@@ -31,6 +38,11 @@ var TSOS;
                 switch (address.asNumber()) {
                     case 0xFF00:
                         this.terminal.write(data);
+                        break;
+                    case 0xFF10:
+                        this.programReader.setAddress(data);
+                        break;
+                    case 0xFFF1:
                         break;
                 }
             } else {

@@ -59,6 +59,10 @@ var TSOS;
             // Finally, initiate testing.
             //_GLaDOS.afterStartup();
         }
+        Kernel.prototype.forkExec = function (program) {
+            this.ready.push(new TSOS.PCB(this.memoryManager.allocate()));
+        };
+
         Kernel.prototype.contextSwitch = function (pid) {
             this.saveProcessorState();
             this.setProcessorState(pid);
@@ -179,6 +183,8 @@ var TSOS;
                 this.setProcessorState(this.shellPCB.getPid());
             }
 
+            _CPU.setKernelMode();
+
             switch (call) {
                 case 1:
                     break;
@@ -191,12 +197,13 @@ var TSOS;
                 case 4:
                     _CPU.programCounter = new TSOS.Short(0x0308);
                     break;
+                case 5:
+                    _CPU.programCounter = new TSOS.Short(0x0319);
+                    break;
             }
         };
 
         Kernel.prototype.handleBreak = function (mode) {
-            console.log("BREAKK!!!");
-
             //If in kernel mode, return to caller
             if (mode === true) {
                 _CPU.setUserMode();

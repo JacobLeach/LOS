@@ -23,6 +23,11 @@ module TSOS
     private memoryManager: MemoryManager;
     public interrupt: boolean;
 
+    public forkExec(program: string): void
+    {
+      this.ready.push(new PCB(this.memoryManager.allocate()));  
+    }
+
     private contextSwitch(pid: number): void
     {
       this.saveProcessorState();
@@ -221,6 +226,8 @@ module TSOS
         this.setProcessorState(this.shellPCB.getPid());
       }
 
+      _CPU.setKernelMode();
+
       switch(call)
       {
         case 1:
@@ -234,12 +241,14 @@ module TSOS
         case 4:
           _CPU.programCounter = new Short(0x0308);
           break;
+        case 5:
+          _CPU.programCounter = new Short(0x0319);
+          break;
       }   
     }
 
     private handleBreak(mode): void
     {
-      console.log("BREAKK!!!");
       //If in kernel mode, return to caller
       if(mode === true)
       {
