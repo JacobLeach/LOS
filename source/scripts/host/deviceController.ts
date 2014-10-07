@@ -57,7 +57,6 @@ module TSOS {
             this.programReader.setHighByte(data);
             break;
           case 0xFFF1:
-            _Kernel.systemCallReturn(data);
             break;
         }
       }
