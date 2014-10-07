@@ -3,6 +3,10 @@ var TSOS;
     var liblos = (function () {
         function liblos() {
         }
+        liblos.loadProgram = function () {
+            _KernelInterruptQueue.enqueue(new TSOS.Interrupt(2 /* SYSTEM_CALL */, 5));
+        };
+
         liblos.forkExec = function (program) {
             _Kernel.forkExec(program);
         };

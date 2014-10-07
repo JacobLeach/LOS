@@ -477,7 +477,7 @@ module TSOS {
           }
 
           if(valid && code != "" && ((code.length % 2) == 0)) {
-            liblos.forkExec(code); 
+            liblos.loadProgram();
           }
           else {
             Stdio.putStringLn("You done goofed.");

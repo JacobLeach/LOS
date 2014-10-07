@@ -416,7 +416,7 @@ var TSOS;
             }
 
             if (valid && code != "" && ((code.length % 2) == 0)) {
-                TSOS.liblos.forkExec(code);
+                TSOS.liblos.loadProgram();
             } else {
                 TSOS.Stdio.putStringLn("You done goofed.");
             }

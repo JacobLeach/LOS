@@ -241,6 +241,9 @@ module TSOS
         case 4:
           _CPU.programCounter = new Short(0x0308);
           break;
+        case 5:
+          _CPU.programCounter = new Short(0x031F);
+          break;
       }   
     }
 
