@@ -465,21 +465,25 @@ module TSOS {
         }
         
         public shellLoad(args) {
-          var valid = true;
           var code  = (<HTMLInputElement>document.getElementById("taProgramInput")).value;
+          code = code.replace(/ /g,'');
+          code = code.replace(/\n/g,'');
+          var valid: boolean = true;
           
-          for(var i = 0; i < code.length; i++) {
-            if(!((code[i] >= '0' && code[i] <= '9') || (code[i] >= 'A' && code[i] <= 'F') 
-                  || (code[i] === ' ') || (code[i] === ENTER) || (code[i] === String.fromCharCode(10)))) {
-                    console.log(code[i].charCodeAt(0));
+          for(var i = 0; i < code.length; i++) 
+          {
+            if(!((code[i] >= '0' && code[i] <= '9') || (code[i] >= 'A' && code[i] <= 'F')))
+            {
               valid = false;
             }
           }
 
-          if(valid && code != "" && ((code.length % 2) == 0)) {
+          if(valid && code != "" && ((code.length % 2) == 0)) 
+          {
             liblos.loadProgram();
           }
-          else {
+          else 
+          {
             Stdio.putStringLn("You done goofed.");
           }
         }
