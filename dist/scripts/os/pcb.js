@@ -13,19 +13,69 @@ var TSOS;
             this.zFlag = false;
             this.kernelMode = false;
 
-            this.lowAddress = memoryBounds.lower();
-            this.highAddress = memoryBounds.upper();
+            this.memoryBounds = memoryBounds;
+            this.pid = PCB.next_pid++;
         }
-        PCB.prototype.setState = function (pc, acc, x, y, z, mode, low, high) {
-            this.programCounter = pc;
-            this.accumulator = acc;
-            this.xRegister = x;
-            this.yRegister = y;
-            this.zFlag = z;
-            this.kernelMode = mode;
-            this.lowAddress = low;
-            this.highAddress = high;
+        PCB.prototype.getPid = function () {
+            return this.pid;
         };
+
+        PCB.prototype.getProgramCounter = function () {
+            return this.programCounter;
+        };
+
+        PCB.prototype.getAccumulator = function () {
+            return this.accumulator;
+        };
+
+        PCB.prototype.getXRegister = function () {
+            return this.xRegister;
+        };
+
+        PCB.prototype.getYRegister = function () {
+            return this.yRegister;
+        };
+
+        PCB.prototype.getZFlag = function () {
+            return this.zFlag;
+        };
+
+        PCB.prototype.getKernelMode = function () {
+            return this.kernelMode;
+        };
+
+        PCB.prototype.getLowAddress = function () {
+            return this.memoryBounds.lower();
+        };
+
+        PCB.prototype.getHighAddress = function () {
+            return this.memoryBounds.upper();
+        };
+
+        PCB.prototype.setProgramCounter = function (data) {
+            this.programCounter = data;
+        };
+
+        PCB.prototype.setAccumulator = function (data) {
+            this.accumulator = data;
+        };
+
+        PCB.prototype.setXRegister = function (data) {
+            this.xRegister = data;
+        };
+
+        PCB.prototype.setYRegister = function (data) {
+            this.yRegister = data;
+        };
+
+        PCB.prototype.setZFlag = function (data) {
+            this.zFlag = data;
+        };
+
+        PCB.prototype.setKernelMode = function (data) {
+            this.kernelMode = data;
+        };
+        PCB.next_pid = 0;
         return PCB;
     })();
     TSOS.PCB = PCB;

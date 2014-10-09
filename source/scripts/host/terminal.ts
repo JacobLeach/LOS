@@ -57,44 +57,20 @@ module TSOS {
       this.columns = Math.round(this.canvas.height / this.charWidth) - 2
       this.rows = Math.round(this.canvas.width / this.lineHeight) - 2;
     }
-    
-   /*
-    * HACKS HACKS HACKS!
-    * 
-    * But seriously, this is a hack. Should be done with ANSI control codes,
-    * not a function call. That would be more true to a real life terminal. 
-    * However, I am a bit lazy and ANSI and color is a lot of crap.
-    */
-    public bluescreen() {
-      this.cursor.x = 0;
-      console.log("FUCK");
-      this.cursor.y = 0;
-      this.context.fillStyle='#0000FF';
-      this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
-      this.context.fillStyle='#000000';
+   
+    public write(data: Byte): void {
+      var asChar: string = String.fromCharCode(data.asNumber()); 
+      this.handleChar(asChar, true);
     }
 
-    //HACKS HACKS HACKS!
-    //Yea same here. ANSI control codes but that's too much work.
-    public writeWhiteText(text) {
-      this.context.fillStyle='#FFFFFF';
-      for(var i = 0; i < text.length; i++) {
-        this.printChar(text.charAt(i), false);
-      }
-    }
-      
-    public getCursorPosition() {
-      return {x: this.cursor.x, y: this.cursor.y};
-    }
-
-    public handleInputChar(): void {
+    private handleInputChar(): void {
       if(this.inputBuffer.length > 0) {
         var character: String = this.inputBuffer[this.inputBuffer.length - 1]; 
         this.handleChar(character, true);
       }
     }
 
-    public handleChar(character: String, isInput: boolean): void {
+    private handleChar(character: String, isInput: boolean): void {
       //Add character to the input buffer
       //Wow. This is totally a bug somehow. I bet in canonical mode this is broken.
       this.inputBuffer.push(character);
@@ -203,13 +179,9 @@ module TSOS {
       if(((this.echo && isInput) || !isInput)  && printable) {
         this.printChar(character, true); 
       }
-
-      if((!this.canonical || character === ENTER) && isInput) {
-        _KernelInterruptQueue.enqueue(new Interrupt(Kernel.TERMINAL_IRQ, input));
-      }
     }
 
-    public putChar(character: String): void {
+    private putChar(character: String): void {
       this.handleChar(character, false);
     }
 
@@ -296,7 +268,7 @@ module TSOS {
       this.context.clearRect(topLeft.x, topLeft.y, this.charWidth + 1, this.lineHeight + this.lineSpacing);
     }
 
-    public clearLine(): void {
+    private clearLine(): void {
       //Get topleft corner of the cursor location
       var topLeft = this.cursorTopLeft();
       this.context.clearRect(0, topLeft.y, this.canvas.width, this.lineHeight + this.lineSpacing);

@@ -12,7 +12,7 @@ Operating System Concepts 8th edition by Silberschatz, Galvin, and Gagne.  ISBN 
 var APP_NAME = "LOS";
 var APP_VERSION = "1.0.0";
 
-var CPU_CLOCK_INTERVAL = 100;
+var CPU_CLOCK_INTERVAL = 1;
 
 var ESCAPE = String.fromCharCode(27);
 var TAB = String.fromCharCode(9);

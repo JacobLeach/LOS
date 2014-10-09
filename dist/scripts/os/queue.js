@@ -24,6 +24,10 @@ var TSOS;
             return this.q[0];
         };
 
+        Queue.prototype.front = function (element) {
+            this.q.unshift(element);
+        };
+
         Queue.prototype.enqueue = function (element) {
             this.q.push(element);
         };

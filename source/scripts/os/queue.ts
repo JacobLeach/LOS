@@ -26,6 +26,10 @@ module TSOS {
             return this.q[0];
         }
 
+        public front(element) {
+          this.q.unshift(element);
+        }
+
         public enqueue(element) {
             this.q.push(element);
         }
