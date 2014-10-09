@@ -7,6 +7,7 @@ var TSOS;
         function Interrupt(type, parameters) {
             this.interruptType = type;
             this.interruptParameters = parameters;
+            this.id = Interrupt.nextId++;
         }
         Interrupt.prototype.type = function () {
             return this.interruptType;

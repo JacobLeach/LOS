@@ -131,7 +131,7 @@ var TSOS;
         };
 
         Cpu.prototype.programEnd = function () {
-            console.log(this.programCounter.asNumber());
+            this.executing = false;
             _KernelInterruptQueue.enqueue(new TSOS.Interrupt(3 /* BREAK */, this.kernelMode));
         };
 
@@ -260,7 +260,7 @@ var TSOS;
         Cpu.prototype.systemCall = function () {
             this.setKernelMode();
             this.returnRegister = this.programCounter;
-            _KernelInterruptQueue.enqueue(new TSOS.Interrupt(2 /* SYSTEM_CALL */, this.xRegister.asNumber()));
+            _KernelInterruptQueue.enqueue(new TSOS.Interrupt(2 /* SYSTEM_CALL */, [this.xRegister.asNumber(), false]));
         };
 
         Cpu.prototype.getByte = function (address) {

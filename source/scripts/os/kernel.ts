@@ -9,54 +9,98 @@ module TSOS
   export class Kernel 
   {
     private ready: PCB[];
+    private waiting: Queue;
     private running: PCB;
     private shellPCB: PCB;
     private memoryManager: MemoryManager;
+    
     public interrupt: boolean;
 
-    public forkExec(program: string): void
+    public forkExec(): number
     {
-      this.ready.push(new PCB(this.memoryManager.allocate()));  
+      var pcb: PCB = new PCB(this.memoryManager.allocate());
+      this.ready.push(pcb); 
+      
+      return pcb.getPid();
     }
-
+    
     private contextSwitch(pid: number): void
     {
-      this.saveProcessorState();
-      this.setProcessorState(pid);
+      if(!_CPU.isExecuting())
+      {
+        this.saveProcessorState();
+        this.setProcessorState(pid);
+      }
+      else if(this.shellPCB.getPid() == pid)
+      {
+        if(_CPU.isExecuting())
+        {
+          this.waiting.enqueue(this.running);
+        }
+
+        this.saveProcessorState();
+        this.setProcessorState(pid);
+      }
+      else
+      {
+        for(var i: number = 0; i < this.ready.length; i++)
+        {
+          if(this.ready[i].getPid() == pid)
+          {
+            this.waiting.enqueue(this.ready[i]);
+            this.ready.splice(i, 1);
+          }
+        }
+      }
+    }
+
+    public runProgram(pid: number): void
+    {
+      this.contextSwitch(pid);
     }
 
     private saveProcessorState()
     {
-      this.running.setProgramCounter(_CPU.programCounter);  
-      this.running.setAccumulator(_CPU.accumulator);
-      this.running.setXRegister(_CPU.xRegister);
-      this.running.setYRegister(_CPU.yRegister);
-      this.running.setZFlag(_CPU.zFlag);
-      this.running.setKernelMode(_CPU.kernelMode);
-
-      this.ready.push(this.running);
-      this.running = undefined;
+      if(this.running != undefined)
+      {
+        this.running.setProgramCounter(_CPU.programCounter);  
+        this.running.setAccumulator(_CPU.accumulator);
+        this.running.setXRegister(_CPU.xRegister);
+        this.running.setYRegister(_CPU.yRegister);
+        this.running.setZFlag(_CPU.zFlag);
+        this.running.setKernelMode(_CPU.kernelMode);
+        
+        if(this.running.getPid() != this.shellPCB.getPid())
+        {
+          this.ready.push(this.running);
+        }
+        
+        this.running = undefined;
+      }
+      
       _CPU.executing = false;
     }
 
     private setProcessorState(pid: number): void
     {
-      if(pid === this.shellPCB.getPid())
+      console.log("FUCK ME: " + pid);
+      if(pid == this.shellPCB.getPid())
       {
+        console.log("SSHIT WHORE: " + pid);
         this.running = this.shellPCB;
       }
       else
       {
         for(var i: number = 0; i < this.ready.length; i++)
         {
-          if(this.ready[i].getPid() === pid)
+          if(this.ready[i].getPid() == pid)
           {
             this.running = this.ready[i]; 
             this.ready.splice(i, 1);
           }
         }
       }
-      
+
       _CPU.programCounter = this.running.getProgramCounter();  
       _CPU.accumulator = this.running.getAccumulator();
       _CPU.xRegister = this.running.getXRegister();
@@ -66,6 +110,7 @@ module TSOS
       _CPU.lowAddress = this.running.getLowAddress();
       _CPU.highAddress = this.running.getHighAddress();
       _CPU.executing = true;
+      console.log("SHIT WHORE1");
     }
 
     public getRunning(): number
@@ -83,6 +128,7 @@ module TSOS
       this.memoryManager = new MemoryManager();
 
       this.ready = [];
+      this.waiting = new Queue();
       this.running = undefined;
 
       /*
@@ -147,6 +193,10 @@ module TSOS
       { 
         _CPU.cycle();
       } 
+      else if(this.waiting.getSize() > 0)
+      {
+        this.contextSwitch(this.waiting.dequeue().getPid()); 
+      }
       else 
       {                      
         this.krnTrace("Idle");
@@ -206,20 +256,21 @@ module TSOS
       {
         _CPU.programCounter = address;
       }
-
+      
+      _CPU.setUserMode();
       this.interrupt = false;
     }
 
-    private handleSystemCall(call): void
+    private handleSystemCall(params): void
     {
-      if(this.running === undefined)
+      if(this.running === undefined || params[1] == true)
       {
-        this.setProcessorState(this.shellPCB.getPid());
+        this.contextSwitch(this.shellPCB.getPid());
       }
 
       _CPU.setKernelMode();
 
-      switch(call)
+      switch(params[0])
       {
         case 1:
           break;
@@ -240,16 +291,8 @@ module TSOS
 
     private handleBreak(mode): void
     {
-      //If in kernel mode, return to caller
-      if(mode === true)
-      {
-        _CPU.setUserMode();
-        _CPU.programCounter = _CPU.returnRegister; 
-      }
-      else
-      {
-        _CPU.executing = false;
-      }
+      _CPU.executing = false;
+      this.interrupt = false;
     }
 
     public krnTimerISR() 

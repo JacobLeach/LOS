@@ -16,6 +16,7 @@ module TSOS {
     {
       this.interruptType = type;
       this.interruptParameters = parameters;
+      this.id = Interrupt.nextId++;
     }
   
     public type(): InterruptType

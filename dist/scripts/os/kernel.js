@@ -8,6 +8,7 @@ var TSOS;
             this.memoryManager = new TSOS.MemoryManager();
 
             this.ready = [];
+            this.waiting = new TSOS.Queue();
             this.running = undefined;
 
             /*
@@ -50,34 +51,65 @@ var TSOS;
             // Finally, initiate testing.
             //_GLaDOS.afterStartup();
         }
-        Kernel.prototype.forkExec = function (program) {
-            this.ready.push(new TSOS.PCB(this.memoryManager.allocate()));
+        Kernel.prototype.forkExec = function () {
+            var pcb = new TSOS.PCB(this.memoryManager.allocate());
+            this.ready.push(pcb);
+
+            return pcb.getPid();
         };
 
         Kernel.prototype.contextSwitch = function (pid) {
-            this.saveProcessorState();
-            this.setProcessorState(pid);
+            if (!_CPU.isExecuting()) {
+                this.saveProcessorState();
+                this.setProcessorState(pid);
+            } else if (this.shellPCB.getPid() == pid) {
+                if (_CPU.isExecuting()) {
+                    this.waiting.enqueue(this.running);
+                }
+
+                this.saveProcessorState();
+                this.setProcessorState(pid);
+            } else {
+                for (var i = 0; i < this.ready.length; i++) {
+                    if (this.ready[i].getPid() == pid) {
+                        this.waiting.enqueue(this.ready[i]);
+                        this.ready.splice(i, 1);
+                    }
+                }
+            }
+        };
+
+        Kernel.prototype.runProgram = function (pid) {
+            this.contextSwitch(pid);
         };
 
         Kernel.prototype.saveProcessorState = function () {
-            this.running.setProgramCounter(_CPU.programCounter);
-            this.running.setAccumulator(_CPU.accumulator);
-            this.running.setXRegister(_CPU.xRegister);
-            this.running.setYRegister(_CPU.yRegister);
-            this.running.setZFlag(_CPU.zFlag);
-            this.running.setKernelMode(_CPU.kernelMode);
+            if (this.running != undefined) {
+                this.running.setProgramCounter(_CPU.programCounter);
+                this.running.setAccumulator(_CPU.accumulator);
+                this.running.setXRegister(_CPU.xRegister);
+                this.running.setYRegister(_CPU.yRegister);
+                this.running.setZFlag(_CPU.zFlag);
+                this.running.setKernelMode(_CPU.kernelMode);
 
-            this.ready.push(this.running);
-            this.running = undefined;
+                if (this.running.getPid() != this.shellPCB.getPid()) {
+                    this.ready.push(this.running);
+                }
+
+                this.running = undefined;
+            }
+
             _CPU.executing = false;
         };
 
         Kernel.prototype.setProcessorState = function (pid) {
-            if (pid === this.shellPCB.getPid()) {
+            console.log("FUCK ME: " + pid);
+            if (pid == this.shellPCB.getPid()) {
+                console.log("SSHIT WHORE: " + pid);
                 this.running = this.shellPCB;
             } else {
                 for (var i = 0; i < this.ready.length; i++) {
-                    if (this.ready[i].getPid() === pid) {
+                    if (this.ready[i].getPid() == pid) {
                         this.running = this.ready[i];
                         this.ready.splice(i, 1);
                     }
@@ -93,6 +125,7 @@ var TSOS;
             _CPU.lowAddress = this.running.getLowAddress();
             _CPU.highAddress = this.running.getHighAddress();
             _CPU.executing = true;
+            console.log("SHIT WHORE1");
         };
 
         Kernel.prototype.getRunning = function () {
@@ -116,6 +149,8 @@ var TSOS;
                 this.interruptHandler(interrupt.type(), interrupt.parameters());
             } else if (_CPU.isExecuting()) {
                 _CPU.cycle();
+            } else if (this.waiting.getSize() > 0) {
+                this.contextSwitch(this.waiting.dequeue().getPid());
             } else {
                 this.krnTrace("Idle");
             }
@@ -166,17 +201,18 @@ var TSOS;
                 _CPU.programCounter = address;
             }
 
+            _CPU.setUserMode();
             this.interrupt = false;
         };
 
-        Kernel.prototype.handleSystemCall = function (call) {
-            if (this.running === undefined) {
-                this.setProcessorState(this.shellPCB.getPid());
+        Kernel.prototype.handleSystemCall = function (params) {
+            if (this.running === undefined || params[1] == true) {
+                this.contextSwitch(this.shellPCB.getPid());
             }
 
             _CPU.setKernelMode();
 
-            switch (call) {
+            switch (params[0]) {
                 case 1:
                     break;
                 case 2:
@@ -195,13 +231,8 @@ var TSOS;
         };
 
         Kernel.prototype.handleBreak = function (mode) {
-            //If in kernel mode, return to caller
-            if (mode === true) {
-                _CPU.setUserMode();
-                _CPU.programCounter = _CPU.returnRegister;
-            } else {
-                _CPU.executing = false;
-            }
+            _CPU.executing = false;
+            this.interrupt = false;
         };
 
         Kernel.prototype.krnTimerISR = function () {

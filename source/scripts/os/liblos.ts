@@ -2,20 +2,21 @@ module TSOS
 {
   export class liblos
   {
-    public static loadProgram(): void
+    public static loadProgram(): number
     {
-      _KernelInterruptQueue.enqueue(new Interrupt(InterruptType.SYSTEM_CALL, 5));
+      _KernelInterruptQueue.enqueue(new Interrupt(InterruptType.SYSTEM_CALL, [5, true]));
+      return _Kernel.forkExec();
     }
     
-    public static forkExec(program: string): void
+    public static runProgram(pid: number): void
     {
-      _Kernel.forkExec(program); 
+      _Kernel.runProgram(pid);
     }
     
     public static putString(): void
     {
       //_Kernel.contextSwitch(_Kernel.getShellPid());
-      _KernelInterruptQueue.enqueue(new Interrupt(InterruptType.SYSTEM_CALL, 4));
+      _KernelInterruptQueue.enqueue(new Interrupt(InterruptType.SYSTEM_CALL, [4, true]));
     }
 
     public static clockTick(): void

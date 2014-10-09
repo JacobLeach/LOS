@@ -4,16 +4,17 @@ var TSOS;
         function liblos() {
         }
         liblos.loadProgram = function () {
-            _KernelInterruptQueue.enqueue(new TSOS.Interrupt(2 /* SYSTEM_CALL */, 5));
+            _KernelInterruptQueue.enqueue(new TSOS.Interrupt(2 /* SYSTEM_CALL */, [5, true]));
+            return _Kernel.forkExec();
         };
 
-        liblos.forkExec = function (program) {
-            _Kernel.forkExec(program);
+        liblos.runProgram = function (pid) {
+            _Kernel.runProgram(pid);
         };
 
         liblos.putString = function () {
             //_Kernel.contextSwitch(_Kernel.getShellPid());
-            _KernelInterruptQueue.enqueue(new TSOS.Interrupt(2 /* SYSTEM_CALL */, 4));
+            _KernelInterruptQueue.enqueue(new TSOS.Interrupt(2 /* SYSTEM_CALL */, [4, true]));
         };
 
         liblos.clockTick = function () {

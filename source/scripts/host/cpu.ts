@@ -151,7 +151,7 @@ module TSOS {
     }
     
     private programEnd(): void {
-      console.log(this.programCounter.asNumber());
+      this.executing = false;
       _KernelInterruptQueue.enqueue(new Interrupt(InterruptType.BREAK, this.kernelMode));
     }
     
@@ -283,7 +283,7 @@ module TSOS {
     private systemCall(): void {
       this.setKernelMode();
       this.returnRegister = this.programCounter;
-      _KernelInterruptQueue.enqueue(new Interrupt(InterruptType.SYSTEM_CALL, this.xRegister.asNumber()));
+      _KernelInterruptQueue.enqueue(new Interrupt(InterruptType.SYSTEM_CALL, [this.xRegister.asNumber(), false]));
     }
     
     private getByte(address: Short): Byte

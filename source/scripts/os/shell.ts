@@ -125,6 +125,11 @@ module TSOS {
                                   "load",
                                   "- Loads a program");
             this.commandList[sc.command] = sc;
+            
+            sc = new ShellCommand(this.shellRun,
+                                  "run",
+                                  "- runs a program");
+            this.commandList[sc.command] = sc;
 
             // processes - list the running processes and their IDs
             // kill <id> - kills the specified process id.
@@ -463,6 +468,11 @@ module TSOS {
         public shellStatus(args) {
           document.getElementById("status").innerHTML = args[0];
         }
+
+        public shellRun(args): void 
+        {
+          liblos.runProgram(args[0]); 
+        } 
         
         public shellLoad(args) {
           var code  = (<HTMLInputElement>document.getElementById("taProgramInput")).value;
@@ -480,7 +490,10 @@ module TSOS {
 
           if(valid && code != "" && ((code.length % 2) == 0)) 
           {
-            liblos.loadProgram();
+            Stdio.putString("Loading...");
+            var pid: number = liblos.loadProgram();
+            Stdio.putStringLn(" Done.");
+            Stdio.putStringLn("Pid: " + pid);
           }
           else 
           {
