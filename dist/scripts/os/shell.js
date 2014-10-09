@@ -89,6 +89,9 @@ var TSOS;
             sc = new TSOS.ShellCommand(this.shellLoad, "load", "- Loads a program");
             this.commandList[sc.command] = sc;
 
+            sc = new TSOS.ShellCommand(this.shellRun, "run", "- runs a program");
+            this.commandList[sc.command] = sc;
+
             // processes - list the running processes and their IDs
             // kill <id> - kills the specified process id.
             //
@@ -404,6 +407,10 @@ var TSOS;
             document.getElementById("status").innerHTML = args[0];
         };
 
+        Shell.prototype.shellRun = function (args) {
+            TSOS.liblos.runProgram(args[0]);
+        };
+
         Shell.prototype.shellLoad = function (args) {
             var code = document.getElementById("taProgramInput").value;
             code = code.replace(/ /g, '');
@@ -417,7 +424,10 @@ var TSOS;
             }
 
             if (valid && code != "" && ((code.length % 2) == 0)) {
-                TSOS.liblos.loadProgram();
+                TSOS.Stdio.putString("Loading...");
+                var pid = TSOS.liblos.loadProgram();
+                TSOS.Stdio.putStringLn(" Done.");
+                TSOS.Stdio.putStringLn("Pid: " + pid);
             } else {
                 TSOS.Stdio.putStringLn("You done goofed.");
             }
