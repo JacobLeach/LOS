@@ -83,10 +83,8 @@ module TSOS
 
     private setProcessorState(pid: number): void
     {
-      console.log("FUCK ME: " + pid);
       if(pid == this.shellPCB.getPid())
       {
-        console.log("SSHIT WHORE: " + pid);
         this.running = this.shellPCB;
       }
       else
@@ -110,7 +108,6 @@ module TSOS
       _CPU.lowAddress = this.running.getLowAddress();
       _CPU.highAddress = this.running.getHighAddress();
       _CPU.executing = true;
-      console.log("SHIT WHORE1");
     }
 
     public getRunning(): number

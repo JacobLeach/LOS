@@ -103,9 +103,7 @@ var TSOS;
         };
 
         Kernel.prototype.setProcessorState = function (pid) {
-            console.log("FUCK ME: " + pid);
             if (pid == this.shellPCB.getPid()) {
-                console.log("SSHIT WHORE: " + pid);
                 this.running = this.shellPCB;
             } else {
                 for (var i = 0; i < this.ready.length; i++) {
@@ -125,7 +123,6 @@ var TSOS;
             _CPU.lowAddress = this.running.getLowAddress();
             _CPU.highAddress = this.running.getHighAddress();
             _CPU.executing = true;
-            console.log("SHIT WHORE1");
         };
 
         Kernel.prototype.getRunning = function () {
