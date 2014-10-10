@@ -146,12 +146,16 @@ module TSOS {
         private handleTabCompletion() {
           var command = "";
 
-          for(var current in this.commandList) {
+          for(var current in this.commandList) 
+          {
             var currentCommand = this.commandList[current].command;
-            if(currentCommand.indexOf(this.inputBuffer) == 0) {
+            
+            if(currentCommand.indexOf(this.inputBuffer) == 0) 
+            {
               command = currentCommand;
             }
           }
+
           //Firgure out what part of the command we need to print
           var toPrint = command.substr(this.inputBuffer.length);
 

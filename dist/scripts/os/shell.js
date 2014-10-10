@@ -108,6 +108,7 @@ var TSOS;
 
             for (var current in this.commandList) {
                 var currentCommand = this.commandList[current].command;
+
                 if (currentCommand.indexOf(this.inputBuffer) == 0) {
                     command = currentCommand;
                 }
