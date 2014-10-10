@@ -129,7 +129,7 @@ module TSOS {
               this.moveCursorUp(1);
               break;
             case 'G':
-              this.cursor.x = amount;
+              this.cursor.x = 0;
               break;
             case 'J':
               this.clearAll();

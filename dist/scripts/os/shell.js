@@ -104,24 +104,39 @@ var TSOS;
         };
 
         Shell.prototype.handleTabCompletion = function () {
-            var command = "";
+            var command = [];
 
             for (var current in this.commandList) {
                 var currentCommand = this.commandList[current].command;
 
                 if (currentCommand.indexOf(this.inputBuffer) == 0) {
-                    command = currentCommand;
+                    command.push(currentCommand);
                 }
             }
 
-            //Firgure out what part of the command we need to print
-            var toPrint = command.substr(this.inputBuffer.length);
+            if (command.length > 1) {
+                TSOS.Stdio.putString(ESCAPE + "[K");
+                TSOS.Stdio.putString(ESCAPE + "[G");
+                this.putPrompt();
 
-            //Correct the input buffer
-            this.inputBuffer = command;
+                for (var i = 0; i < command.length; i++) {
+                    TSOS.Stdio.putString(command[i]);
+                    TSOS.Stdio.putString(" ");
+                }
 
-            //Make the screen look correct
-            TSOS.Stdio.putString(toPrint);
+                TSOS.Stdio.putStringLn("");
+                this.putPrompt();
+                TSOS.Stdio.putString(this.inputBuffer);
+            } else {
+                //Figure out what part of the command we need to print
+                var toPrint = command[0].substr(this.inputBuffer.length);
+
+                //Correct the input buffer
+                this.inputBuffer = command[0];
+
+                //Make the screen look correct
+                TSOS.Stdio.putString(toPrint);
+            }
         };
 
         Shell.prototype.handleCharacter = function (character) {
