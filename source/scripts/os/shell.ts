@@ -144,23 +144,45 @@ module TSOS {
         }
 
         private handleTabCompletion() {
-          var command = "";
+          var command: any = [];
 
-          for(var current in this.commandList) {
+          for(var current in this.commandList) 
+          {
             var currentCommand = this.commandList[current].command;
-            if(currentCommand.indexOf(this.inputBuffer) == 0) {
-              command = currentCommand;
+            
+            if(currentCommand.indexOf(this.inputBuffer) == 0) 
+            {
+              command.push(currentCommand);
             }
           }
-          //Firgure out what part of the command we need to print
-          var toPrint = command.substr(this.inputBuffer.length);
 
-          //Correct the input buffer
-          this.inputBuffer = command;
+          if(command.length > 1)
+          {
+            Stdio.putString(ESCAPE + "[K");
+            Stdio.putString(ESCAPE + "[G");
+            this.putPrompt();
 
-          //Make the screen look correct
-          Stdio.putString(toPrint);
+            for(var i = 0; i < command.length; i++)
+            {
+              Stdio.putString(command[i]);
+              Stdio.putString(" ");
+            }
 
+            Stdio.putStringLn("");
+            this.putPrompt();
+            Stdio.putString(this.inputBuffer);
+          }
+          else
+          {
+            //Figure out what part of the command we need to print
+            var toPrint = command[0].substr(this.inputBuffer.length);
+
+            //Correct the input buffer
+            this.inputBuffer = command[0];
+
+            //Make the screen look correct
+            Stdio.putString(toPrint);
+          }
         }
 
         private handleCharacter(character: String): void {
