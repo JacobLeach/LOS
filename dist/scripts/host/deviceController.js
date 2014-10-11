@@ -3,9 +3,44 @@ var TSOS;
     var DeviceController = (function () {
         function DeviceController() {
             this.memory = new TSOS.Memory();
+
+            this.printMemory();
+
             this.terminal = new TSOS.Terminal(_Canvas);
             this.programReader = new TSOS.ProgramReader();
         }
+        DeviceController.prototype.printMemory = function () {
+            var memoryAsString = "";
+            for (var i = 0; i < 1024; i++) {
+                if (i == 0) {
+                    var num = i + "-" + (i + 8) + ":";
+
+                    while (num.length < 11) {
+                        num += " ";
+                    }
+
+                    memoryAsString += num;
+                } else if ((i % 8) == 0) {
+                    memoryAsString += "\n";
+
+                    var num = i + "-" + (i + 8) + ":";
+                    while (num.length < 11) {
+                        num += " ";
+                    }
+
+                    memoryAsString += num;
+                }
+                var num = this.memory.getByte(new TSOS.Short(i)).asNumber().toString(16);
+                if (num.length == 1) {
+                    num = "0" + num;
+                }
+
+                memoryAsString += num + " ";
+            }
+
+            document.getElementById("memoryBox").value = memoryAsString;
+        };
+
         DeviceController.prototype.getByte = function (address) {
             if (address.asNumber() < this.memory.getSize()) {
                 return this.memory.getByte(address);
@@ -48,6 +83,7 @@ var TSOS;
             } else {
                 //Segfault
             }
+            this.printMemory();
         };
         return DeviceController;
     })();
