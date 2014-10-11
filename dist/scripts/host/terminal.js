@@ -248,11 +248,6 @@ var TSOS;
         };
 
         Terminal.prototype.printChar = function (character, clearLine) {
-            if (this.cursor.x == this.columns) {
-                this.cursor.x = 0;
-                this.makeNewLine();
-            }
-
             //Get coordinates on the screen
             var coords = this.cursorToCoords();
 
@@ -266,6 +261,11 @@ var TSOS;
 
             //Advance the cursor
             this.cursor.x++;
+
+            if (this.cursor.x == this.columns) {
+                this.cursor.x = 0;
+                this.makeNewLine();
+            }
         };
 
         Terminal.prototype.drawChar = function (character) {

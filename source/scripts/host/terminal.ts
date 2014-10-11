@@ -288,10 +288,6 @@ module TSOS {
     }
 
     private printChar(character: String, clearLine: boolean): void {
-      if(this.cursor.x == this.columns) {
-        this.cursor.x = 0;
-        this.makeNewLine(); 
-      }
       //Get coordinates on the screen
       var coords = this.cursorToCoords();
       
@@ -305,6 +301,11 @@ module TSOS {
       
       //Advance the cursor
       this.cursor.x++;
+      
+      if(this.cursor.x == this.columns) {
+        this.cursor.x = 0;
+        this.makeNewLine(); 
+      }
     }
 
     private drawChar(character: string): void
