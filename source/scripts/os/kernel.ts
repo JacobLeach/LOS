@@ -278,6 +278,8 @@ module TSOS
       switch(params[0])
       {
         case 1:
+          Stdio.putString(params[2].toString());
+          this.interrupt = false;
           break;
         case 2:
           _CPU.programCounter = new Short(0x0300);
