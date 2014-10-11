@@ -37,7 +37,7 @@ var TSOS;
             this.memory[0x030C] = new Byte(0xCC);
             this.memory[0x030D] = new Byte(0x18);
             this.memory[0x030E] = new Byte(0x03);
-            this.memory[0x030F] = new Byte(0xD0);
+            this.memory[0x030F] = new Byte(0xF0);
             this.memory[0x0310] = new Byte(6);
 
             //Print char
@@ -74,7 +74,7 @@ var TSOS;
             this.memory[0x032D] = new Byte(0xEC);
             this.memory[0x032E] = new Byte(0x41);
             this.memory[0x032F] = new Byte(0x03); //Compare to zero
-            this.memory[0x0330] = new Byte(0xD0); //Branch past jump if done (equal to zero)
+            this.memory[0x0330] = new Byte(0xF0); //Branch past jump if done (equal to zero)
             this.memory[0x0331] = new Byte(0x02);
             this.memory[0x0332] = new Byte(0x4C);
             this.memory[0x0333] = new Byte(0x19);

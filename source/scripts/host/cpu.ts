@@ -59,10 +59,10 @@ module TSOS {
 
     public cycle(): void {
       _Kernel.krnTrace('CPU cycle');      
+      this.printCPU();
       this.loadInstruction(); 
       this.programCounter = this.programCounter.increment();
       this.executeInstruction();
-      this.printCPU();
     }
 
     public isExecuting(): boolean {
@@ -146,7 +146,7 @@ module TSOS {
           this.compareY();
           break;
         case 0xD0:
-          this.branch();
+          this.branchNotEqual();
           break;
         case 0xEA:
           this.noOperation();
@@ -157,6 +157,9 @@ module TSOS {
         case 0xEE:
           this.increment();
           break;
+        case 0xF0:
+          this.branchEqual();
+          break;
         case 0xFF:
           this.systemCall();
           break;
@@ -164,11 +167,11 @@ module TSOS {
     }
 
     private compareX(): void {
-      this.zFlag = this.xRegister.asNumber() === this.loadValueFromAddress().asNumber();
+      this.zFlag = (this.xRegister.asNumber() === this.loadValueFromAddress().asNumber());
     }
     
     private compareY(): void {
-      this.zFlag = this.yRegister.asNumber() === this.loadValueFromAddress().asNumber();
+      this.zFlag = (this.yRegister.asNumber() === this.loadValueFromAddress().asNumber());
     }
     
     private programEnd(): void {
@@ -245,10 +248,26 @@ module TSOS {
       this.xRegister = this.loadValueFromAddress();
     }
 
-    private branch() {
+    private branchNotEqual() {
       var branchAmount: number = this.loadInstructionConstant().asNumber();
       
-      //If zFlag is true, we want to branch
+      if(!this.zFlag) {
+        //In kernel mode you address all of memory
+        if(this.kernelMode)
+        {
+          this.programCounter = new Short(this.programCounter.asNumber() + branchAmount);
+        }
+        else
+        {
+          //We have to wrap when branch goes above our memory range
+          this.programCounter = new Short((this.programCounter.asNumber() + branchAmount) % 256);
+        }
+      }
+    }
+    
+    private branchEqual() {
+      var branchAmount: number = this.loadInstructionConstant().asNumber();
+      
       if(this.zFlag) {
         //In kernel mode you address all of memory
         if(this.kernelMode)

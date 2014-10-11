@@ -37,10 +37,10 @@ var TSOS;
 
         Cpu.prototype.cycle = function () {
             _Kernel.krnTrace('CPU cycle');
+            this.printCPU();
             this.loadInstruction();
             this.programCounter = this.programCounter.increment();
             this.executeInstruction();
-            this.printCPU();
         };
 
         Cpu.prototype.isExecuting = function () {
@@ -124,7 +124,7 @@ var TSOS;
                     this.compareY();
                     break;
                 case 0xD0:
-                    this.branch();
+                    this.branchNotEqual();
                     break;
                 case 0xEA:
                     this.noOperation();
@@ -135,6 +135,9 @@ var TSOS;
                 case 0xEE:
                     this.increment();
                     break;
+                case 0xF0:
+                    this.branchEqual();
+                    break;
                 case 0xFF:
                     this.systemCall();
                     break;
@@ -142,11 +145,11 @@ var TSOS;
         };
 
         Cpu.prototype.compareX = function () {
-            this.zFlag = this.xRegister.asNumber() === this.loadValueFromAddress().asNumber();
+            this.zFlag = (this.xRegister.asNumber() === this.loadValueFromAddress().asNumber());
         };
 
         Cpu.prototype.compareY = function () {
-            this.zFlag = this.yRegister.asNumber() === this.loadValueFromAddress().asNumber();
+            this.zFlag = (this.yRegister.asNumber() === this.loadValueFromAddress().asNumber());
         };
 
         Cpu.prototype.programEnd = function () {
@@ -223,10 +226,23 @@ var TSOS;
             this.xRegister = this.loadValueFromAddress();
         };
 
-        Cpu.prototype.branch = function () {
+        Cpu.prototype.branchNotEqual = function () {
             var branchAmount = this.loadInstructionConstant().asNumber();
 
-            //If zFlag is true, we want to branch
+            if (!this.zFlag) {
+                //In kernel mode you address all of memory
+                if (this.kernelMode) {
+                    this.programCounter = new TSOS.Short(this.programCounter.asNumber() + branchAmount);
+                } else {
+                    //We have to wrap when branch goes above our memory range
+                    this.programCounter = new TSOS.Short((this.programCounter.asNumber() + branchAmount) % 256);
+                }
+            }
+        };
+
+        Cpu.prototype.branchEqual = function () {
+            var branchAmount = this.loadInstructionConstant().asNumber();
+
             if (this.zFlag) {
                 //In kernel mode you address all of memory
                 if (this.kernelMode) {
