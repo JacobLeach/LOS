@@ -141,11 +141,18 @@ var TSOS;
         };
 
         Kernel.prototype.clockTick = function () {
+            if (execute) {
+                singleStep = true;
+            }
+
             if (_KernelInterruptQueue.getSize() > 0 && !this.interrupt) {
                 var interrupt = _KernelInterruptQueue.dequeue();
                 this.interruptHandler(interrupt.type(), interrupt.parameters());
             } else if (_CPU.isExecuting()) {
-                _CPU.cycle();
+                if (singleStep) {
+                    _CPU.cycle();
+                    singleStep = false;
+                }
             } else if (this.waiting.getSize() > 0) {
                 this.contextSwitch(this.waiting.dequeue().getPid());
             } else {

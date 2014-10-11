@@ -12,6 +12,9 @@
 // Global "CONSTANTS" (There is currently no const or final or readonly type annotation in TypeScript.)
 // TODO: Make a global object and use that instead of the "_" naming convention in the global namespace.
 //
+var singleStep = true;
+var execute = true;
+
 var APP_NAME: string    = "LOS";   
 var APP_VERSION: string = "1.0.0"; 
 

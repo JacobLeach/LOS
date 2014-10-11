@@ -107,6 +107,20 @@ var TSOS;
             // be reloaded from the server. If it is false or not specified the browser may reload the
             // page from its cache, which is not what we want.
         };
+
+        Control.stepMode_click = function (button) {
+            if (execute) {
+                execute = false;
+                document.getElementById("step").disabled = false;
+            } else {
+                execute = true;
+                document.getElementById("step").disabled = true;
+            }
+        };
+
+        Control.step_click = function (button) {
+            singleStep = true;
+        };
         return Control;
     })();
     TSOS.Control = Control;

@@ -181,6 +181,11 @@ module TSOS
 
     public clockTick() 
     {
+      if(execute)
+      {
+        singleStep = true;
+      }
+
       if (_KernelInterruptQueue.getSize() > 0 && !this.interrupt) 
       {
         var interrupt = _KernelInterruptQueue.dequeue();
@@ -188,7 +193,11 @@ module TSOS
       } 
       else if (_CPU.isExecuting()) 
       { 
-        _CPU.cycle();
+        if(singleStep)
+        {
+          _CPU.cycle();
+          singleStep = false;
+        }
       } 
       else if(this.waiting.getSize() > 0)
       {
