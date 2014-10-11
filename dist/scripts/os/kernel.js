@@ -32,7 +32,6 @@ var TSOS;
             _KernelInterruptQueue = new TSOS.Queue();
             _KernelBuffers = new Array();
             _KernelInputQueue = new TSOS.Queue();
-            _Console = new TSOS.Terminal(_Canvas);
             _StdIn = _Console;
             _StdOut = _Console;
 
