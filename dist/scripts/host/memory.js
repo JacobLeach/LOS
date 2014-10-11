@@ -72,15 +72,26 @@ var TSOS;
             this.memory[0x032B] = new Byte(0x12);
             this.memory[0x032C] = new Byte(0xFF); //Check whether or not we are done
             this.memory[0x032D] = new Byte(0xEC);
-            this.memory[0x032E] = new Byte(0x36);
+            this.memory[0x032E] = new Byte(0x41);
             this.memory[0x032F] = new Byte(0x03); //Compare to zero
             this.memory[0x0330] = new Byte(0xD0); //Branch past jump if done (equal to zero)
             this.memory[0x0331] = new Byte(0x02);
             this.memory[0x0332] = new Byte(0x4C);
             this.memory[0x0333] = new Byte(0x19);
             this.memory[0x0334] = new Byte(0x03); //Jump back to beginning
-            this.memory[0x0335] = new Byte(0x40);
+            this.memory[0x0335] = new Byte(0xA9);
             this.memory[0x0336] = new Byte(0x00);
+            this.memory[0x0337] = new Byte(0x8D);
+            this.memory[0x0338] = new Byte(0x1A);
+            this.memory[0x0339] = new Byte(0x03);
+            this.memory[0x033A] = new Byte(0x8D);
+            this.memory[0x033B] = new Byte(0x22);
+            this.memory[0x033C] = new Byte(0x03);
+            this.memory[0x033D] = new Byte(0x8D);
+            this.memory[0x033E] = new Byte(0x10);
+            this.memory[0x033F] = new Byte(0xFF);
+            this.memory[0x0340] = new Byte(0x40);
+            this.memory[0x0341] = new Byte(0x00);
         }
         Memory.prototype.getSize = function () {
             return this.size;
@@ -120,7 +131,7 @@ var TSOS;
         };
 
         Byte.prototype.increment = function () {
-            this.setValue(++this.value);
+            return new Byte(++this.value);
         };
 
         Byte.prototype.asNumber = function () {
@@ -141,6 +152,8 @@ var TSOS;
             }
 
             this.lowByte.increment();
+
+            return bytesToShort(this.lowByte, this.highByte);
         };
 
         Short.prototype.asNumber = function () {

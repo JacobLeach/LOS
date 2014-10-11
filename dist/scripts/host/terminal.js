@@ -115,7 +115,6 @@ var TSOS;
                     this.ansiNumber += character + "";
                     printable = false;
                 } else {
-                    console.log("WHAT!11111");
                     var amount;
                     if (this.ansiNumber === "") {
                         amount = 1;

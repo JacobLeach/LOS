@@ -21,7 +21,6 @@ var TSOS;
             this.printCPU();
         }
         Cpu.prototype.printCPU = function () {
-            console.log("WHAT");
             var cpuAsString = "";
 
             cpuAsString += "PC: " + this.programCounter.asNumber().toString(16);
@@ -39,7 +38,7 @@ var TSOS;
         Cpu.prototype.cycle = function () {
             _Kernel.krnTrace('CPU cycle');
             this.loadInstruction();
-            this.programCounter.increment();
+            this.programCounter = this.programCounter.increment();
             this.executeInstruction();
             this.printCPU();
         };
@@ -246,35 +245,36 @@ var TSOS;
         Cpu.prototype.increment = function () {
             var address = this.loadAddressFromMemory();
             var value = this.getByte(address);
-            value.increment();
+            console.log("ADDRESS: " + address.asNumber() + " ___ " + value.asNumber());
+            var newValue = value.increment();
 
-            this.deviceController.setByte(address, value);
+            this.deviceController.setByte(address, newValue);
         };
 
         Cpu.prototype.loadInstructionConstant = function () {
-            var toReturn = this.getByte(this.programCounter);
+            var toReturn = new TSOS.Byte(this.getByte(this.programCounter).asNumber());
 
             //The next instruction needs to be in the PC, so increment again
-            this.programCounter.increment();
+            this.programCounter = this.programCounter.increment();
 
             return toReturn;
         };
 
         Cpu.prototype.loadAddressFromMemory = function () {
-            var lowByte = this.getByte(this.programCounter);
+            var lowByte = new TSOS.Byte(this.getByte(this.programCounter).asNumber());
 
             //The high address byte is two bytes ahread of the instruction so increment the PC
-            this.programCounter.increment();
-            var highByte = this.getByte(this.programCounter);
+            this.programCounter = this.programCounter.increment();
+            var highByte = new TSOS.Byte(this.getByte(this.programCounter).asNumber());
 
             //The next instruction needs to be in the PC, so increment again
-            this.programCounter.increment();
+            this.programCounter = this.programCounter.increment();
 
             return TSOS.bytesToShort(lowByte, highByte);
         };
 
         Cpu.prototype.loadValueFromAddress = function () {
-            return this.getByte(this.loadAddressFromMemory());
+            return new TSOS.Byte(this.getByte(this.loadAddressFromMemory()).asNumber());
         };
 
         Cpu.prototype.systemCall = function () {
@@ -284,17 +284,17 @@ var TSOS;
         };
 
         Cpu.prototype.getByte = function (address) {
-            return this.deviceController.getByte(this.adjustAddress(address));
+            return new TSOS.Byte(this.deviceController.getByte(this.adjustAddress(address)).asNumber());
         };
 
         Cpu.prototype.setByte = function (address, data) {
-            this.deviceController.setByte(this.adjustAddress(address), data);
+            this.deviceController.setByte(this.adjustAddress(address), new TSOS.Byte(data.asNumber()));
         };
 
         Cpu.prototype.adjustAddress = function (address) {
             //We can access anything, use absolute addressing
             if (this.kernelMode) {
-                return address;
+                return new TSOS.Short(address.asNumber());
             } else {
                 var adjustedAddress = new TSOS.Short(address.asNumber() + this.lowAddress.asNumber());
 

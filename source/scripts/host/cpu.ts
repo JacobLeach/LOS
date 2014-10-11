@@ -43,7 +43,6 @@ module TSOS {
     
     public printCPU(): void
     {
-      console.log("WHAT");
       var cpuAsString = "";
 
       cpuAsString += "PC: " + this.programCounter.asNumber().toString(16);
@@ -61,7 +60,7 @@ module TSOS {
     public cycle(): void {
       _Kernel.krnTrace('CPU cycle');      
       this.loadInstruction(); 
-      this.programCounter.increment();
+      this.programCounter = this.programCounter.increment();
       this.executeInstruction();
       this.printCPU();
     }
@@ -271,35 +270,36 @@ module TSOS {
     private increment() {
       var address: Short = this.loadAddressFromMemory();
       var value: Byte = this.getByte(address);
-      value.increment();
+      console.log("ADDRESS: " + address.asNumber() + " ___ " + value.asNumber());
+      var newValue: Byte = value.increment();
 
-      this.deviceController.setByte(address, value);
+      this.deviceController.setByte(address, newValue);
     }
     
     private loadInstructionConstant(): Byte {
-      var toReturn: Byte = this.getByte(this.programCounter);
+      var toReturn: Byte = new Byte(this.getByte(this.programCounter).asNumber());
       
       //The next instruction needs to be in the PC, so increment again
-      this.programCounter.increment();
+      this.programCounter = this.programCounter.increment();
 
       return toReturn;
     }
 
     private loadAddressFromMemory(): Short {
-      var lowByte: Byte = this.getByte(this.programCounter);
+      var lowByte: Byte = new Byte(this.getByte(this.programCounter).asNumber());
 
       //The high address byte is two bytes ahread of the instruction so increment the PC
-      this.programCounter.increment();
-      var highByte: Byte = this.getByte(this.programCounter);
+      this.programCounter = this.programCounter.increment();
+      var highByte: Byte = new Byte(this.getByte(this.programCounter).asNumber());
 
       //The next instruction needs to be in the PC, so increment again
-      this.programCounter.increment();
+      this.programCounter = this.programCounter.increment();
 
       return bytesToShort(lowByte, highByte);
     }
 
     private loadValueFromAddress(): Byte {
-      return this.getByte(this.loadAddressFromMemory());
+      return new Byte(this.getByte(this.loadAddressFromMemory()).asNumber());
     }
 
     private systemCall(): void {
@@ -310,12 +310,12 @@ module TSOS {
     
     private getByte(address: Short): Byte
     {
-      return this.deviceController.getByte(this.adjustAddress(address));
+      return new Byte(this.deviceController.getByte(this.adjustAddress(address)).asNumber());
     }
 
     private setByte(address: Short, data: Byte): void
     {
-      this.deviceController.setByte(this.adjustAddress(address), data);
+      this.deviceController.setByte(this.adjustAddress(address), new Byte(data.asNumber()));
     }
 
     private adjustAddress(address: Short): Short
@@ -323,7 +323,7 @@ module TSOS {
       //We can access anything, use absolute addressing
       if(this.kernelMode)
       {
-        return address;
+        return new Short(address.asNumber());
       }
       else
       {
