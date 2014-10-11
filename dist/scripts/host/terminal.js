@@ -16,6 +16,8 @@ var TSOS;
             this.lastCharEscape = false;
             this.ansi = false;
             this.ansiNumber = "";
+            this.chars = [[]];
+            this.blink = false;
             /*
             * This controls whether or not the terminal is canonical or not.
             *
@@ -40,7 +42,40 @@ var TSOS;
             //I chose -2 because it works
             this.columns = Math.round(this.canvas.height / this.charWidth) - 2;
             this.rows = Math.round(this.canvas.width / this.lineHeight) - 2;
+
+            for (var i = 0; i < this.columns; i++) {
+                this.chars[i] = [];
+                for (var j = 0; j < this.rows; j++) {
+                    this.chars[i][j] = ' ';
+                }
+            }
+
+            /*
+            * This is why Javascript is the worst language EVER invented
+            * AND why it needs to burn in hell for all eternity.
+            * AND why web development is literally complete shit.
+            * AND why I fucking hate it with a fucking passion that
+            * FUCKING burns hotter than NINETY FUCKING THOUSANND
+            * MASSIVE BURNING FUCKING SUNS
+            */
+            this.intervalID = setInterval((function (self) {
+                return function () {
+                    self.printCursor();
+                };
+            })(this), 500);
         }
+        Terminal.prototype.printCursor = function () {
+            if (this.blink) {
+                this.clear();
+                this.drawChar(this.chars[this.cursor.x][this.cursor.y]);
+                this.blink = false;
+            } else {
+                this.clear();
+                this.drawChar(String.fromCharCode(9632));
+                this.blink = true;
+            }
+        };
+
         Terminal.prototype.write = function (data) {
             var asChar = String.fromCharCode(data.asNumber());
             this.handleChar(asChar, true);
@@ -152,6 +187,7 @@ var TSOS;
 
             //If it is a printable character, print it
             if (((this.echo && isInput) || !isInput) && printable) {
+                this.chars[this.cursor.x][this.cursor.y] = character;
                 this.printChar(character, true);
             }
         };
@@ -227,6 +263,11 @@ var TSOS;
 
             //Advance the cursor
             this.cursor.x++;
+        };
+
+        Terminal.prototype.drawChar = function (character) {
+            var coords = this.cursorToCoords();
+            this.context.fillText(character, coords.x, coords.y);
         };
 
         Terminal.prototype.clear = function () {

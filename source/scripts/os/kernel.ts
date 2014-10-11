@@ -149,7 +149,6 @@ module TSOS
       _KernelInterruptQueue = new Queue();  
       _KernelBuffers = new Array();         
       _KernelInputQueue = new Queue();      
-      _Console = new Terminal(_Canvas);     
       _StdIn  = _Console;
       _StdOut = _Console;
 
