@@ -7,8 +7,51 @@ module TSOS {
 
     constructor() {
       this.memory = new Memory();
+      
+      this.printMemory();
+
       this.terminal = new Terminal(_Canvas);
       this.programReader = new ProgramReader();
+    }
+
+    public printMemory(): void
+    {
+      var memoryAsString = "";
+      for(var i = 0; i < 1024; i++)
+      {
+        if(i == 0)
+        {
+          var num = i + "-" + (i + 8) + ":";
+          
+          while(num.length < 11)
+          {
+            num += " ";
+          }
+         
+          memoryAsString += num;  
+        }
+        else if((i % 8) == 0)
+        {
+          memoryAsString += "\n";
+
+          var num = i + "-" + (i + 8) + ":";
+          while(num.length < 11)
+          {
+            num += " ";
+          }
+          
+          memoryAsString += num;  
+        }
+        var num = this.memory.getByte(new Short(i)).asNumber().toString(16);
+        if(num.length == 1)
+        {
+          num = "0" + num;
+        }
+
+        memoryAsString += num + " ";
+      }
+
+      (<HTMLInputElement>document.getElementById("memoryBox")).value = memoryAsString;
     }
     
     public getByte(address: Short): Byte {
@@ -61,6 +104,7 @@ module TSOS {
       {
         //Segfault
       }
+      this.printMemory();
     }
   }
 }
