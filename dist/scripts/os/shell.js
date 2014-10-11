@@ -189,19 +189,24 @@ var TSOS;
                         case 'A':
                             if (this.current == -2) {
                                 this.current = this.historyList.length;
+                                if (this.current === 0) {
+                                    this.current = -2;
+                                }
                             }
-                            if (this.current != 0) {
+                            if (this.current != 0 && this.current != -2) {
                                 this.current--;
                             }
 
                             //These are ANSI control codes to control the cursor
                             //And to erase characters and stuff
                             //http://en.wikipedia.org/wiki/ANSI_escape_code
-                            TSOS.Stdio.putString(ESCAPE + "[K");
-                            TSOS.Stdio.putString(ESCAPE + "[0G");
-                            this.putPrompt();
-                            TSOS.Stdio.putString(this.historyList[this.current]);
-                            this.inputBuffer = this.historyList[this.current];
+                            if (this.current != -2) {
+                                TSOS.Stdio.putString(ESCAPE + "[K");
+                                TSOS.Stdio.putString(ESCAPE + "[0G");
+                                this.putPrompt();
+                                TSOS.Stdio.putString(this.historyList[this.current]);
+                                this.inputBuffer = this.historyList[this.current];
+                            }
                             break;
 
                         case 'B':
@@ -217,8 +222,10 @@ var TSOS;
                             }
                             break;
                         case 'C':
+                            TSOS.Stdio.putString(ESCAPE + "[C");
                             break;
                         case 'D':
+                            TSOS.Stdio.putString(ESCAPE + "[D");
                             break;
                         case 'E':
                             break;

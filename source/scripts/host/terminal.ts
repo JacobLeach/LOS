@@ -145,6 +145,7 @@ module TSOS {
           printable = false;
         }
         else {
+          console.log("WHAT!11111");
           var amount: any;
           if(this.ansiNumber === "") {
             amount = 1; 
