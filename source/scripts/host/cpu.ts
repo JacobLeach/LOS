@@ -32,9 +32,30 @@ module TSOS {
       this.zFlag = false;
       this.kernelMode = false;
 
+      this.lowAddress = new Short(0);
+      this.highAddress = new Short(0);
       this.executing = false;
 
       this.deviceController = new DeviceController();
+      this.printCPU();
+    }
+
+    
+    public printCPU(): void
+    {
+      console.log("WHAT");
+      var cpuAsString = "";
+
+      cpuAsString += "PC: " + this.programCounter.asNumber().toString(16);
+      cpuAsString += "\nAC: " + this.accumulator.asNumber().toString(16);
+      cpuAsString += "\nX: " + this.xRegister.asNumber().toString(16);
+      cpuAsString += "\nY: " + this.yRegister.asNumber().toString(16);
+      cpuAsString += "\nZ: " + this.zFlag;
+      cpuAsString += "\nkernelMode: " + this.kernelMode;
+      cpuAsString += "\nlowAddress: " + this.lowAddress.asNumber().toString(16);
+      cpuAsString += "\nhighAddress: " + this.highAddress.asNumber().toString(16);
+
+      (<HTMLInputElement>document.getElementById("cpuBox")).value = cpuAsString;
     }
 
     public cycle(): void {
@@ -42,6 +63,7 @@ module TSOS {
       this.loadInstruction(); 
       this.programCounter.increment();
       this.executeInstruction();
+      this.printCPU();
     }
 
     public isExecuting(): boolean {

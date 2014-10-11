@@ -72,19 +72,30 @@
              tabindex="2"
              onclick="TSOS.Control.hostBtnReset_click(this);">
    </div>
-   
-   <div id="memory" style="float: left;">
-      <label>
-         Memory
-         <br>
-         <textarea name="memoryBox"
-                   id  ="memoryBox"
-                   rows="32"
-                   cols="38"
-         ></textarea>
-      </label>
+   <div style="float: left;"> 
+     <div id="cpu">
+        <label>
+           CPU
+           <br>
+           <textarea name="cpuBox"
+                     id  ="cpuBox"
+                     rows="8"
+                     cols="38"
+           ></textarea>
+        </label>
+     </div>
+     <div id="memory" style="float: left;">
+        <label>
+           Memory
+           <br>
+           <textarea name="memoryBox"
+                     id  ="memoryBox"
+                     rows="32"
+                     cols="38"
+           ></textarea>
+        </label>
+     </div>
    </div>
-  
    <div style="float: left;">
       <div id="divStatus" style="clear: both; margin:4px; width:500px; height:40px;  border:1px solid black; background: white;">
      <p id="status" style="float: left;"></p><p id="time" style="float: right;"></p>

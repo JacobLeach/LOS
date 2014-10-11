@@ -13,15 +13,35 @@ var TSOS;
             this.zFlag = false;
             this.kernelMode = false;
 
+            this.lowAddress = new TSOS.Short(0);
+            this.highAddress = new TSOS.Short(0);
             this.executing = false;
 
             this.deviceController = new TSOS.DeviceController();
+            this.printCPU();
         }
+        Cpu.prototype.printCPU = function () {
+            console.log("WHAT");
+            var cpuAsString = "";
+
+            cpuAsString += "PC: " + this.programCounter.asNumber().toString(16);
+            cpuAsString += "\nAC: " + this.accumulator.asNumber().toString(16);
+            cpuAsString += "\nX: " + this.xRegister.asNumber().toString(16);
+            cpuAsString += "\nY: " + this.yRegister.asNumber().toString(16);
+            cpuAsString += "\nZ: " + this.zFlag;
+            cpuAsString += "\nkernelMode: " + this.kernelMode;
+            cpuAsString += "\nlowAddress: " + this.lowAddress.asNumber().toString(16);
+            cpuAsString += "\nhighAddress: " + this.highAddress.asNumber().toString(16);
+
+            document.getElementById("cpuBox").value = cpuAsString;
+        };
+
         Cpu.prototype.cycle = function () {
             _Kernel.krnTrace('CPU cycle');
             this.loadInstruction();
             this.programCounter.increment();
             this.executeInstruction();
+            this.printCPU();
         };
 
         Cpu.prototype.isExecuting = function () {
