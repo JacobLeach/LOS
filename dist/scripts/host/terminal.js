@@ -35,7 +35,7 @@ var TSOS;
             this.context = canvas.getContext('2d');
             this.context.font = this.font;
 
-            this.charWidth = this.context.measureText(' ').width;
+            this.charWidth = this.context.measureText(String.fromCharCode(9608)).width + 1;
             this.lineHeight = 12 * 1.5;
 
             //This is a bit of a hack
@@ -71,7 +71,7 @@ var TSOS;
                 this.blink = false;
             } else {
                 this.clear();
-                this.drawChar(String.fromCharCode(9632));
+                this.drawChar(String.fromCharCode(9608));
                 this.blink = true;
             }
         };
@@ -164,8 +164,11 @@ var TSOS;
 
                 if (!this.canonical || this.inputBuffer.length > 0) {
                     //Do not print the backspace
+                    this.clear();
+                    this.drawChar(this.chars[this.cursor.x][this.cursor.y]);
                     this.moveCursorLeft(1);
                     this.clear();
+                    this.chars[this.cursor.x][this.cursor.y] = ' ';
 
                     //Pop the erased character
                     this.inputBuffer.pop();
@@ -179,7 +182,7 @@ var TSOS;
 
                 //Remove the newline
                 input += this.inputBuffer.shift();
-
+                this.clear();
                 this.makeNewLine();
             } else if (!this.canonical) {
                 input += this.inputBuffer.shift();
