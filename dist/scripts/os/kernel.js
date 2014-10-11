@@ -221,7 +221,6 @@ var TSOS;
                     this.interrupt = false;
                     break;
                 case 2:
-                    _CPU.programCounter = new TSOS.Short(0x0300);
                     break;
                 case 3:
                     _CPU.programCounter = new TSOS.Short(0x0304);
@@ -231,6 +230,9 @@ var TSOS;
                     break;
                 case 5:
                     _CPU.programCounter = new TSOS.Short(0x0319);
+                    break;
+                case 6:
+                    _CPU.programCounter = new TSOS.Short(0x0300);
                     break;
             }
         };
