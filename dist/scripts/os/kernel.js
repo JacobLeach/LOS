@@ -209,6 +209,7 @@ var TSOS;
         };
 
         Kernel.prototype.handleSystemCall = function (params) {
+            console.log("SHIT SHIT");
             if (this.running === undefined || params[1] == true) {
                 this.contextSwitch(this.shellPCB.getPid());
             }
@@ -221,6 +222,10 @@ var TSOS;
                     this.interrupt = false;
                     break;
                 case 2:
+                    //I can't figure out the segment so I need the whole address.
+                    //Therefor, I overwrite the accumulator with the base register
+                    _CPU.accumulator = new TSOS.Byte(_CPU.lowAddress.getHighByte().asNumber());
+                    _CPU.programCounter = new TSOS.Short(0x0342);
                     break;
                 case 3:
                     _CPU.programCounter = new TSOS.Short(0x0304);
