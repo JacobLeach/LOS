@@ -92,6 +92,34 @@ var TSOS;
             this.memory[0x033F] = new Byte(0xFF);
             this.memory[0x0340] = new Byte(0x40);
             this.memory[0x0341] = new Byte(0x00);
+
+            this.memory[0x0342] = new Byte(0x8D); //Print string
+            this.memory[0x0343] = new Byte(0x4A);
+            this.memory[0x0344] = new Byte(0x03);
+            this.memory[0x0345] = new Byte(0x8C);
+            this.memory[0x0346] = new Byte(0x49);
+            this.memory[0x0347] = new Byte(0x03);
+            this.memory[0x0348] = new Byte(0xAC); //Load from memory
+            this.memory[0x0349] = new Byte(0x00);
+            this.memory[0x034A] = new Byte(0x00);
+            this.memory[0x034B] = new Byte(0xA2);
+            this.memory[0x034C] = new Byte(0x06);
+            this.memory[0x034D] = new Byte(0xCC); //Compare y to zero
+            this.memory[0x034E] = new Byte(0x5C);
+            this.memory[0x034F] = new Byte(0x03);
+            this.memory[0x0350] = new Byte(0xF0); //If equal, branch
+            this.memory[0x0351] = new Byte(0x09);
+            this.memory[0x0352] = new Byte(0x8C); //Write char to screen
+            this.memory[0x0353] = new Byte(0x00);
+            this.memory[0x0354] = new Byte(0xFF);
+            this.memory[0x0355] = new Byte(0xEE); //Increment address
+            this.memory[0x0356] = new Byte(0x49);
+            this.memory[0x0357] = new Byte(0x03);
+            this.memory[0x0358] = new Byte(0x4C); //Jump back
+            this.memory[0x0359] = new Byte(0x48);
+            this.memory[0x035A] = new Byte(0x03);
+            this.memory[0x035B] = new Byte(0x40);
+            this.memory[0x035C] = new Byte(0x00);
         }
         Memory.prototype.getSize = function () {
             return this.size;
@@ -154,6 +182,10 @@ var TSOS;
             this.lowByte.increment();
 
             return bytesToShort(this.lowByte, this.highByte);
+        };
+
+        Short.prototype.getHighByte = function () {
+            return new Byte(this.highByte.asNumber());
         };
 
         Short.prototype.asNumber = function () {

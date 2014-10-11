@@ -322,9 +322,10 @@ module TSOS {
     }
 
     private systemCall(): void {
+      console.log("WHAT WHAT");
       this.setKernelMode();
       this.returnRegister = this.programCounter;
-      _KernelInterruptQueue.enqueue(new Interrupt(InterruptType.SYSTEM_CALL, [this.xRegister.asNumber(), false]));
+      _KernelInterruptQueue.enqueue(new Interrupt(InterruptType.SYSTEM_CALL, [this.xRegister.asNumber(), false, this.yRegister.asNumber()]));
     }
     
     private getByte(address: Short): Byte

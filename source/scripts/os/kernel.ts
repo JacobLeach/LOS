@@ -268,6 +268,7 @@ module TSOS
 
     private handleSystemCall(params): void
     {
+      console.log("SHIT SHIT");
       if(this.running === undefined || params[1] == true)
       {
         this.contextSwitch(this.shellPCB.getPid());
@@ -278,9 +279,14 @@ module TSOS
       switch(params[0])
       {
         case 1:
+          Stdio.putString(params[2].toString());
+          this.interrupt = false;
           break;
         case 2:
-          _CPU.programCounter = new Short(0x0300);
+          //I can't figure out the segment so I need the whole address.
+          //Therefor, I overwrite the accumulator with the base register
+          _CPU.accumulator = new Byte(_CPU.lowAddress.getHighByte().asNumber());
+          _CPU.programCounter = new Short(0x0342);
           break;
         case 3:
           _CPU.programCounter = new Short(0x0304);
@@ -290,6 +296,9 @@ module TSOS
           break;
         case 5:
           _CPU.programCounter = new Short(0x0319);
+          break;
+        case 6:
+          _CPU.programCounter = new Short(0x0300);
           break;
       }   
     }
