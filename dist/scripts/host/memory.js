@@ -120,6 +120,27 @@ var TSOS;
             this.memory[0x035A] = new Byte(0x03);
             this.memory[0x035B] = new Byte(0x40);
             this.memory[0x035C] = new Byte(0x00);
+
+            this.memory[0x035D] = new Byte(0x8D); //Deallocate (zero) memory
+            this.memory[0x035E] = new Byte(0x64);
+            this.memory[0x035F] = new Byte(0x03);
+            this.memory[0x0360] = new Byte(0xA2);
+            this.memory[0x0361] = new Byte(0x00);
+            this.memory[0x0362] = new Byte(0x8E);
+            this.memory[0x0363] = new Byte(0x00);
+            this.memory[0x0364] = new Byte(0x00);
+            this.memory[0x0365] = new Byte(0xEE);
+            this.memory[0x0366] = new Byte(0x63);
+            this.memory[0x0367] = new Byte(0x03);
+            this.memory[0x0368] = new Byte(0xEC);
+            this.memory[0x0369] = new Byte(0x63);
+            this.memory[0x036A] = new Byte(0x03);
+            this.memory[0x036B] = new Byte(0xF0);
+            this.memory[0x036C] = new Byte(0x04);
+            this.memory[0x036D] = new Byte(0x4C); //Jump back
+            this.memory[0x036E] = new Byte(0x62);
+            this.memory[0x036F] = new Byte(0x03);
+            this.memory[0x0370] = new Byte(0x40);
         }
         Memory.prototype.getSize = function () {
             return this.size;

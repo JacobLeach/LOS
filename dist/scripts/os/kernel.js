@@ -239,6 +239,11 @@ var TSOS;
                 case 6:
                     _CPU.programCounter = new TSOS.Short(0x0300);
                     break;
+                case 7:
+                    _CPU.accumulator = new TSOS.Byte(this.memoryManager.getBounds(params[2]).lower().getHighByte().asNumber());
+                    console.log(this.memoryManager.getBounds(params[2]));
+                    _CPU.programCounter = new TSOS.Short(0x035D);
+                    break;
             }
         };
 
