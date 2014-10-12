@@ -28,6 +28,9 @@ var TSOS;
         liblos.deallocate = function (segment) {
             _KernelInterruptQueue.enqueue(new TSOS.Interrupt(2 /* SYSTEM_CALL */, [7, true, segment]));
         };
+
+        liblos.kill = function (pid) {
+        };
         return liblos;
     })();
     TSOS.liblos = liblos;

@@ -38,7 +38,7 @@ var _DefaultFontFamily = "sans";
 var _DefaultFontSize = 13;
 var _FontHeightMargin = 4;
 
-var _Trace = true;
+var _Trace = false;
 
 // The OS Kernel and its queues.
 var _Kernel;

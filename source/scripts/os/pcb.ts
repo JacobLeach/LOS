@@ -31,6 +31,11 @@ module TSOS {
       this.pid = PCB.next_pid++;
     }
 
+    public getSegment(): number
+    {
+      return this.memoryBounds.getSegment();
+    }
+
     public getPid(): number
     {
       return this.pid;

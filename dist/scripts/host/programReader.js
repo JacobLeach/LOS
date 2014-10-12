@@ -6,7 +6,6 @@ var TSOS;
         }
         ProgramReader.prototype.setAddress = function (address) {
             this.address = address;
-            console.log(this.address.asNumber());
         };
 
         ProgramReader.prototype.getByte = function () {

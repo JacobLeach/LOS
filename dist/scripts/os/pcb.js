@@ -16,6 +16,10 @@ var TSOS;
             this.memoryBounds = memoryBounds;
             this.pid = PCB.next_pid++;
         }
+        PCB.prototype.getSegment = function () {
+            return this.memoryBounds.getSegment();
+        };
+
         PCB.prototype.getPid = function () {
             return this.pid;
         };

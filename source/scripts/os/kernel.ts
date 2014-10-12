@@ -301,7 +301,6 @@ module TSOS
           break;
         case 7:
           _CPU.accumulator = new Byte(this.memoryManager.getBounds(params[2]).lower().getHighByte().asNumber());
-          console.log(this.memoryManager.getBounds(params[2]));
           _CPU.programCounter = new Short(0x035D);
           break;
       }   
@@ -310,7 +309,10 @@ module TSOS
     private handleBreak(mode): void
     {
       _CPU.executing = false;
+      liblos.deallocate(this.running.getSegment());
+      this.memoryManager.deallocate(this.running.getSegment());;
       this.interrupt = false;
+      this.running = undefined;
     }
 
     public krnTimerISR() 

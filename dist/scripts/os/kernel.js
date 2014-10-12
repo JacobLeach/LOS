@@ -240,7 +240,6 @@ var TSOS;
                     break;
                 case 7:
                     _CPU.accumulator = new TSOS.Byte(this.memoryManager.getBounds(params[2]).lower().getHighByte().asNumber());
-                    console.log(this.memoryManager.getBounds(params[2]));
                     _CPU.programCounter = new TSOS.Short(0x035D);
                     break;
             }
@@ -248,7 +247,11 @@ var TSOS;
 
         Kernel.prototype.handleBreak = function (mode) {
             _CPU.executing = false;
+            TSOS.liblos.deallocate(this.running.getSegment());
+            this.memoryManager.deallocate(this.running.getSegment());
+            ;
             this.interrupt = false;
+            this.running = undefined;
         };
 
         Kernel.prototype.krnTimerISR = function () {

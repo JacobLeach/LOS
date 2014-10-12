@@ -136,7 +136,7 @@ var TSOS;
             this.memory[0x0369] = new Byte(0x63);
             this.memory[0x036A] = new Byte(0x03);
             this.memory[0x036B] = new Byte(0xF0);
-            this.memory[0x036C] = new Byte(0x04);
+            this.memory[0x036C] = new Byte(0x03);
             this.memory[0x036D] = new Byte(0x4C); //Jump back
             this.memory[0x036E] = new Byte(0x62);
             this.memory[0x036F] = new Byte(0x03);

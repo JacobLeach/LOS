@@ -33,5 +33,10 @@ module TSOS
     {
       _KernelInterruptQueue.enqueue(new Interrupt(InterruptType.SYSTEM_CALL, [7, true, segment]));
     }
+
+    public static kill(pid: number): void
+    {
+      
+    }
   }
 }

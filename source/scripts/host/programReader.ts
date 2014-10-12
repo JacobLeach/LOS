@@ -12,7 +12,6 @@ module TSOS
     public setAddress(address: Byte): void
     {
       this.address = address;
-      console.log(this.address.asNumber());
     }
 
     public getByte(): Byte
