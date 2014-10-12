@@ -49,7 +49,6 @@ var TSOS;
                     this.chars[i][j] = ' ';
                 }
             }
-
             /*
             * This is why Javascript is the worst language EVER invented
             * AND why it needs to burn in hell for all eternity.
@@ -57,12 +56,14 @@ var TSOS;
             * AND why I fucking hate it with a fucking passion that
             * FUCKING burns hotter than NINETY FUCKING THOUSANND
             * MASSIVE BURNING FUCKING SUNS
-            */
-            this.intervalID = setInterval((function (self) {
-                return function () {
-                    self.printCursor();
-                };
+            /
+            this.intervalID = setInterval(
+            (function(self) {
+            return function() {
+            self.printCursor();
+            }
             })(this), 500);
+            */
         }
         Terminal.prototype.printCursor = function () {
             if (this.blink) {

@@ -77,13 +77,14 @@ module TSOS {
        * AND why I fucking hate it with a fucking passion that
        * FUCKING burns hotter than NINETY FUCKING THOUSANND
        * MASSIVE BURNING FUCKING SUNS
-       */
+      /
       this.intervalID = setInterval(
           (function(self) {
             return function() {
               self.printCursor(); 
             }
           })(this), 500);
+          */
     }
 
     public printCursor(): void
