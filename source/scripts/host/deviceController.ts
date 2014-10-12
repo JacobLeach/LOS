@@ -21,7 +21,7 @@ module TSOS {
       {
         if(i == 0)
         {
-          var num = i + "-" + (i + 8) + ":";
+          var num = i.toString(16) + "-" + (i + 8).toString(16) + ":";
           
           while(num.length < 11)
           {
@@ -34,7 +34,7 @@ module TSOS {
         {
           memoryAsString += "\n";
 
-          var num = i + "-" + (i + 8) + ":";
+          var num = i.toString(16) + "-" + (i + 8).toString(16) + ":";
           while(num.length < 11)
           {
             num += " ";
