@@ -261,7 +261,6 @@ var TSOS;
         Cpu.prototype.increment = function () {
             var address = this.loadAddressFromMemory();
             var value = this.getByte(address);
-            console.log("ADDRESS: " + address.asNumber() + " ___ " + value.asNumber());
             var newValue = value.increment();
 
             this.deviceController.setByte(address, newValue);

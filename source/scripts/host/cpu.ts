@@ -289,7 +289,6 @@ module TSOS {
     private increment() {
       var address: Short = this.loadAddressFromMemory();
       var value: Byte = this.getByte(address);
-      console.log("ADDRESS: " + address.asNumber() + " ___ " + value.asNumber());
       var newValue: Byte = value.increment();
 
       this.deviceController.setByte(address, newValue);

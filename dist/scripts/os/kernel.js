@@ -209,7 +209,6 @@ var TSOS;
         };
 
         Kernel.prototype.handleSystemCall = function (params) {
-            console.log("SHIT SHIT");
             if (this.running === undefined || params[1] == true) {
                 this.contextSwitch(this.shellPCB.getPid());
             }
