@@ -13,7 +13,7 @@ var TSOS;
             var memoryAsString = "";
             for (var i = 0; i < 1024; i++) {
                 if (i == 0) {
-                    var num = i + "-" + (i + 8) + ":";
+                    var num = i.toString(16) + "-" + (i + 8).toString(16) + ":";
 
                     while (num.length < 11) {
                         num += " ";
@@ -23,7 +23,7 @@ var TSOS;
                 } else if ((i % 8) == 0) {
                     memoryAsString += "\n";
 
-                    var num = i + "-" + (i + 8) + ":";
+                    var num = i.toString(16) + "-" + (i + 8).toString(16) + ":";
                     while (num.length < 11) {
                         num += " ";
                     }
