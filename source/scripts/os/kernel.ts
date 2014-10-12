@@ -74,6 +74,7 @@ module TSOS
         {
           this.ready.push(this.running);
         }
+        this.print(this.running);
         
         this.running = undefined;
       }
@@ -108,6 +109,27 @@ module TSOS
       _CPU.lowAddress = this.running.getLowAddress();
       _CPU.highAddress = this.running.getHighAddress();
       _CPU.executing = true;
+      
+      this.print(this.running);
+    }
+    
+    public print(pcb: PCB): void
+    {
+      if(pcb.getPid() != 0)
+      {
+        var print = "";
+        print += "Pid: " + pcb.getPid();
+        print += "\nPC: " + pcb.getProgramCounter().asNumber().toString(16);
+        print += "\nACC: " + pcb.getAccumulator().asNumber().toString(16);
+        print += "\nX: " + pcb.getXRegister().asNumber().toString(16);
+        print += "\nY: " + pcb.getYRegister().asNumber().toString(16);
+        print += "\nZ: " + pcb.getZFlag();
+        print += "\nKernel Mode: " + pcb.getKernelMode();
+        print += "\nbase: " + pcb.getLowAddress().asNumber().toString(16);
+        print += "\nlimit: " + pcb.getHighAddress().asNumber().toString(16);
+        
+        (<HTMLInputElement>document.getElementById("pcbBox")).value = print;
+      }
     }
 
     public getRunning(): number
@@ -312,11 +334,13 @@ module TSOS
 
     private handleBreak(mode): void
     {
-      _CPU.executing = false;
-      liblos.deallocate(this.running.getSegment());
-      this.memoryManager.deallocate(this.running.getSegment());;
+      var save = this.running;
+      this.saveProcessorState();
+      liblos.deallocate(save.getSegment());
+      this.memoryManager.deallocate(save.getSegment());;
       this.interrupt = false;
-      this.running = undefined;
+      this.print(save);
+      Stdio.putStringLn("Program finished");
     }
 
     public krnTimerISR() 
