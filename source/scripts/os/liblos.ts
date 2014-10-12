@@ -28,5 +28,10 @@ module TSOS
     {
       _Kernel.shutdown();
     }
+
+    public static deallocate(segment: number): void
+    {
+      _KernelInterruptQueue.enqueue(new Interrupt(InterruptType.SYSTEM_CALL, [7, true, segment]));
+    }
   }
 }

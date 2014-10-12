@@ -24,6 +24,10 @@ var TSOS;
         liblos.shutdown = function () {
             _Kernel.shutdown();
         };
+
+        liblos.deallocate = function (segment) {
+            _KernelInterruptQueue.enqueue(new TSOS.Interrupt(2 /* SYSTEM_CALL */, [7, true, segment]));
+        };
         return liblos;
     })();
     TSOS.liblos = liblos;
