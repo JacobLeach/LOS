@@ -27,6 +27,7 @@ var TSOS;
         InterruptType[InterruptType["SYSTEM_CALL"] = 2] = "SYSTEM_CALL";
         InterruptType[InterruptType["BREAK"] = 3] = "BREAK";
         InterruptType[InterruptType["RETURN"] = 4] = "RETURN";
+        InterruptType[InterruptType["SEG_FAULT"] = 5] = "SEG_FAULT";
     })(TSOS.InterruptType || (TSOS.InterruptType = {}));
     var InterruptType = TSOS.InterruptType;
 })(TSOS || (TSOS = {}));

@@ -36,6 +36,7 @@ module TSOS {
     KEYBOARD,
     SYSTEM_CALL,
     BREAK,
-    RETURN
+    RETURN,
+    SEG_FAULT
   }
 }

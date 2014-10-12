@@ -246,6 +246,10 @@ module TSOS
         case InterruptType.RETURN:
           this.handleReturn(params);  
           break;
+        case InterruptType.SEG_FAULT:
+          this.handleBreak(params);
+          Stdio.putStringLn("Segfault. Program killed");
+          break;
         default:
           this.krnTrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");
       }

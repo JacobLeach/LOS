@@ -351,7 +351,7 @@ module TSOS {
         if(adjustedAddress.asNumber() > this.highAddress.asNumber())
         {
           //Segfault
-          console.log("SEGFAULT: " + adjustedAddress);
+          _KernelInterruptQueue.front(new Interrupt(InterruptType.SEG_FAULT, this.kernelMode));
           return undefined;
         }
         else

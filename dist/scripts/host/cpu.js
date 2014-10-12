@@ -316,7 +316,7 @@ var TSOS;
 
                 if (adjustedAddress.asNumber() > this.highAddress.asNumber()) {
                     //Segfault
-                    console.log("SEGFAULT: " + adjustedAddress);
+                    _KernelInterruptQueue.front(new TSOS.Interrupt(5 /* SEG_FAULT */, this.kernelMode));
                     return undefined;
                 } else {
                     return adjustedAddress;

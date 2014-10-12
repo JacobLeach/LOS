@@ -55,7 +55,10 @@ module TSOS {
     }
     
     public getByte(address: Short): Byte {
-      if(address.asNumber() < this.memory.getSize()) {
+      if(address == undefined) {
+        return new Byte(0);
+      }
+      else if(address.asNumber() < this.memory.getSize()) {
         return this.memory.getByte(address);
       }
       else if(address.asNumber() >= 0xFF00 && address.asNumber() <= 0xFFFF) {
@@ -82,7 +85,11 @@ module TSOS {
     }
 
     public setByte(address: Short, data: Byte): void {
-      if(address.asNumber() < this.memory.getSize()) 
+      if(address == undefined)
+      {
+        
+      }
+      else if(address.asNumber() < this.memory.getSize()) 
       {
         this.memory.setByte(address, data);
       }

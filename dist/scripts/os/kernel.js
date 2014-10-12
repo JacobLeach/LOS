@@ -192,6 +192,10 @@ var TSOS;
                 case 4 /* RETURN */:
                     this.handleReturn(params);
                     break;
+                case 5 /* SEG_FAULT */:
+                    this.handleBreak(params);
+                    TSOS.Stdio.putStringLn("Segfault. Program killed");
+                    break;
                 default:
                     this.krnTrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");
             }
