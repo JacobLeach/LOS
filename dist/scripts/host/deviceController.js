@@ -7,6 +7,7 @@ var TSOS;
             this.printMemory();
 
             this.terminal = new TSOS.Terminal(_Canvas);
+            _Console = this.terminal;
             this.programReader = new TSOS.ProgramReader();
         }
         DeviceController.prototype.printMemory = function () {

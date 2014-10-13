@@ -318,8 +318,8 @@ module TSOS {
           if(this.inputBuffer.length > 0) {
             this.executeCommand(command, parameters);
           }
-          
-         /*
+         
+          /*
           * If the cursor is not at the beginning of the line,
           * we need to advance it to the next line before we 
           * print the prompt
@@ -496,7 +496,7 @@ module TSOS {
         public shellCrash(args) {
           _Console.bluescreen();
           _Console.writeWhiteText("Gotta crash... Mmmhh kay.");
-          _Kernel.krnShutdown();
+          _Kernel.shutdown();
         }
         
         public shellStatus(args) {

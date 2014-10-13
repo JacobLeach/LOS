@@ -11,6 +11,7 @@ module TSOS {
       this.printMemory();
 
       this.terminal = new Terminal(_Canvas);
+      _Console = this.terminal;
       this.programReader = new ProgramReader();
     }
 

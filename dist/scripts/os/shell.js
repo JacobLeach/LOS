@@ -319,12 +319,7 @@ var TSOS;
         Shell.prototype.shellHelp = function (args) {
             TSOS.Stdio.putStringLn("Commands:");
             for (var i in _OsShell.commandList) {
-<<<<<<< HEAD
-                TSOS.Stdio.putString(ESCAPE + '[E', _StdOut);
-                TSOS.Stdio.putString("  " + _OsShell.commandList[i].command + " " + _OsShell.commandList[i].description, _StdOut);
-=======
                 TSOS.Stdio.putStringLn("  " + _OsShell.commandList[i].command + " " + _OsShell.commandList[i].description);
->>>>>>> master
             }
         };
 
@@ -334,11 +329,7 @@ var TSOS;
         };
 
         Shell.prototype.shellCls = function (args) {
-<<<<<<< HEAD
-            TSOS.Stdio.putString(ESCAPE + '[J', _StdOut);
-=======
             TSOS.Stdio.putString(ESCAPE + '[J');
->>>>>>> master
         };
 
         Shell.prototype.shellMan = function (args) {
@@ -432,13 +423,9 @@ var TSOS;
 
         //HACKS HACKS HACKS
         Shell.prototype.shellCrash = function (args) {
-<<<<<<< HEAD
             _Console.bluescreen();
             _Console.writeWhiteText("Gotta crash... Mmmhh kay.");
-            _Kernel.krnShutdown();
-=======
-            //TODO
->>>>>>> master
+            _Kernel.shutdown();
         };
 
         Shell.prototype.shellStatus = function (args) {

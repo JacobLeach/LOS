@@ -65,6 +65,24 @@ var TSOS;
             })(this), 500);
             */
         }
+        //HACKS HACKS HACKS!
+        Terminal.prototype.bluescreen = function () {
+            this.cursor.x = 0;
+            console.log("FUCK");
+            this.cursor.y = 0;
+            this.context.fillStyle = '#0000FF';
+            this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+            this.context.fillStyle = '#000000';
+        };
+
+        //HACKS HACKS HACKS!
+        Terminal.prototype.writeWhiteText = function (text) {
+            this.context.fillStyle = '#FFFFFF';
+            for (var i = 0; i < text.length; i++) {
+                this.printChar(text.charAt(i), false);
+            }
+        };
+
         Terminal.prototype.printCursor = function () {
             if (this.blink) {
                 this.clear();
@@ -144,6 +162,9 @@ var TSOS;
                             break;
                         case 'G':
                             this.cursor.x = 0;
+                            break;
+                        case 'J':
+                            this.clearAll();
                             break;
                         case 'J':
                             this.clearAll();
