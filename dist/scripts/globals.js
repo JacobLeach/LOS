@@ -13,7 +13,7 @@ var singleStep = true;
 var execute = true;
 
 var APP_NAME = "LOS";
-var APP_VERSION = "1.0.0";
+var APP_VERSION = "2.0.1";
 
 var CPU_CLOCK_INTERVAL = 10;
 

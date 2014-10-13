@@ -16,7 +16,7 @@ var singleStep = true;
 var execute = true;
 
 var APP_NAME: string    = "LOS";   
-var APP_VERSION: string = "1.0.0"; 
+var APP_VERSION: string = "2.0.1"; 
 
 var CPU_CLOCK_INTERVAL: number = 10;   // This is in ms, or milliseconds, so 1000 = 1 second.
 
