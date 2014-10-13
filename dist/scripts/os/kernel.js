@@ -1,28 +1,37 @@
 /* ------------
 Kernel.ts
-Requires globals.ts
-Routines for the Operating System, NOT the host.
-This code references page numbers in the text book:
-Operating System Concepts 8th edition by Silberschatz, Galvin, and Gagne.  ISBN 978-0-470-12872-5
 ------------ */
 var TSOS;
 (function (TSOS) {
     var Kernel = (function () {
         function Kernel() {
-        }
-        //
-        // OS Startup and Shutdown Routines
-        //
-        Kernel.prototype.krnBootstrap = function () {
-            TSOS.Control.hostLog("bootstrap", "host"); // Use hostLog because we ALWAYS want this, even if _Trace is off.
+            this.memoryManager = new TSOS.MemoryManager();
+
+            this.ready = [];
+            this.waiting = new TSOS.Queue();
+            this.running = undefined;
+
+            /*
+            * Reserve the segment system calls are stored in.
+            * Save this in the PCB used for system calls from the Shell.
+            * This has to happen because devices require CPU time to use
+            * and since the shell needs to talk to the devices, it needs
+            * to be able to execute system calls on the CPU.
+            *
+            * Must be in kernel mode since we only use this for I/O
+            * and all I/O requires kernel mode.
+            */
+            this.shellPCB = new TSOS.PCB(this.memoryManager.reserve(3));
+            this.shellPCB.setKernelMode(true);
+
+            this.interrupt = false;
+
+            TSOS.Control.hostLog("bootstrap", "host");
 
             // Initialize our global queues.
-            _KernelInterruptQueue = new TSOS.Queue(); // A (currently) non-priority queue for interrupt requests (IRQs).
-            _KernelBuffers = new Array(); // Buffers... for the kernel.
-            _KernelInputQueue = new TSOS.Queue(); // Where device input lands before being processed out somewhere.
-            _Console = new TSOS.Terminal(_Canvas); // The command line interface / console I/O device.
-
-            // Initialize standard input and output to the _Console.
+            _KernelInterruptQueue = new TSOS.Queue();
+            _KernelBuffers = new Array();
+            _KernelInputQueue = new TSOS.Queue();
             _StdIn = _Console;
             _StdOut = _Console;
 
@@ -32,91 +41,243 @@ var TSOS;
             _krnKeyboardDriver.driverEntry(); // Call the driverEntry() initialization routine.
             this.krnTrace(_krnKeyboardDriver.status);
 
-            //
-            // ... more?
-            //
-            // Enable the OS Interrupts.  (Not the CPU clock interrupt, as that is done in the hardware sim.)
             this.krnTrace("Enabling the interrupts.");
-            this.krnEnableInterrupts();
+            this.enableInterrupts();
 
-            // Launch the shell.
             this.krnTrace("Creating and Launching the shell.");
             _OsShell = new TSOS.Shell();
             _OsShell.init();
-
             // Finally, initiate testing.
-            if (_GLaDOS) {
-                _GLaDOS.afterStartup();
+            //_GLaDOS.afterStartup();
+        }
+        Kernel.prototype.forkExec = function () {
+            var pcb = new TSOS.PCB(this.memoryManager.allocate());
+            this.ready.push(pcb);
+
+            return pcb.getPid();
+        };
+
+        Kernel.prototype.contextSwitch = function (pid) {
+            if (!_CPU.isExecuting()) {
+                this.saveProcessorState();
+                this.setProcessorState(pid);
+            } else if (this.shellPCB.getPid() == pid) {
+                if (_CPU.isExecuting()) {
+                    this.waiting.enqueue(this.running);
+                }
+
+                this.saveProcessorState();
+                this.setProcessorState(pid);
+            } else {
+                for (var i = 0; i < this.ready.length; i++) {
+                    if (this.ready[i].getPid() == pid) {
+                        this.waiting.enqueue(this.ready[i]);
+                        this.ready.splice(i, 1);
+                    }
+                }
             }
         };
 
-        Kernel.prototype.krnShutdown = function () {
+        Kernel.prototype.runProgram = function (pid) {
+            this.contextSwitch(pid);
+        };
+
+        Kernel.prototype.saveProcessorState = function () {
+            if (this.running != undefined) {
+                this.running.setProgramCounter(_CPU.programCounter);
+                this.running.setAccumulator(_CPU.accumulator);
+                this.running.setXRegister(_CPU.xRegister);
+                this.running.setYRegister(_CPU.yRegister);
+                this.running.setZFlag(_CPU.zFlag);
+                this.running.setKernelMode(_CPU.kernelMode);
+
+                if (this.running.getPid() != this.shellPCB.getPid()) {
+                    this.ready.push(this.running);
+                }
+                this.print(this.running);
+
+                this.running = undefined;
+            }
+
+            _CPU.executing = false;
+        };
+
+        Kernel.prototype.setProcessorState = function (pid) {
+            if (pid == this.shellPCB.getPid()) {
+                this.running = this.shellPCB;
+            } else {
+                for (var i = 0; i < this.ready.length; i++) {
+                    if (this.ready[i].getPid() == pid) {
+                        this.running = this.ready[i];
+                        this.ready.splice(i, 1);
+                    }
+                }
+            }
+
+            _CPU.programCounter = this.running.getProgramCounter();
+            _CPU.accumulator = this.running.getAccumulator();
+            _CPU.xRegister = this.running.getXRegister();
+            _CPU.yRegister = this.running.getYRegister();
+            _CPU.zFlag = this.running.getZFlag();
+            _CPU.kernelMode = this.running.getKernelMode();
+            _CPU.lowAddress = this.running.getLowAddress();
+            _CPU.highAddress = this.running.getHighAddress();
+            _CPU.executing = true;
+
+            this.print(this.running);
+        };
+
+        Kernel.prototype.print = function (pcb) {
+            if (pcb.getPid() != 0) {
+                var print = "";
+                print += "Pid: " + pcb.getPid();
+                print += "\nPC: " + pcb.getProgramCounter().asNumber().toString(16);
+                print += "\nACC: " + pcb.getAccumulator().asNumber().toString(16);
+                print += "\nX: " + pcb.getXRegister().asNumber().toString(16);
+                print += "\nY: " + pcb.getYRegister().asNumber().toString(16);
+                print += "\nZ: " + pcb.getZFlag();
+                print += "\nKernel Mode: " + pcb.getKernelMode();
+                print += "\nbase: " + pcb.getLowAddress().asNumber().toString(16);
+                print += "\nlimit: " + pcb.getHighAddress().asNumber().toString(16);
+
+                document.getElementById("pcbBox").value = print;
+            }
+        };
+
+        Kernel.prototype.getRunning = function () {
+            return this.running.getPid();
+        };
+
+        Kernel.prototype.getShellPid = function () {
+            return this.shellPCB.getPid();
+        };
+
+        Kernel.prototype.shutdown = function () {
             this.krnTrace("begin shutdown OS");
-
-            // TODO: Check for running processes.  Alert if there are some, alert and stop.  Else...
-            // ... Disable the Interrupts.
             this.krnTrace("Disabling the interrupts.");
-            this.krnDisableInterrupts();
-
-            //
-            // Unload the Device Drivers?
-            // More?
-            //
+            this.disableInterrupts();
             this.krnTrace("end shutdown OS");
         };
 
-        Kernel.prototype.krnOnCPUClockPulse = function () {
-            /* This gets called from the host hardware sim every time there is a hardware clock pulse.
-            This is NOT the same as a TIMER, which causes an interrupt and is handled like other interrupts.
-            This, on the other hand, is the clock pulse from the hardware (or host) that tells the kernel
-            that it has to look for interrupts and process them if it finds any.                           */
-            // Check for an interrupt, are any. Page 560
-            if (_KernelInterruptQueue.getSize() > 0) {
-                // Process the first interrupt on the interrupt queue.
-                // TODO: Implement a priority queue based on the IRQ number/id to enforce interrupt priority.
+        Kernel.prototype.clockTick = function () {
+            if (execute) {
+                singleStep = true;
+            }
+
+            if (_KernelInterruptQueue.getSize() > 0 && !this.interrupt) {
                 var interrupt = _KernelInterruptQueue.dequeue();
-                this.krnInterruptHandler(interrupt.irq, interrupt.params);
-            } else if (_CPU.isExecuting) {
-                _CPU.cycle();
+                this.interruptHandler(interrupt.type(), interrupt.parameters());
+            } else if (_CPU.isExecuting()) {
+                if (singleStep) {
+                    _CPU.cycle();
+                    singleStep = false;
+                }
+            } else if (this.waiting.getSize() > 0) {
+                this.contextSwitch(this.waiting.dequeue().getPid());
             } else {
                 this.krnTrace("Idle");
             }
         };
 
-        //
-        // Interrupt Handling
-        //
-        Kernel.prototype.krnEnableInterrupts = function () {
-            // Keyboard
+        Kernel.prototype.enableInterrupts = function () {
             TSOS.Devices.hostEnableKeyboardInterrupt();
-            // Put more here.
         };
 
-        Kernel.prototype.krnDisableInterrupts = function () {
-            // Keyboard
+        Kernel.prototype.disableInterrupts = function () {
             TSOS.Devices.hostDisableKeyboardInterrupt();
-            // Put more here.
         };
 
-        Kernel.prototype.krnInterruptHandler = function (irq, params) {
-            // This is the Interrupt Handler Routine.  Pages 8 and 560. {
-            // Trace our entrance here so we can compute Interrupt Latency by analyzing the log file later on.  Page 766.
-            this.krnTrace("Handling IRQ~" + irq);
-
+        Kernel.prototype.interruptHandler = function (irq, params) {
+            this.interrupt = true;
+            this.krnTrace("Handling InterruptType~" + irq);
             switch (irq) {
-                case TIMER_IRQ:
-                    this.krnTimerISR(); // Kernel built-in routine for timers (not the clock).
+                case 0 /* TIMER */:
+                    this.interrupt = true;
+                    this.krnTimerISR();
                     break;
-                case KEYBOARD_IRQ:
-                    _krnKeyboardDriver.isr(params); // Kernel mode device driver
+                case 1 /* KEYBOARD */:
+                    _krnKeyboardDriver.isr(params);
 
                     while (_KernelInputQueue.getSize() > 0) {
                         _OsShell.isr(_KernelInputQueue.dequeue());
                     }
+                    this.interrupt = false;
+                    break;
+                case 2 /* SYSTEM_CALL */:
+                    this.handleSystemCall(params);
+                    break;
+                case 3 /* BREAK */:
+                    this.handleBreak(params);
+                    break;
+                case 4 /* RETURN */:
+                    this.handleReturn(params);
+                    break;
+                case 5 /* SEG_FAULT */:
+                    this.handleBreak(params);
+                    TSOS.Stdio.putStringLn("Segfault. Program killed");
                     break;
                 default:
                     this.krnTrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");
             }
+        };
+
+        Kernel.prototype.handleReturn = function (address) {
+            if (this.running.getPid() === this.shellPCB.getPid()) {
+                this.saveProcessorState();
+            } else {
+                _CPU.programCounter = address;
+            }
+
+            _CPU.setUserMode();
+            this.interrupt = false;
+        };
+
+        Kernel.prototype.handleSystemCall = function (params) {
+            if (this.running === undefined || params[1] == true) {
+                this.contextSwitch(this.shellPCB.getPid());
+            }
+
+            _CPU.setKernelMode();
+
+            switch (params[0]) {
+                case 1:
+                    TSOS.Stdio.putString(params[2].toString());
+                    this.interrupt = false;
+                    break;
+                case 2:
+                    //I can't figure out the segment so I need the whole address.
+                    //Therefor, I overwrite the accumulator with the base register
+                    _CPU.accumulator = new TSOS.Byte(_CPU.lowAddress.getHighByte().asNumber());
+                    _CPU.programCounter = new TSOS.Short(0x0342);
+                    break;
+                case 3:
+                    _CPU.programCounter = new TSOS.Short(0x0304);
+                    break;
+                case 4:
+                    _CPU.programCounter = new TSOS.Short(0x0308);
+                    break;
+                case 5:
+                    _CPU.programCounter = new TSOS.Short(0x0319);
+                    break;
+                case 6:
+                    _CPU.programCounter = new TSOS.Short(0x0300);
+                    break;
+                case 7:
+                    _CPU.accumulator = new TSOS.Byte(this.memoryManager.getBounds(params[2]).lower().getHighByte().asNumber());
+                    _CPU.programCounter = new TSOS.Short(0x035D);
+                    break;
+            }
+        };
+
+        Kernel.prototype.handleBreak = function (mode) {
+            var save = this.running;
+            this.saveProcessorState();
+            TSOS.liblos.deallocate(save.getSegment());
+            this.memoryManager.deallocate(save.getSegment());
+            ;
+            this.interrupt = false;
+            this.print(save);
+            TSOS.Stdio.putStringLn("Program finished");
         };
 
         Kernel.prototype.krnTimerISR = function () {
@@ -124,31 +285,10 @@ var TSOS;
             // Check multiprogramming parameters and enforce quanta here. Call the scheduler / context switch here if necessary.
         };
 
-        //
-        // System Calls... that generate software interrupts via tha Application Programming Interface library routines.
-        //
-        // Some ideas:
-        // - ReadConsole
-        // - WriteConsole
-        // - CreateProcess
-        // - ExitProcess
-        // - WaitForProcessToExit
-        // - CreateFile
-        // - OpenFile
-        // - ReadFile
-        // - WriteFile
-        // - CloseFile
-        //
-        // OS Utility Routines
-        //
         Kernel.prototype.krnTrace = function (msg) {
-            // Check globals to see if trace is set ON.  If so, then (maybe) log the message.
             if (_Trace) {
                 if (msg === "Idle") {
-                    // We can't log every idle clock pulse because it would lag the browser very quickly.
                     if (_OSclock % 10 == 0) {
-                        // Check the CPU_CLOCK_INTERVAL in globals.ts for an
-                        // idea of the tick rate and adjust this line accordingly.
                         TSOS.Control.hostLog(msg, "OS");
                     }
                 } else {
@@ -159,9 +299,7 @@ var TSOS;
 
         Kernel.prototype.krnTrapError = function (msg) {
             TSOS.Control.hostLog("OS ERROR - TRAP: " + msg);
-            _Console.bluescreen();
-            _Console.writeWhiteText(msg);
-            this.krnShutdown();
+            this.shutdown();
         };
         return Kernel;
     })();

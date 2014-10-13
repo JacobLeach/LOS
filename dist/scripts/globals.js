@@ -9,16 +9,13 @@ Operating System Concepts 8th edition by Silberschatz, Galvin, and Gagne.  ISBN 
 // Global "CONSTANTS" (There is currently no const or final or readonly type annotation in TypeScript.)
 // TODO: Make a global object and use that instead of the "_" naming convention in the global namespace.
 //
+var singleStep = true;
+var execute = true;
+
 var APP_NAME = "LOS";
 var APP_VERSION = "1.0.0";
 
-var CPU_CLOCK_INTERVAL = 100;
-
-var TIMER_IRQ = 0;
-
-// NOTE: The timer is different from hardware/host clock pulses. Don't confuse these.
-var KEYBOARD_IRQ = 1;
-var TERMINAL_IRQ = 2;
+var CPU_CLOCK_INTERVAL = 10;
 
 var ESCAPE = String.fromCharCode(27);
 var TAB = String.fromCharCode(9);
@@ -41,7 +38,7 @@ var _DefaultFontFamily = "sans";
 var _DefaultFontSize = 13;
 var _FontHeightMargin = 4;
 
-var _Trace = true;
+var _Trace = false;
 
 // The OS Kernel and its queues.
 var _Kernel;

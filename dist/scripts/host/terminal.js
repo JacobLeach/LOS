@@ -16,6 +16,8 @@ var TSOS;
             this.lastCharEscape = false;
             this.ansi = false;
             this.ansiNumber = "";
+            this.chars = [[]];
+            this.blink = false;
             /*
             * This controls whether or not the terminal is canonical or not.
             *
@@ -33,41 +35,51 @@ var TSOS;
             this.context = canvas.getContext('2d');
             this.context.font = this.font;
 
-            this.charWidth = this.context.measureText(' ').width;
+            this.charWidth = this.context.measureText(String.fromCharCode(9608)).width + 1;
             this.lineHeight = 12 * 1.5;
 
             //This is a bit of a hack
             //I chose -2 because it works
             this.columns = Math.round(this.canvas.height / this.charWidth) - 2;
             this.rows = Math.round(this.canvas.width / this.lineHeight) - 2;
-        }
-        /*
-        * HACKS HACKS HACKS!
-        *
-        * But seriously, this is a hack. Should be done with ANSI control codes,
-        * not a function call. That would be more true to a real life terminal.
-        * However, I am a bit lazy and ANSI and color is a lot of crap.
-        */
-        Terminal.prototype.bluescreen = function () {
-            this.cursor.x = 0;
-            console.log("FUCK");
-            this.cursor.y = 0;
-            this.context.fillStyle = '#0000FF';
-            this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
-            this.context.fillStyle = '#000000';
-        };
 
-        //HACKS HACKS HACKS!
-        //Yea same here. ANSI control codes but that's too much work.
-        Terminal.prototype.writeWhiteText = function (text) {
-            this.context.fillStyle = '#FFFFFF';
-            for (var i = 0; i < text.length; i++) {
-                this.printChar(text.charAt(i), false);
+            for (var i = 0; i < this.columns; i++) {
+                this.chars[i] = [];
+                for (var j = 0; j < this.rows; j++) {
+                    this.chars[i][j] = ' ';
+                }
+            }
+            /*
+            * This is why Javascript is the worst language EVER invented
+            * AND why it needs to burn in hell for all eternity.
+            * AND why web development is literally complete shit.
+            * AND why I fucking hate it with a fucking passion that
+            * FUCKING burns hotter than NINETY FUCKING THOUSANND
+            * MASSIVE BURNING FUCKING SUNS
+            /
+            this.intervalID = setInterval(
+            (function(self) {
+            return function() {
+            self.printCursor();
+            }
+            })(this), 500);
+            */
+        }
+        Terminal.prototype.printCursor = function () {
+            if (this.blink) {
+                this.clear();
+                this.drawChar(this.chars[this.cursor.x][this.cursor.y]);
+                this.blink = false;
+            } else {
+                this.clear();
+                this.drawChar(String.fromCharCode(9608));
+                this.blink = true;
             }
         };
 
-        Terminal.prototype.getCursorPosition = function () {
-            return { x: this.cursor.x, y: this.cursor.y };
+        Terminal.prototype.write = function (data) {
+            var asChar = String.fromCharCode(data.asNumber());
+            this.handleChar(asChar, true);
         };
 
         Terminal.prototype.handleInputChar = function () {
@@ -131,7 +143,7 @@ var TSOS;
                             this.moveCursorUp(1);
                             break;
                         case 'G':
-                            this.cursor.x = amount;
+                            this.cursor.x = 0;
                             break;
                         case 'J':
                             this.clearAll();
@@ -153,8 +165,11 @@ var TSOS;
 
                 if (!this.canonical || this.inputBuffer.length > 0) {
                     //Do not print the backspace
+                    this.clear();
+                    this.drawChar(this.chars[this.cursor.x][this.cursor.y]);
                     this.moveCursorLeft(1);
                     this.clear();
+                    this.chars[this.cursor.x][this.cursor.y] = ' ';
 
                     //Pop the erased character
                     this.inputBuffer.pop();
@@ -168,7 +183,7 @@ var TSOS;
 
                 //Remove the newline
                 input += this.inputBuffer.shift();
-
+                this.clear();
                 this.makeNewLine();
             } else if (!this.canonical) {
                 input += this.inputBuffer.shift();
@@ -176,11 +191,8 @@ var TSOS;
 
             //If it is a printable character, print it
             if (((this.echo && isInput) || !isInput) && printable) {
+                this.chars[this.cursor.x][this.cursor.y] = character;
                 this.printChar(character, true);
-            }
-
-            if ((!this.canonical || character === ENTER) && isInput) {
-                _KernelInterruptQueue.enqueue(new TSOS.Interrupt(TSOS.Kernel.TERMINAL_IRQ, input));
             }
         };
 
@@ -237,11 +249,6 @@ var TSOS;
         };
 
         Terminal.prototype.printChar = function (character, clearLine) {
-            if (this.cursor.x == this.columns) {
-                this.cursor.x = 0;
-                this.makeNewLine();
-            }
-
             //Get coordinates on the screen
             var coords = this.cursorToCoords();
 
@@ -255,6 +262,16 @@ var TSOS;
 
             //Advance the cursor
             this.cursor.x++;
+
+            if (this.cursor.x == this.columns) {
+                this.cursor.x = 0;
+                this.makeNewLine();
+            }
+        };
+
+        Terminal.prototype.drawChar = function (character) {
+            var coords = this.cursorToCoords();
+            this.context.fillText(character, coords.x, coords.y);
         };
 
         Terminal.prototype.clear = function () {

@@ -15,6 +15,10 @@
    <script type="text/javascript" src="dist/scripts/host/control.js"></script>
    <script type="text/javascript" src="dist/scripts/host/devices.js"></script>
    <script type="text/javascript" src="dist/scripts/host/cpu.js"></script>
+   <script type="text/javascript" src="dist/scripts/host/memory.js"></script>
+   <script type="text/javascript" src="dist/scripts/host/terminal.js"></script>
+   <script type="text/javascript" src="dist/scripts/host/deviceController.js"></script>
+   <script type="text/javascript" src="dist/scripts/host/programReader.js"></script>
 
    <!-- Virtual OS Routines: Make sure Kernel code is last, since it needs those above it. -->
    <script type="text/javascript" src="dist/scripts/os/interrupt.js"></script>
@@ -25,8 +29,11 @@
    <script type="text/javascript" src="dist/scripts/os/shellCommand.js"></script>
    <script type="text/javascript" src="dist/scripts/os/userCommand.js"></script>
    <script type="text/javascript" src="dist/scripts/os/kernel.js"></script>
-   <script type="text/javascript" src="dist/scripts/os/terminal.js"></script>
    <script type="text/javascript" src="dist/scripts/os/stdio.js"></script>
+   <script type="text/javascript" src="dist/scripts/os/pcb.js"></script>
+   <script type="text/javascript" src="dist/scripts/os/memoryManager.js"></script>
+   <script type="text/javascript" src="dist/scripts/os/liblos.js"></script>
+
 
    <!-- Other Routines -->
    <script type="text/javascript" src="dist/scripts/utils.js"></script>
@@ -64,21 +71,72 @@
              value="Reset"
              tabindex="2"
              onclick="TSOS.Control.hostBtnReset_click(this);">
+      
+      <input type="button"
+             id = "stepOn"
+             name="brnReset"
+             class="normal_button"
+             value="Step Mode"
+             onclick="TSOS.Control.stepMode_click(this);">
+      
+      <input type="button"
+             id = "step"
+             name="brnReset"
+             class="normal_button"
+             disabled="disabled"
+             value="Step"
+             onclick="TSOS.Control.step_click(this);">
    </div>
+   <div style="float: left;"> 
+     <div id="cpu">
+        <label>
+           CPU
+           <br>
+           <textarea name="cpuBox"
+                     id  ="cpuBox"
+                     rows="8"
+                     cols="38"
+           ></textarea>
+        </label>
+     </div>
+     <div id="pcb">
+        <label>
+           PCB
+           <br>
+           <textarea name="pcbBox"
+                     id  ="pcbBox"
+                     rows="9"
+                     cols="38"
+           ></textarea>
+        </label>
+     </div>
+     <div id="memory" style="float: left;">
+        <label>
+           Memory
+           <br>
+           <textarea name="memoryBox"
+                     id  ="memoryBox"
+                     rows="32"
+                     cols="38"
+           ></textarea>
+        </label>
+     </div>
+   </div>
+   <div style="float: left;">
+      <div id="divStatus" style="clear: both; margin:4px; width:500px; height:40px;  border:1px solid black; background: white;">
+     <p id="status" style="float: left;"></p><p id="time" style="float: right;"></p>
+      </div>
 
-   <div id="divConsole" style="margin:4px; width:500px; height:500px; float:left;">
-      <canvas id="display"
+      <div id="divConsole" style="margin:4px; width:500px; height:500px; float:left;">
+        <canvas id="display"
               width="500px"
               height="500px"
               tabindex="3">
-      </canvas>
-   </div>
-   
-   <div id="divStatus" style="clear: both; margin:4px; width:500px; height:40px; float:left; border:1px solid black; background: white;">
-     <p id="status" style="float: left;"></p><p id="time" style="float: right;"></p>
+        </canvas>
+      </div>
    </div>
 
-   <div id="divLog" style="margin-left:520px;">
+   <div id="divLog" style="float: left;">
       <label>
          Host Log
          <br>
@@ -90,7 +148,7 @@
       </label>
    </div>
 
-   <div id="divUserProgramInput" style="margin-left:520px;">
+   <div id="divUserProgramInput" style="float: left;">
       <label>
          User Program Input
          <br>
@@ -101,6 +159,7 @@
          ></textarea>
       </label>
    </div>
+   
 
 </div>
 

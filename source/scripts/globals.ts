@@ -12,15 +12,13 @@
 // Global "CONSTANTS" (There is currently no const or final or readonly type annotation in TypeScript.)
 // TODO: Make a global object and use that instead of the "_" naming convention in the global namespace.
 //
+var singleStep = true;
+var execute = true;
+
 var APP_NAME: string    = "LOS";   
 var APP_VERSION: string = "1.0.0"; 
 
-var CPU_CLOCK_INTERVAL: number = 100;   // This is in ms, or milliseconds, so 1000 = 1 second.
-
-var TIMER_IRQ: number = 0;  // Pages 23 (timer), 9 (interrupts), and 561 (interrupt priority).
-                            // NOTE: The timer is different from hardware/host clock pulses. Don't confuse these.
-var KEYBOARD_IRQ: number = 1;
-var TERMINAL_IRQ: number = 2;
+var CPU_CLOCK_INTERVAL: number = 10;   // This is in ms, or milliseconds, so 1000 = 1 second.
 
 var ESCAPE    = String.fromCharCode(27);
 var TAB       = String.fromCharCode(9);
@@ -44,7 +42,7 @@ var _DefaultFontSize = 13;
 var _FontHeightMargin = 4;              // Additional space added to font size when advancing a line.
 
 
-var _Trace: boolean = true;  // Default the OS trace to be on.
+var _Trace: boolean = false;  // Default the OS trace to be on.
 
 // The OS Kernel and its queues.
 var _Kernel: TSOS.Kernel;

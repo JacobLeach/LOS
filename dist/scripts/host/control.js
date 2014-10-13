@@ -80,14 +80,12 @@ var TSOS;
 
             // ... Create and initialize the CPU (because it's part of the hardware)  ...
             _CPU = new TSOS.Cpu();
-            _CPU.init();
 
             // ... then set the host clock pulse ...
             _hardwareClockID = setInterval(TSOS.Devices.hostClockPulse, CPU_CLOCK_INTERVAL);
 
             // .. and call the OS Kernel Bootstrap routine.
             _Kernel = new TSOS.Kernel();
-            _Kernel.krnBootstrap();
         };
 
         Control.hostBtnHaltOS_click = function (btn) {
@@ -95,7 +93,7 @@ var TSOS;
             Control.hostLog("Attempting Kernel shutdown.", "host");
 
             // Call the OS shutdown routine.
-            _Kernel.krnShutdown();
+            TSOS.liblos.shutdown();
 
             // Stop the interval that's simulating our clock pulse.
             clearInterval(_hardwareClockID);
@@ -108,6 +106,20 @@ var TSOS;
             // That boolean parameter is the 'forceget' flag. When it is true it causes the page to always
             // be reloaded from the server. If it is false or not specified the browser may reload the
             // page from its cache, which is not what we want.
+        };
+
+        Control.stepMode_click = function (button) {
+            if (execute) {
+                execute = false;
+                document.getElementById("step").disabled = false;
+            } else {
+                execute = true;
+                document.getElementById("step").disabled = true;
+            }
+        };
+
+        Control.step_click = function (button) {
+            singleStep = true;
         };
         return Control;
     })();
