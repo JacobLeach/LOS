@@ -253,15 +253,15 @@ module TSOS {
       
       if(!this.zFlag) {
         //In kernel mode you address all of memory
-        if(this.kernelMode)
+        /*if(this.kernelMode)
         {
           this.programCounter = new Short(this.programCounter.asNumber() + branchAmount);
         }
         else
-        {
+        {*/
           //We have to wrap when branch goes above our memory range
           this.programCounter = new Short((this.programCounter.asNumber() + branchAmount) % 256);
-        }
+        //}
       }
     }
     
