@@ -524,6 +524,7 @@ module TSOS {
 
           if(valid && code != "" && ((code.length % 2) == 0)) 
           {
+            Stdio.putString("Loading...");
             var pid: number = liblos.loadProgram();
             if(pid === undefined)
             {
@@ -531,7 +532,6 @@ module TSOS {
             }
             else 
             {
-              Stdio.putString("Loading...");
               Stdio.putStringLn(" Done.");
               Stdio.putStringLn("Pid: " + pid);
             }

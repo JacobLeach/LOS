@@ -449,11 +449,11 @@ var TSOS;
             }
 
             if (valid && code != "" && ((code.length % 2) == 0)) {
+                TSOS.Stdio.putString("Loading...");
                 var pid = TSOS.liblos.loadProgram();
                 if (pid === undefined) {
                     TSOS.Stdio.putStringLn("No space.");
                 } else {
-                    TSOS.Stdio.putString("Loading...");
                     TSOS.Stdio.putStringLn(" Done.");
                     TSOS.Stdio.putStringLn("Pid: " + pid);
                 }

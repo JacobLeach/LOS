@@ -295,6 +295,7 @@ module TSOS
       }
       else
       {
+        console.log("FUYCK YOU");
         _CPU.programCounter = address;
       }
       
@@ -316,6 +317,7 @@ module TSOS
         case 1:
           Stdio.putString(params[2].toString());
           this.interrupt = false;
+          _CPU.setUserMode();
           break;
         case 2:
           //I can't figure out the segment so I need the whole address.

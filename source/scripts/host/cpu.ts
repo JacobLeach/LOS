@@ -213,15 +213,15 @@ module TSOS {
     }
     
     private storeYRegisterInMemory() {
-      this.deviceController.setByte(this.loadAddressFromMemory(), this.yRegister);
+      this.setByte(this.loadAddressFromMemory(), this.yRegister);
     }
     
     private storeAccumulatorInMemory() {
-      this.deviceController.setByte(this.loadAddressFromMemory(), this.accumulator);
+      this.setByte(this.loadAddressFromMemory(), this.accumulator);
     }
     
     private storeXRegisterInMemory() {
-      this.deviceController.setByte(this.loadAddressFromMemory(), this.xRegister);
+      this.setByte(this.loadAddressFromMemory(), this.xRegister);
     }
 
     private loadYRegisterWithConstant() {
@@ -321,7 +321,6 @@ module TSOS {
     }
 
     private systemCall(): void {
-      console.log("WHAT WHAT");
       this.setKernelMode();
       this.returnRegister = this.programCounter;
       _KernelInterruptQueue.enqueue(new Interrupt(InterruptType.SYSTEM_CALL, [this.xRegister.asNumber(), false, this.yRegister.asNumber()]));
