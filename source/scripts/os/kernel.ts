@@ -18,10 +18,19 @@ module TSOS
 
     public forkExec(): number
     {
-      var pcb: PCB = new PCB(this.memoryManager.allocate());
-      this.ready.push(pcb); 
-      
-      return pcb.getPid();
+      var segment = this.memoryManager.allocate();
+
+      if(segment === undefined)
+      {
+        return undefined;
+      }
+      else
+      {
+        var pcb: PCB = new PCB(segment);
+        this.ready.push(pcb); 
+        
+        return pcb.getPid();
+      }
     }
     
     private contextSwitch(pid: number): void

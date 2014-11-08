@@ -524,10 +524,17 @@ module TSOS {
 
           if(valid && code != "" && ((code.length % 2) == 0)) 
           {
-            Stdio.putString("Loading...");
             var pid: number = liblos.loadProgram();
-            Stdio.putStringLn(" Done.");
-            Stdio.putStringLn("Pid: " + pid);
+            if(pid === undefined)
+            {
+              Stdio.putStringLn("No space.");
+            }
+            else 
+            {
+              Stdio.putString("Loading...");
+              Stdio.putStringLn(" Done.");
+              Stdio.putStringLn("Pid: " + pid);
+            }
           }
           else 
           {

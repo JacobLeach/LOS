@@ -51,10 +51,16 @@ var TSOS;
             //_GLaDOS.afterStartup();
         }
         Kernel.prototype.forkExec = function () {
-            var pcb = new TSOS.PCB(this.memoryManager.allocate());
-            this.ready.push(pcb);
+            var segment = this.memoryManager.allocate();
 
-            return pcb.getPid();
+            if (segment === undefined) {
+                return undefined;
+            } else {
+                var pcb = new TSOS.PCB(segment);
+                this.ready.push(pcb);
+
+                return pcb.getPid();
+            }
         };
 
         Kernel.prototype.contextSwitch = function (pid) {
