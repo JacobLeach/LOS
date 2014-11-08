@@ -65,8 +65,8 @@ module TSOS {
       this.memory[0x031F] = new Byte(0x11);
       this.memory[0x0320] = new Byte(0xFF);//Load from program reader into x
       this.memory[0x0321] = new Byte(0x8E);
-      this.memory[0x0322] = new Byte(0x00);
-      this.memory[0x0323] = new Byte(0x00);//Store x reg in zero (increment this)
+      this.memory[0x0322] = new Byte(0x00);//Store x reg in zero (increment this)
+      this.memory[0x0323] = new Byte(0x00);
       this.memory[0x0324] = new Byte(0xEE); 
       this.memory[0x0325] = new Byte(0x1A); 
       this.memory[0x0326] = new Byte(0x03); 

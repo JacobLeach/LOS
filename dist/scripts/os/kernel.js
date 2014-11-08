@@ -57,6 +57,7 @@ var TSOS;
                 return undefined;
             } else {
                 var pcb = new TSOS.PCB(segment);
+                _KernelInterruptQueue.enqueue(new TSOS.Interrupt(2 /* SYSTEM_CALL */, [5, true, segment.lower()]));
                 this.ready.push(pcb);
 
                 return pcb.getPid();
@@ -263,6 +264,8 @@ var TSOS;
                     _CPU.programCounter = new TSOS.Short(0x0308);
                     break;
                 case 5:
+                    console.log(params[2].getHighByte());
+                    _Memory.setByte(new TSOS.Short(0x0323), params[2].getHighByte());
                     _CPU.programCounter = new TSOS.Short(0x0319);
                     break;
                 case 6:

@@ -4,7 +4,6 @@ module TSOS
   {
     public static loadProgram(): number
     {
-      _KernelInterruptQueue.enqueue(new Interrupt(InterruptType.SYSTEM_CALL, [5, true]));
       return _Kernel.forkExec();
     }
     

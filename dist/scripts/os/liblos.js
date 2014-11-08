@@ -4,7 +4,6 @@ var TSOS;
         function liblos() {
         }
         liblos.loadProgram = function () {
-            _KernelInterruptQueue.enqueue(new TSOS.Interrupt(2 /* SYSTEM_CALL */, [5, true]));
             return _Kernel.forkExec();
         };
 

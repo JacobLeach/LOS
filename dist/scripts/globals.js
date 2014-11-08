@@ -26,6 +26,7 @@ var BACKSPACE = String.fromCharCode(8);
 //
 // Global Variables
 //
+var _Memory;
 var _CPU;
 
 var _OSclock = 0;

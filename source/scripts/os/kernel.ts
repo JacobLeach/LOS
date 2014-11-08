@@ -27,6 +27,7 @@ module TSOS
       else
       {
         var pcb: PCB = new PCB(segment);
+        _KernelInterruptQueue.enqueue(new Interrupt(InterruptType.SYSTEM_CALL, [5, true, segment.lower()]));
         this.ready.push(pcb); 
         
         return pcb.getPid();
@@ -329,6 +330,8 @@ module TSOS
           _CPU.programCounter = new Short(0x0308);
           break;
         case 5:
+          console.log(params[2].getHighByte());
+          _Memory.setByte(new Short(0x0323), params[2].getHighByte());
           _CPU.programCounter = new Short(0x0319);
           break;
         case 6:
