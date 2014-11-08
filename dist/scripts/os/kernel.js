@@ -10,7 +10,7 @@ var TSOS;
             this.ready = [];
             this.waiting = new TSOS.Queue();
             this.running = undefined;
-            this.cyclesLeft = 0;
+            this.cyclesLeft = 6;
 
             /*
             * Reserve the segment system calls are stored in.
@@ -98,7 +98,7 @@ var TSOS;
                 this.running.setKernelMode(_CPU.kernelMode);
 
                 if (this.running.getPid() != this.shellPCB.getPid()) {
-                    this.ready.push(this.running);
+                    this.waiting.enqueue(this.running);
                 }
                 this.print(this.running);
 
@@ -172,11 +172,23 @@ var TSOS;
                 if (singleStep) {
                     _CPU.cycle();
                     singleStep = false;
+
+                    if (!this.interrupt && this.running.getPid() != this.shellPCB.getPid()) {
+                        this.cyclesLeft--;
+                        console.log("HEAD: " + this.cyclesLeft);
+                    }
                 }
             } else if (this.waiting.getSize() > 0) {
                 this.contextSwitch();
+                this.cyclesLeft = 6;
             } else {
                 this.krnTrace("Idle");
+            }
+
+            if (this.cyclesLeft === 0 && this.waiting.getSize() > 0) {
+                console.log("JOB");
+                this.contextSwitch();
+                this.cyclesLeft = 6;
             }
         };
 

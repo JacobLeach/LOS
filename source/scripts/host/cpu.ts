@@ -291,7 +291,7 @@ module TSOS {
       var value: Byte = this.getByte(address);
       var newValue: Byte = value.increment();
 
-      this.deviceController.setByte(address, newValue);
+      this.setByte(address, newValue);
     }
     
     private loadInstructionConstant(): Byte {

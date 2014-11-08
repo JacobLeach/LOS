@@ -266,7 +266,7 @@ var TSOS;
             var value = this.getByte(address);
             var newValue = value.increment();
 
-            this.deviceController.setByte(address, newValue);
+            this.setByte(address, newValue);
         };
 
         Cpu.prototype.loadInstructionConstant = function () {
