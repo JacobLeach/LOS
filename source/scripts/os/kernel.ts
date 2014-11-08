@@ -13,6 +13,7 @@ module TSOS
     private running: PCB;
     private shellPCB: PCB;
     private memoryManager: MemoryManager;
+    private cyclesLeft: number;
     
     public interrupt: boolean;
 
@@ -34,39 +35,33 @@ module TSOS
       }
     }
     
-    private contextSwitch(pid: number): void
+    private contextSwitch(): void
     {
-      if(!_CPU.isExecuting())
-      {
-        this.saveProcessorState();
-        this.setProcessorState(pid);
-      }
-      else if(this.shellPCB.getPid() == pid)
-      {
-        if(_CPU.isExecuting())
-        {
-          this.waiting.enqueue(this.running);
-        }
+      this.saveProcessorState();
+      this.setProcessorState(this.waiting.dequeue());
+    }
 
-        this.saveProcessorState();
-        this.setProcessorState(pid);
-      }
-      else
+    private runShell(): void
+    {
+      if(_CPU.isExecuting())
       {
-        for(var i: number = 0; i < this.ready.length; i++)
-        {
-          if(this.ready[i].getPid() == pid)
-          {
-            this.waiting.enqueue(this.ready[i]);
-            this.ready.splice(i, 1);
-          }
-        }
+        this.waiting.front(this.running);
       }
+
+      this.saveProcessorState();
+      this.setProcessorState(this.shellPCB);
     }
 
     public runProgram(pid: number): void
     {
-      this.contextSwitch(pid);
+      for(var i: number = 0; i < this.ready.length; i++)
+      {
+        if(this.ready[i].getPid() == pid)
+        {
+          this.waiting.enqueue(this.ready[i]);
+          this.ready.splice(i, 1);
+        }
+      }
     }
 
     private saveProcessorState()
@@ -92,22 +87,15 @@ module TSOS
       _CPU.executing = false;
     }
 
-    private setProcessorState(pid: number): void
+    private setProcessorState(pcb: PCB): void
     {
-      if(pid == this.shellPCB.getPid())
+      if(pcb.getPid() == this.shellPCB.getPid())
       {
         this.running = this.shellPCB;
       }
       else
       {
-        for(var i: number = 0; i < this.ready.length; i++)
-        {
-          if(this.ready[i].getPid() == pid)
-          {
-            this.running = this.ready[i]; 
-            this.ready.splice(i, 1);
-          }
-        }
+        this.running = pcb; 
       }
 
       _CPU.programCounter = this.running.getProgramCounter();  
@@ -159,6 +147,7 @@ module TSOS
       this.ready = [];
       this.waiting = new Queue();
       this.running = undefined;
+      this.cyclesLeft = 0;
 
       /*
        * Reserve the segment system calls are stored in.
@@ -229,10 +218,11 @@ module TSOS
           _CPU.cycle();
           singleStep = false;
         }
+        
       } 
       else if(this.waiting.getSize() > 0)
       {
-        this.contextSwitch(this.waiting.dequeue().getPid()); 
+        this.contextSwitch(); 
       }
       else 
       {                      
@@ -307,7 +297,7 @@ module TSOS
     {
       if(this.running === undefined || params[1] == true)
       {
-        this.contextSwitch(this.shellPCB.getPid());
+        this.runShell();
       }
 
       _CPU.setKernelMode();

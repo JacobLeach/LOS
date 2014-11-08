@@ -10,6 +10,7 @@ var TSOS;
             this.ready = [];
             this.waiting = new TSOS.Queue();
             this.running = undefined;
+            this.cyclesLeft = 0;
 
             /*
             * Reserve the segment system calls are stored in.
@@ -64,29 +65,27 @@ var TSOS;
             }
         };
 
-        Kernel.prototype.contextSwitch = function (pid) {
-            if (!_CPU.isExecuting()) {
-                this.saveProcessorState();
-                this.setProcessorState(pid);
-            } else if (this.shellPCB.getPid() == pid) {
-                if (_CPU.isExecuting()) {
-                    this.waiting.enqueue(this.running);
-                }
+        Kernel.prototype.contextSwitch = function () {
+            this.saveProcessorState();
+            this.setProcessorState(this.waiting.dequeue());
+        };
 
-                this.saveProcessorState();
-                this.setProcessorState(pid);
-            } else {
-                for (var i = 0; i < this.ready.length; i++) {
-                    if (this.ready[i].getPid() == pid) {
-                        this.waiting.enqueue(this.ready[i]);
-                        this.ready.splice(i, 1);
-                    }
-                }
+        Kernel.prototype.runShell = function () {
+            if (_CPU.isExecuting()) {
+                this.waiting.front(this.running);
             }
+
+            this.saveProcessorState();
+            this.setProcessorState(this.shellPCB);
         };
 
         Kernel.prototype.runProgram = function (pid) {
-            this.contextSwitch(pid);
+            for (var i = 0; i < this.ready.length; i++) {
+                if (this.ready[i].getPid() == pid) {
+                    this.waiting.enqueue(this.ready[i]);
+                    this.ready.splice(i, 1);
+                }
+            }
         };
 
         Kernel.prototype.saveProcessorState = function () {
@@ -109,16 +108,11 @@ var TSOS;
             _CPU.executing = false;
         };
 
-        Kernel.prototype.setProcessorState = function (pid) {
-            if (pid == this.shellPCB.getPid()) {
+        Kernel.prototype.setProcessorState = function (pcb) {
+            if (pcb.getPid() == this.shellPCB.getPid()) {
                 this.running = this.shellPCB;
             } else {
-                for (var i = 0; i < this.ready.length; i++) {
-                    if (this.ready[i].getPid() == pid) {
-                        this.running = this.ready[i];
-                        this.ready.splice(i, 1);
-                    }
-                }
+                this.running = pcb;
             }
 
             _CPU.programCounter = this.running.getProgramCounter();
@@ -180,7 +174,7 @@ var TSOS;
                     singleStep = false;
                 }
             } else if (this.waiting.getSize() > 0) {
-                this.contextSwitch(this.waiting.dequeue().getPid());
+                this.contextSwitch();
             } else {
                 this.krnTrace("Idle");
             }
@@ -242,7 +236,7 @@ var TSOS;
 
         Kernel.prototype.handleSystemCall = function (params) {
             if (this.running === undefined || params[1] == true) {
-                this.contextSwitch(this.shellPCB.getPid());
+                this.runShell();
             }
 
             _CPU.setKernelMode();
