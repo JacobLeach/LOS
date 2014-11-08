@@ -87,6 +87,27 @@ module TSOS
       _CPU.executing = false;
     }
 
+    private saveProcessorState1()
+    {
+      if(this.running != undefined)
+      {
+        this.running.setProgramCounter(_CPU.programCounter);  
+        this.running.setAccumulator(_CPU.accumulator);
+        this.running.setXRegister(_CPU.xRegister);
+        this.running.setYRegister(_CPU.yRegister);
+        this.running.setZFlag(_CPU.zFlag);
+        this.running.setKernelMode(_CPU.kernelMode);
+        
+        if(this.running.getPid() != this.shellPCB.getPid())
+        {
+        }
+        this.print(this.running);
+        
+        this.running = undefined;
+      }
+      
+      _CPU.executing = false;
+    }
     private setProcessorState(pcb: PCB): void
     {
       if(pcb.getPid() == this.shellPCB.getPid())
@@ -283,7 +304,12 @@ module TSOS
           this.handleReturn(params);  
           break;
         case InterruptType.SEG_FAULT:
-          this.handleBreak(params);
+          var save = this.running;
+          this.saveProcessorState1();
+          liblos.deallocate(save.getSegment());
+          this.memoryManager.deallocate(save.getSegment());;
+          this.interrupt = false;
+          this.print(save);
           Stdio.putStringLn("Segfault. Program killed");
           break;
         default:
@@ -353,7 +379,7 @@ module TSOS
     private handleBreak(mode): void
     {
       var save = this.running;
-      this.saveProcessorState();
+      this.saveProcessorState1();
       liblos.deallocate(save.getSegment());
       this.memoryManager.deallocate(save.getSegment());;
       this.interrupt = false;
