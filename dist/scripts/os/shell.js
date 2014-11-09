@@ -95,16 +95,12 @@ var TSOS;
             sc = new TSOS.ShellCommand(this.ps, "ps", "- list loaded programs");
             this.commandList[sc.command] = sc;
 
-            /*sc = new ShellCommand(this.kill,
-            "kill",
-            "<pid> - kills a program");
+            sc = new TSOS.ShellCommand(this.kill, "kill", "<pid> - kills a program");
             this.commandList[sc.command] = sc;
-            
-            sc = new ShellCommand(this.clearmem,
-            "clearmem",
-            "- clears memory");
+
+            sc = new TSOS.ShellCommand(this.clearmem, "clearmem", "- clears memory");
             this.commandList[sc.command] = sc;
-            */
+
             sc = new TSOS.ShellCommand(this.runall, "runall", "- runs all programs");
             this.commandList[sc.command] = sc;
 
@@ -122,15 +118,14 @@ var TSOS;
             TSOS.liblos.ps();
         };
 
-        /*public kill(args): void
-        {
-        liblos.kill(args[0]);
-        }
-        
-        public clearmem(args): void
-        {
-        liblos.clearmem();
-        }*/
+        Shell.prototype.kill = function (args) {
+            TSOS.liblos.kill(args[0]);
+        };
+
+        Shell.prototype.clearmem = function (args) {
+            TSOS.liblos.clearmem();
+        };
+
         Shell.prototype.runall = function (args) {
             TSOS.liblos.runall();
         };

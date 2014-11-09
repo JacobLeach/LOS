@@ -73,6 +73,46 @@ module TSOS
       this.setProcessorState(this.shellPCB);
     }
 
+    public kill(pid: number): void
+    {
+      if(this.running != undefined && this.running.getPid() === pid)
+      {
+        _CPU.executing = false;
+        this.running = undefined;
+      }
+      else
+      {
+        for(var i = 0; i < this.ready.length; i++)
+        {
+          console.log(this.ready[i].getPid());
+          console.log(pid);
+          if(this.ready[i].getPid() == pid)  
+          {
+            this.memoryManager.deallocate(this.ready[i].getSegment());;
+            liblos.deallocate(this.ready[i].getSegment());
+            this.ready.splice(i, 1);
+          }
+        }
+
+        for(var i = 0; i < this.waiting.q.length; i++)
+        {
+          if(this.waiting.q[i].getPid() == pid)  
+          {
+            this.memoryManager.deallocate(this.waiting.q[i].getSegment());;
+            liblos.deallocate(this.waiting.q[i].getSegment());
+            this.waiting.q.splice(i, 1);
+          }
+        }
+      }
+    }
+
+    public killAll(): void
+    {
+      this.running = undefined;
+      this.waiting = new Queue();
+      this.ready = [];
+    }
+
     public runAll(): void
     {
       for(var i: number = 0; i < this.ready.length;)

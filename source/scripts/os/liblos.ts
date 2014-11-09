@@ -20,6 +20,13 @@ module TSOS
       }
     }
 
+    public static clearmem(): void
+    {
+      this.deallocate(0);
+      this.deallocate(1);
+      this.deallocate(2);
+    }
+
     public static runall(): void
     {
       _Kernel.runAll();
@@ -53,7 +60,7 @@ module TSOS
 
     public static kill(pid: number): void
     {
-      
+      _Kernel.kill(pid);
     }
   }
 }

@@ -136,7 +136,7 @@ module TSOS {
                                   "- list loaded programs");
             this.commandList[sc.command] = sc;
             
-            /*sc = new ShellCommand(this.kill,
+            sc = new ShellCommand(this.kill,
                                   "kill",
                                   "<pid> - kills a program");
             this.commandList[sc.command] = sc;
@@ -145,7 +145,7 @@ module TSOS {
                                   "clearmem",
                                   "- clears memory");
             this.commandList[sc.command] = sc;
-            */
+            
             sc = new ShellCommand(this.runall,
                                   "runall",
                                   "- runs all programs");
@@ -169,7 +169,7 @@ module TSOS {
           liblos.ps(); 
         } 
         
-        /*public kill(args): void 
+        public kill(args): void 
         {
           liblos.kill(args[0]); 
         } 
@@ -177,7 +177,7 @@ module TSOS {
         public clearmem(args): void 
         {
           liblos.clearmem(); 
-        }*/ 
+        } 
 
         public runall(args): void
         {

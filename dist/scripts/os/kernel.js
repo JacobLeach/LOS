@@ -96,6 +96,39 @@ var TSOS;
             this.setProcessorState(this.shellPCB);
         };
 
+        Kernel.prototype.kill = function (pid) {
+            if (this.running != undefined && this.running.getPid() === pid) {
+                _CPU.executing = false;
+                this.running = undefined;
+            } else {
+                for (var i = 0; i < this.ready.length; i++) {
+                    console.log(this.ready[i].getPid());
+                    console.log(pid);
+                    if (this.ready[i].getPid() == pid) {
+                        this.memoryManager.deallocate(this.ready[i].getSegment());
+                        ;
+                        TSOS.liblos.deallocate(this.ready[i].getSegment());
+                        this.ready.splice(i, 1);
+                    }
+                }
+
+                for (var i = 0; i < this.waiting.q.length; i++) {
+                    if (this.waiting.q[i].getPid() == pid) {
+                        this.memoryManager.deallocate(this.waiting.q[i].getSegment());
+                        ;
+                        TSOS.liblos.deallocate(this.waiting.q[i].getSegment());
+                        this.waiting.q.splice(i, 1);
+                    }
+                }
+            }
+        };
+
+        Kernel.prototype.killAll = function () {
+            this.running = undefined;
+            this.waiting = new TSOS.Queue();
+            this.ready = [];
+        };
+
         Kernel.prototype.runAll = function () {
             for (var i = 0; i < this.ready.length;) {
                 this.waiting.enqueue(this.ready[i]);

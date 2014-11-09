@@ -17,6 +17,12 @@ var TSOS;
             }
         };
 
+        liblos.clearmem = function () {
+            this.deallocate(0);
+            this.deallocate(1);
+            this.deallocate(2);
+        };
+
         liblos.runall = function () {
             _Kernel.runAll();
         };
@@ -43,6 +49,7 @@ var TSOS;
         };
 
         liblos.kill = function (pid) {
+            _Kernel.kill(pid);
         };
         return liblos;
     })();
