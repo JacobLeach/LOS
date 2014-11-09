@@ -28,6 +28,7 @@ var BACKSPACE = String.fromCharCode(8);
 //
 var _Memory;
 var _CPU;
+var _Quant = 6;
 
 var _OSclock = 0;
 

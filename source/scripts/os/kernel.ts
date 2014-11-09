@@ -34,6 +34,27 @@ module TSOS
         return pcb.getPid();
       }
     }
+
+    public ps(): boolean[]
+    {
+      var pids = [];
+      for(var i: number = 0; i < this.ready.length; i++)
+      {
+        pids[this.ready[i].getPid()] = true; 
+      }
+
+      for(var i: number = 0; i < this.waiting.q.length; i++)
+      {
+        pids[this.waiting.q[i].getPid()] = true; 
+      }
+
+      if(this.running != undefined)
+      {
+        pids[this.running.getPid()] = true;
+      }
+
+      return pids;
+    }
     
     private contextSwitch(): void
     {
@@ -50,6 +71,15 @@ module TSOS
 
       this.saveProcessorState();
       this.setProcessorState(this.shellPCB);
+    }
+
+    public runAll(): void
+    {
+      for(var i: number = 0; i < this.ready.length;)
+      {
+          this.waiting.enqueue(this.ready[i]);
+          this.ready.splice(i, 1);
+      }
     }
 
     public runProgram(pid: number): void
@@ -168,7 +198,7 @@ module TSOS
       this.ready = [];
       this.waiting = new Queue();
       this.running = undefined;
-      this.cyclesLeft = 6;
+      this.cyclesLeft = _Quant;
 
       /*
        * Reserve the segment system calls are stored in.
@@ -250,7 +280,7 @@ module TSOS
       else if(this.waiting.getSize() > 0)
       {
         this.contextSwitch(); 
-        this.cyclesLeft = 6;
+        this.cyclesLeft = _Quant;
       }
       else 
       {                      
@@ -261,7 +291,7 @@ module TSOS
       {
         console.log("JOB");
         this.contextSwitch();
-        this.cyclesLeft = 6;
+        this.cyclesLeft = _Quant;
       }
     }
 

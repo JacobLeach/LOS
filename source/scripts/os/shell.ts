@@ -130,6 +130,31 @@ module TSOS {
                                   "run",
                                   "- runs a program");
             this.commandList[sc.command] = sc;
+            
+            sc = new ShellCommand(this.ps,
+                                  "ps",
+                                  "- list loaded programs");
+            this.commandList[sc.command] = sc;
+            
+            /*sc = new ShellCommand(this.kill,
+                                  "kill",
+                                  "<pid> - kills a program");
+            this.commandList[sc.command] = sc;
+            
+            sc = new ShellCommand(this.clearmem,
+                                  "clearmem",
+                                  "- clears memory");
+            this.commandList[sc.command] = sc;
+            */
+            sc = new ShellCommand(this.runall,
+                                  "runall",
+                                  "- runs all programs");
+            this.commandList[sc.command] = sc;
+            
+            sc = new ShellCommand(this.quantum,
+                                  "quantum",
+                                  "<ticks> - Changes round robin quantum");
+            this.commandList[sc.command] = sc;
 
             // processes - list the running processes and their IDs
             // kill <id> - kills the specified process id.
@@ -137,6 +162,31 @@ module TSOS {
             //
             // Display the initial prompt.
             this.putPrompt();
+        }
+
+        public ps(args): void 
+        {
+          liblos.ps(); 
+        } 
+        
+        /*public kill(args): void 
+        {
+          liblos.kill(args[0]); 
+        } 
+        
+        public clearmem(args): void 
+        {
+          liblos.clearmem(); 
+        }*/ 
+
+        public runall(args): void
+        {
+          liblos.runall();
+        }
+        
+        public quantum(args): void
+        {
+          _Quant = args[0];
         }
 
         public putPrompt() {

@@ -6,6 +6,24 @@ module TSOS
     {
       return _Kernel.forkExec();
     }
+
+    public static ps(): void
+    {
+      var a = _Kernel.ps();  
+      
+      for(var i = 0; i < a.length; i++)
+      {
+        if(a[i] === true)
+        {
+          Stdio.putStringLn("Pid: " + i);
+        }
+      }
+    }
+
+    public static runall(): void
+    {
+      _Kernel.runAll();
+    }
     
     public static runProgram(pid: number): void
     {

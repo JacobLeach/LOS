@@ -10,7 +10,7 @@ var TSOS;
             this.ready = [];
             this.waiting = new TSOS.Queue();
             this.running = undefined;
-            this.cyclesLeft = 6;
+            this.cyclesLeft = _Quant;
 
             /*
             * Reserve the segment system calls are stored in.
@@ -65,6 +65,23 @@ var TSOS;
             }
         };
 
+        Kernel.prototype.ps = function () {
+            var pids = [];
+            for (var i = 0; i < this.ready.length; i++) {
+                pids[this.ready[i].getPid()] = true;
+            }
+
+            for (var i = 0; i < this.waiting.q.length; i++) {
+                pids[this.waiting.q[i].getPid()] = true;
+            }
+
+            if (this.running != undefined) {
+                pids[this.running.getPid()] = true;
+            }
+
+            return pids;
+        };
+
         Kernel.prototype.contextSwitch = function () {
             this.saveProcessorState();
             this.setProcessorState(this.waiting.dequeue());
@@ -77,6 +94,13 @@ var TSOS;
 
             this.saveProcessorState();
             this.setProcessorState(this.shellPCB);
+        };
+
+        Kernel.prototype.runAll = function () {
+            for (var i = 0; i < this.ready.length;) {
+                this.waiting.enqueue(this.ready[i]);
+                this.ready.splice(i, 1);
+            }
         };
 
         Kernel.prototype.runProgram = function (pid) {
@@ -198,7 +222,7 @@ var TSOS;
                 }
             } else if (this.waiting.getSize() > 0) {
                 this.contextSwitch();
-                this.cyclesLeft = 6;
+                this.cyclesLeft = _Quant;
             } else {
                 this.krnTrace("Idle");
             }
@@ -206,7 +230,7 @@ var TSOS;
             if (this.cyclesLeft === 0 && this.waiting.getSize() > 0) {
                 console.log("JOB");
                 this.contextSwitch();
-                this.cyclesLeft = 6;
+                this.cyclesLeft = _Quant;
             }
         };
 

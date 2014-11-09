@@ -7,6 +7,20 @@ var TSOS;
             return _Kernel.forkExec();
         };
 
+        liblos.ps = function () {
+            var a = _Kernel.ps();
+
+            for (var i = 0; i < a.length; i++) {
+                if (a[i] === true) {
+                    TSOS.Stdio.putStringLn("Pid: " + i);
+                }
+            }
+        };
+
+        liblos.runall = function () {
+            _Kernel.runAll();
+        };
+
         liblos.runProgram = function (pid) {
             _Kernel.runProgram(pid);
         };
