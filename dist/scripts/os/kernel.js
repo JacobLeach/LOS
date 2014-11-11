@@ -250,20 +250,18 @@ var TSOS;
 
                     if (!this.interrupt && this.running.getPid() != this.shellPCB.getPid()) {
                         this.cyclesLeft--;
-                        console.log("HEAD: " + this.cyclesLeft);
                     }
                 }
             } else if (this.waiting.getSize() > 0) {
-                this.contextSwitch();
-                this.cyclesLeft = _Quant;
+                _KernelInterruptQueue.front(new TSOS.Interrupt(7 /* SWITCH */, []));
+                console.log("JOB1111");
             } else {
-                this.krnTrace("Idle");
+                //this.krnTrace("Idle");
             }
 
             if (this.cyclesLeft === 0 && this.waiting.getSize() > 0) {
+                _KernelInterruptQueue.front(new TSOS.Interrupt(7 /* SWITCH */, []));
                 console.log("JOB");
-                this.contextSwitch();
-                this.cyclesLeft = _Quant;
             }
         };
 
@@ -319,6 +317,12 @@ var TSOS;
                     this.interrupt = false;
                     this.print(save);
                     TSOS.Stdio.putStringLn("Invalid op. Program killed");
+                    break;
+                case 7 /* SWITCH */:
+                    this.contextSwitch();
+                    this.krnTrace("Context switch: " + this.running.getPid());
+                    this.cyclesLeft = _Quant;
+                    this.interrupt = false;
                     break;
                 default:
                     this.krnTrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");

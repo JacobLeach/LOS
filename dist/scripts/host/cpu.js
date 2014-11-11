@@ -36,7 +36,6 @@ var TSOS;
         };
 
         Cpu.prototype.cycle = function () {
-            _Kernel.krnTrace('CPU cycle');
             this.printCPU();
             this.loadInstruction();
             this.programCounter = this.programCounter.increment();

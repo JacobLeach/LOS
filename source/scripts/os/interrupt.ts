@@ -38,6 +38,7 @@ module TSOS {
     BREAK,
     RETURN,
     SEG_FAULT,
-    INVALID_OP
+    INVALID_OP,
+    SWITCH
   }
 }
