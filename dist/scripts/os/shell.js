@@ -92,11 +92,46 @@ var TSOS;
             sc = new TSOS.ShellCommand(this.shellRun, "run", "- runs a program");
             this.commandList[sc.command] = sc;
 
+            sc = new TSOS.ShellCommand(this.ps, "ps", "- list loaded programs");
+            this.commandList[sc.command] = sc;
+
+            sc = new TSOS.ShellCommand(this.kill, "kill", "<pid> - kills a program");
+            this.commandList[sc.command] = sc;
+
+            sc = new TSOS.ShellCommand(this.clearmem, "clearmem", "- clears memory");
+            this.commandList[sc.command] = sc;
+
+            sc = new TSOS.ShellCommand(this.runall, "runall", "- runs all programs");
+            this.commandList[sc.command] = sc;
+
+            sc = new TSOS.ShellCommand(this.quantum, "quantum", "<ticks> - Changes round robin quantum");
+            this.commandList[sc.command] = sc;
+
             // processes - list the running processes and their IDs
             // kill <id> - kills the specified process id.
             //
             // Display the initial prompt.
             this.putPrompt();
+        };
+
+        Shell.prototype.ps = function (args) {
+            TSOS.liblos.ps();
+        };
+
+        Shell.prototype.kill = function (args) {
+            TSOS.liblos.kill(args[0]);
+        };
+
+        Shell.prototype.clearmem = function (args) {
+            TSOS.liblos.clearmem();
+        };
+
+        Shell.prototype.runall = function (args) {
+            TSOS.liblos.runall();
+        };
+
+        Shell.prototype.quantum = function (args) {
+            _Quant = args[0];
         };
 
         Shell.prototype.putPrompt = function () {
@@ -451,8 +486,12 @@ var TSOS;
             if (valid && code != "" && ((code.length % 2) == 0)) {
                 TSOS.Stdio.putString("Loading...");
                 var pid = TSOS.liblos.loadProgram();
-                TSOS.Stdio.putStringLn(" Done.");
-                TSOS.Stdio.putStringLn("Pid: " + pid);
+                if (pid === undefined) {
+                    TSOS.Stdio.putStringLn("No space.");
+                } else {
+                    TSOS.Stdio.putStringLn(" Done.");
+                    TSOS.Stdio.putStringLn("Pid: " + pid);
+                }
             } else {
                 TSOS.Stdio.putStringLn("You done goofed.");
             }

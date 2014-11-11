@@ -7,6 +7,7 @@ module TSOS {
 
     constructor() {
       this.memory = new Memory();
+      _Memory = this.memory;
       
       this.printMemory();
 

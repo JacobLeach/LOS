@@ -10,6 +10,7 @@ var TSOS;
             this.ready = [];
             this.waiting = new TSOS.Queue();
             this.running = undefined;
+            this.cyclesLeft = _Quant;
 
             /*
             * Reserve the segment system calls are stored in.
@@ -51,35 +52,97 @@ var TSOS;
             //_GLaDOS.afterStartup();
         }
         Kernel.prototype.forkExec = function () {
-            var pcb = new TSOS.PCB(this.memoryManager.allocate());
-            this.ready.push(pcb);
+            var segment = this.memoryManager.allocate();
 
-            return pcb.getPid();
+            if (segment === undefined) {
+                return undefined;
+            } else {
+                var pcb = new TSOS.PCB(segment);
+                _KernelInterruptQueue.enqueue(new TSOS.Interrupt(2 /* SYSTEM_CALL */, [5, true, segment.lower()]));
+                this.ready.push(pcb);
+
+                return pcb.getPid();
+            }
         };
 
-        Kernel.prototype.contextSwitch = function (pid) {
-            if (!_CPU.isExecuting()) {
-                this.saveProcessorState();
-                this.setProcessorState(pid);
-            } else if (this.shellPCB.getPid() == pid) {
-                if (_CPU.isExecuting()) {
-                    this.waiting.enqueue(this.running);
-                }
+        Kernel.prototype.ps = function () {
+            var pids = [];
+            for (var i = 0; i < this.ready.length; i++) {
+                pids[this.ready[i].getPid()] = true;
+            }
 
-                this.saveProcessorState();
-                this.setProcessorState(pid);
+            for (var i = 0; i < this.waiting.q.length; i++) {
+                pids[this.waiting.q[i].getPid()] = true;
+            }
+
+            if (this.running != undefined) {
+                pids[this.running.getPid()] = true;
+            }
+
+            return pids;
+        };
+
+        Kernel.prototype.contextSwitch = function () {
+            this.saveProcessorState();
+            this.setProcessorState(this.waiting.dequeue());
+        };
+
+        Kernel.prototype.runShell = function () {
+            if (_CPU.isExecuting()) {
+                this.waiting.front(this.running);
+            }
+
+            this.saveProcessorState();
+            this.setProcessorState(this.shellPCB);
+        };
+
+        Kernel.prototype.kill = function (pid) {
+            if (this.running != undefined && this.running.getPid() === pid) {
+                _CPU.executing = false;
+                this.running = undefined;
             } else {
                 for (var i = 0; i < this.ready.length; i++) {
+                    console.log(this.ready[i].getPid());
+                    console.log(pid);
                     if (this.ready[i].getPid() == pid) {
-                        this.waiting.enqueue(this.ready[i]);
+                        this.memoryManager.deallocate(this.ready[i].getSegment());
+                        ;
+                        TSOS.liblos.deallocate(this.ready[i].getSegment());
                         this.ready.splice(i, 1);
+                    }
+                }
+
+                for (var i = 0; i < this.waiting.q.length; i++) {
+                    if (this.waiting.q[i].getPid() == pid) {
+                        this.memoryManager.deallocate(this.waiting.q[i].getSegment());
+                        ;
+                        TSOS.liblos.deallocate(this.waiting.q[i].getSegment());
+                        this.waiting.q.splice(i, 1);
                     }
                 }
             }
         };
 
+        Kernel.prototype.killAll = function () {
+            this.running = undefined;
+            this.waiting = new TSOS.Queue();
+            this.ready = [];
+        };
+
+        Kernel.prototype.runAll = function () {
+            for (var i = 0; i < this.ready.length;) {
+                this.waiting.enqueue(this.ready[i]);
+                this.ready.splice(i, 1);
+            }
+        };
+
         Kernel.prototype.runProgram = function (pid) {
-            this.contextSwitch(pid);
+            for (var i = 0; i < this.ready.length; i++) {
+                if (this.ready[i].getPid() == pid) {
+                    this.waiting.enqueue(this.ready[i]);
+                    this.ready.splice(i, 1);
+                }
+            }
         };
 
         Kernel.prototype.saveProcessorState = function () {
@@ -92,7 +155,7 @@ var TSOS;
                 this.running.setKernelMode(_CPU.kernelMode);
 
                 if (this.running.getPid() != this.shellPCB.getPid()) {
-                    this.ready.push(this.running);
+                    this.waiting.enqueue(this.running);
                 }
                 this.print(this.running);
 
@@ -102,16 +165,29 @@ var TSOS;
             _CPU.executing = false;
         };
 
-        Kernel.prototype.setProcessorState = function (pid) {
-            if (pid == this.shellPCB.getPid()) {
+        Kernel.prototype.saveProcessorState1 = function () {
+            if (this.running != undefined) {
+                this.running.setProgramCounter(_CPU.programCounter);
+                this.running.setAccumulator(_CPU.accumulator);
+                this.running.setXRegister(_CPU.xRegister);
+                this.running.setYRegister(_CPU.yRegister);
+                this.running.setZFlag(_CPU.zFlag);
+                this.running.setKernelMode(_CPU.kernelMode);
+
+                if (this.running.getPid() != this.shellPCB.getPid()) {
+                }
+                this.print(this.running);
+
+                this.running = undefined;
+            }
+
+            _CPU.executing = false;
+        };
+        Kernel.prototype.setProcessorState = function (pcb) {
+            if (pcb.getPid() == this.shellPCB.getPid()) {
                 this.running = this.shellPCB;
             } else {
-                for (var i = 0; i < this.ready.length; i++) {
-                    if (this.ready[i].getPid() == pid) {
-                        this.running = this.ready[i];
-                        this.ready.splice(i, 1);
-                    }
-                }
+                this.running = pcb;
             }
 
             _CPU.programCounter = this.running.getProgramCounter();
@@ -171,11 +247,21 @@ var TSOS;
                 if (singleStep) {
                     _CPU.cycle();
                     singleStep = false;
+
+                    if (!this.interrupt && this.running.getPid() != this.shellPCB.getPid()) {
+                        this.cyclesLeft--;
+                    }
                 }
             } else if (this.waiting.getSize() > 0) {
-                this.contextSwitch(this.waiting.dequeue().getPid());
+                _KernelInterruptQueue.front(new TSOS.Interrupt(7 /* SWITCH */, []));
+                console.log("JOB1111");
             } else {
-                this.krnTrace("Idle");
+                //this.krnTrace("Idle");
+            }
+
+            if (this.cyclesLeft === 0 && this.waiting.getSize() > 0) {
+                _KernelInterruptQueue.front(new TSOS.Interrupt(7 /* SWITCH */, []));
+                console.log("JOB");
             }
         };
 
@@ -213,8 +299,30 @@ var TSOS;
                     this.handleReturn(params);
                     break;
                 case 5 /* SEG_FAULT */:
-                    this.handleBreak(params);
+                    var save = this.running;
+                    this.saveProcessorState1();
+                    TSOS.liblos.deallocate(save.getSegment());
+                    this.memoryManager.deallocate(save.getSegment());
+                    ;
+                    this.interrupt = false;
+                    this.print(save);
                     TSOS.Stdio.putStringLn("Segfault. Program killed");
+                    break;
+                case 6 /* INVALID_OP */:
+                    var save = this.running;
+                    this.saveProcessorState1();
+                    TSOS.liblos.deallocate(save.getSegment());
+                    this.memoryManager.deallocate(save.getSegment());
+                    ;
+                    this.interrupt = false;
+                    this.print(save);
+                    TSOS.Stdio.putStringLn("Invalid op. Program killed");
+                    break;
+                case 7 /* SWITCH */:
+                    this.contextSwitch();
+                    this.krnTrace("Context switch: " + this.running.getPid());
+                    this.cyclesLeft = _Quant;
+                    this.interrupt = false;
                     break;
                 default:
                     this.krnTrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");
@@ -225,6 +333,7 @@ var TSOS;
             if (this.running.getPid() === this.shellPCB.getPid()) {
                 this.saveProcessorState();
             } else {
+                console.log("FUYCK YOU");
                 _CPU.programCounter = address;
             }
 
@@ -234,7 +343,7 @@ var TSOS;
 
         Kernel.prototype.handleSystemCall = function (params) {
             if (this.running === undefined || params[1] == true) {
-                this.contextSwitch(this.shellPCB.getPid());
+                this.runShell();
             }
 
             _CPU.setKernelMode();
@@ -243,6 +352,7 @@ var TSOS;
                 case 1:
                     TSOS.Stdio.putString(params[2].toString());
                     this.interrupt = false;
+                    _CPU.setUserMode();
                     break;
                 case 2:
                     //I can't figure out the segment so I need the whole address.
@@ -257,6 +367,8 @@ var TSOS;
                     _CPU.programCounter = new TSOS.Short(0x0308);
                     break;
                 case 5:
+                    console.log(params[2].getHighByte());
+                    _Memory.setByte(new TSOS.Short(0x0323), params[2].getHighByte());
                     _CPU.programCounter = new TSOS.Short(0x0319);
                     break;
                 case 6:
@@ -271,7 +383,7 @@ var TSOS;
 
         Kernel.prototype.handleBreak = function (mode) {
             var save = this.running;
-            this.saveProcessorState();
+            this.saveProcessorState1();
             TSOS.liblos.deallocate(save.getSegment());
             this.memoryManager.deallocate(save.getSegment());
             ;

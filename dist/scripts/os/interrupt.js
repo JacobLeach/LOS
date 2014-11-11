@@ -28,6 +28,8 @@ var TSOS;
         InterruptType[InterruptType["BREAK"] = 3] = "BREAK";
         InterruptType[InterruptType["RETURN"] = 4] = "RETURN";
         InterruptType[InterruptType["SEG_FAULT"] = 5] = "SEG_FAULT";
+        InterruptType[InterruptType["INVALID_OP"] = 6] = "INVALID_OP";
+        InterruptType[InterruptType["SWITCH"] = 7] = "SWITCH";
     })(TSOS.InterruptType || (TSOS.InterruptType = {}));
     var InterruptType = TSOS.InterruptType;
 })(TSOS || (TSOS = {}));

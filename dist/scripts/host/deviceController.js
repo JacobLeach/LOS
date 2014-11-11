@@ -3,6 +3,7 @@ var TSOS;
     var DeviceController = (function () {
         function DeviceController() {
             this.memory = new TSOS.Memory();
+            _Memory = this.memory;
 
             this.printMemory();
 

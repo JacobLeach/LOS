@@ -4,8 +4,30 @@ var TSOS;
         function liblos() {
         }
         liblos.loadProgram = function () {
-            _KernelInterruptQueue.enqueue(new TSOS.Interrupt(2 /* SYSTEM_CALL */, [5, true]));
             return _Kernel.forkExec();
+        };
+
+        liblos.ps = function () {
+            var a = _Kernel.ps();
+
+            for (var i = 0; i < a.length; i++) {
+                if (a[i] === true) {
+                    TSOS.Stdio.putStringLn("Pid: " + i);
+                }
+            }
+        };
+
+        liblos.clearmem = function () {
+            _Kernel.memoryManager.deallocate(0);
+            _Kernel.memoryManager.deallocate(1);
+            _Kernel.memoryManager.deallocate(2);
+            this.deallocate(0);
+            this.deallocate(1);
+            this.deallocate(2);
+        };
+
+        liblos.runall = function () {
+            _Kernel.runAll();
         };
 
         liblos.runProgram = function (pid) {
@@ -30,6 +52,7 @@ var TSOS;
         };
 
         liblos.kill = function (pid) {
+            _Kernel.kill(pid);
         };
         return liblos;
     })();

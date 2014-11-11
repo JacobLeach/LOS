@@ -29,7 +29,9 @@ var BACKSPACE = String.fromCharCode(8);
 //
 // Global Variables
 //
+var _Memory: TSOS.Memory;
 var _CPU: TSOS.Cpu;  // Utilize TypeScript's type annotation system to ensure that _CPU is an instance of the Cpu class.
+var _Quant: number = 6;
 
 var _OSclock: number = 0;  // Page 23.
 
@@ -42,7 +44,7 @@ var _DefaultFontSize = 13;
 var _FontHeightMargin = 4;              // Additional space added to font size when advancing a line.
 
 
-var _Trace: boolean = false;  // Default the OS trace to be on.
+var _Trace: boolean = true;  // Default the OS trace to be on.
 
 // The OS Kernel and its queues.
 var _Kernel: TSOS.Kernel;

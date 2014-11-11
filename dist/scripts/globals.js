@@ -26,7 +26,9 @@ var BACKSPACE = String.fromCharCode(8);
 //
 // Global Variables
 //
+var _Memory;
 var _CPU;
+var _Quant = 6;
 
 var _OSclock = 0;
 
@@ -38,7 +40,7 @@ var _DefaultFontFamily = "sans";
 var _DefaultFontSize = 13;
 var _FontHeightMargin = 4;
 
-var _Trace = false;
+var _Trace = true;
 
 // The OS Kernel and its queues.
 var _Kernel;

@@ -36,7 +36,6 @@ var TSOS;
         };
 
         Cpu.prototype.cycle = function () {
-            _Kernel.krnTrace('CPU cycle');
             this.printCPU();
             this.loadInstruction();
             this.programCounter = this.programCounter.increment();
@@ -191,15 +190,15 @@ var TSOS;
         };
 
         Cpu.prototype.storeYRegisterInMemory = function () {
-            this.deviceController.setByte(this.loadAddressFromMemory(), this.yRegister);
+            this.setByte(this.loadAddressFromMemory(), this.yRegister);
         };
 
         Cpu.prototype.storeAccumulatorInMemory = function () {
-            this.deviceController.setByte(this.loadAddressFromMemory(), this.accumulator);
+            this.setByte(this.loadAddressFromMemory(), this.accumulator);
         };
 
         Cpu.prototype.storeXRegisterInMemory = function () {
-            this.deviceController.setByte(this.loadAddressFromMemory(), this.xRegister);
+            this.setByte(this.loadAddressFromMemory(), this.xRegister);
         };
 
         Cpu.prototype.loadYRegisterWithConstant = function () {
@@ -266,7 +265,7 @@ var TSOS;
             var value = this.getByte(address);
             var newValue = value.increment();
 
-            this.deviceController.setByte(address, newValue);
+            this.setByte(address, newValue);
         };
 
         Cpu.prototype.loadInstructionConstant = function () {
@@ -296,7 +295,6 @@ var TSOS;
         };
 
         Cpu.prototype.systemCall = function () {
-            console.log("WHAT WHAT");
             this.setKernelMode();
             this.returnRegister = this.programCounter;
             _KernelInterruptQueue.enqueue(new TSOS.Interrupt(2 /* SYSTEM_CALL */, [this.xRegister.asNumber(), false, this.yRegister.asNumber()]));
