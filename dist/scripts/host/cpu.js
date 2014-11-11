@@ -18,9 +18,8 @@ var TSOS;
             this.executing = false;
 
             this.deviceController = new TSOS.DeviceController();
-            this.printCPU();
         }
-        Cpu.prototype.printCPU = function () {
+        Cpu.prototype.toString = function () {
             var cpuAsString = "";
 
             cpuAsString += "PC: " + this.programCounter.asNumber().toString(16);
@@ -32,11 +31,10 @@ var TSOS;
             cpuAsString += "\nlowAddress: " + this.lowAddress.asNumber().toString(16);
             cpuAsString += "\nhighAddress: " + this.highAddress.asNumber().toString(16);
 
-            document.getElementById("cpuBox").value = cpuAsString;
+            return cpuAsString;
         };
 
         Cpu.prototype.cycle = function () {
-            this.printCPU();
             this.loadInstruction();
             this.programCounter = this.programCounter.increment();
             this.executeInstruction();

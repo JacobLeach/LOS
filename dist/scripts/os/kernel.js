@@ -266,6 +266,7 @@ var TSOS;
             } else if (_CPU.isExecuting()) {
                 if (singleStep) {
                     _CPU.cycle();
+                    document.getElementById("cpuBox").value = _CPU.toString();
                     singleStep = false;
 
                     if (!this.interrupt && this.running.getPid() != this.shellPCB.getPid()) {

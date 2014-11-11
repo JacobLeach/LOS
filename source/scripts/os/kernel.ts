@@ -329,6 +329,7 @@ module TSOS
         if(singleStep)
         {
           _CPU.cycle();
+          (<HTMLInputElement>document.getElementById("cpuBox")).value = _CPU.toString();
           singleStep = false;
 
           if(!this.interrupt && this.running.getPid() != this.shellPCB.getPid())

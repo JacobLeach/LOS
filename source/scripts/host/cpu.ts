@@ -37,11 +37,9 @@ module TSOS {
       this.executing = false;
 
       this.deviceController = new DeviceController();
-      this.printCPU();
     }
-
     
-    public printCPU(): void
+    public toString(): string
     {
       var cpuAsString = "";
 
@@ -54,11 +52,10 @@ module TSOS {
       cpuAsString += "\nlowAddress: " + this.lowAddress.asNumber().toString(16);
       cpuAsString += "\nhighAddress: " + this.highAddress.asNumber().toString(16);
 
-      (<HTMLInputElement>document.getElementById("cpuBox")).value = cpuAsString;
+      return cpuAsString;
     }
 
     public cycle(): void {
-      this.printCPU();
       this.loadInstruction(); 
       this.programCounter = this.programCounter.increment();
       this.executeInstruction();
