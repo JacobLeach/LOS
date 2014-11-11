@@ -4,38 +4,39 @@
   A basic modifed 6502 CPU simulation.
 ------------ */
 
-module TSOS {
+module TSOS 
+{
 
-  export class Cpu {
+  export class Cpu 
+  {
     public programCounter: Short;
     public accumulator: Byte;
     public xRegister: Byte;
     public yRegister: Byte;
     public instructionRegister: Byte;
     public zFlag: boolean;
+    public cFlag: boolean;
     public kernelMode: boolean;
     
     public lowAddress: Short;
     public highAddress: Short;
 
     public returnRegister: Short;
-
     public executing: boolean;
-
     private deviceController: DeviceController;
 
-    constructor() {
+    constructor() 
+    {
       this.programCounter = new Short(0);
       this.accumulator = new Byte(0);
       this.xRegister = new Byte(0);
       this.yRegister = new Byte(0);
       this.zFlag = false;
+      this.cFlag = false;
       this.kernelMode = false;
-
       this.lowAddress = new Short(0);
       this.highAddress = new Short(0);
       this.executing = false;
-
       this.deviceController = new DeviceController();
     }
     
@@ -55,38 +56,47 @@ module TSOS {
       return cpuAsString;
     }
 
-    public cycle(): void {
+    public cycle(): void 
+    {
       this.loadInstruction(); 
       this.programCounter = this.programCounter.increment();
       this.executeInstruction();
     }
 
-    public isExecuting(): boolean {
+    public isExecuting(): boolean 
+    {
       return this.executing;
     }
 
-    public isKernelMode(): boolean {
+    public isKernelMode(): boolean 
+    {
       return this.kernelMode;
     }
 
-    public setKernelMode(): void {
+    public setKernelMode(): void 
+    {
       this.kernelMode = true;
     }
 
-    public isUserMode(): boolean {
+    public isUserMode(): boolean 
+    {
       return !this.kernelMode;
     }
 
-    public setUserMode(): void {
+    public setUserMode(): void 
+    {
       this.kernelMode = false;
     }
     
-    private loadInstruction(): void {
+    private loadInstruction(): void 
+    {
       this.instructionRegister = this.getByte(this.programCounter);
     }
 
-    private executeInstruction(): void {
-      switch(this.instructionRegister.asNumber()) {
+    private executeInstruction(): void 
+    {
+      switch(this.instructionRegister.asNumber()) 
+      {
         case 0x00:
           this.programEnd(); 
           break;
@@ -145,7 +155,7 @@ module TSOS {
           this.branchNotEqual();
           break;
         case 0xEA:
-          this.noOperation();
+          //No operation
           break;
         case 0xEC:
           this.compareX();
@@ -165,109 +175,127 @@ module TSOS {
       }
     }
 
-    private compareX(): void {
+    private compareX(): void 
+    {
       this.zFlag = (this.xRegister.asNumber() === this.loadValueFromAddress().asNumber());
     }
     
-    private compareY(): void {
+    private compareY(): void 
+    {
       this.zFlag = (this.yRegister.asNumber() === this.loadValueFromAddress().asNumber());
     }
     
-    private programEnd(): void {
+    private programEnd(): void 
+    {
       this.executing = false;
       _KernelInterruptQueue.enqueue(new Interrupt(InterruptType.BREAK, this.kernelMode));
     }
     
-    private returnFromInterupt(): void {
+    private returnFromInterupt(): void 
+    {
       _Kernel.interrupt = false;
       _KernelInterruptQueue.front(new Interrupt(InterruptType.RETURN, this.returnRegister));
     }
 
-    private jump(): void {
+    private jump(): void 
+    {
       this.programCounter = this.loadAddressFromMemory();  
     }
 
-    private transferXRegisterToAccumulator(): void {
+    private transferXRegisterToAccumulator(): void 
+    {
       this.accumulator = this.xRegister;
     }
     
-    private transferYRegisterToAccumulator(): void {
+    private transferYRegisterToAccumulator(): void 
+    {
       this.accumulator = this.yRegister;
     }
     
-    private transferAccumulatorToXRegister(): void {
+    private transferAccumulatorToXRegister(): void 
+    {
       this.xRegister = this.accumulator;
     }
     
-    private transferAccumulatorToYRegister(): void {
+    private transferAccumulatorToYRegister(): void 
+    {
       this.yRegister = this.accumulator;
     }
 
-    private addWithCarry() {
+    private addWithCarry(): void
+    {
       var value: Byte = this.getByte(this.loadAddressFromMemory());
+      var addition = this.accumulator.asNumber() + value.asNumber(); 
 
-      //We are not implementing carry.
-      //Instead we are just wrapping the value around
-      this.accumulator = new Byte((this.accumulator.asNumber() + value.asNumber()) % 256);
+      if(addition > 255)
+      {
+        this.cFlag = true;
+      }
+
+      this.accumulator = new Byte(addition % 256);
     }
     
-    private storeYRegisterInMemory() {
+    private storeYRegisterInMemory(): void
+    {
       this.setByte(this.loadAddressFromMemory(), this.yRegister);
     }
     
-    private storeAccumulatorInMemory() {
+    private storeAccumulatorInMemory(): void
+    {
       this.setByte(this.loadAddressFromMemory(), this.accumulator);
     }
     
-    private storeXRegisterInMemory() {
+    private storeXRegisterInMemory(): void
+    {
       this.setByte(this.loadAddressFromMemory(), this.xRegister);
     }
 
-    private loadYRegisterWithConstant() {
+    private loadYRegisterWithConstant(): void
+    {
       this.yRegister = this.loadInstructionConstant(); 
     }
 
-    private loadXRegisterWithConstant() {
+    private loadXRegisterWithConstant(): void
+    {
       this.xRegister = this.loadInstructionConstant(); 
     }
     
-    private loadAccumulatorWithConstant() {
+    private loadAccumulatorWithConstant(): void
+    {
       this.accumulator = this.loadInstructionConstant();
     }
     
-    private loadYRegisterFromMemory() {
+    private loadYRegisterFromMemory(): void
+    {
       this.yRegister = this.loadValueFromAddress();
     }
 
-    private loadAccumulatorFromMemory() {
+    private loadAccumulatorFromMemory(): void
+    {
       this.accumulator = this.loadValueFromAddress();
     }
     
-    private loadXRegisterFromMemory() {
+    private loadXRegisterFromMemory(): void
+    {
       this.xRegister = this.loadValueFromAddress();
     }
 
-    private branchNotEqual() {
+    private branchNotEqual(): void
+    {
       var branchAmount: number = this.loadInstructionConstant().asNumber();
       
-      if(!this.zFlag) {
-        //In kernel mode you address all of memory
-        /*if(this.kernelMode)
-        {
-          this.programCounter = new Short(this.programCounter.asNumber() + branchAmount);
-        }
-        else
-        {*/
-          //We have to wrap when branch goes above our memory range
-          this.programCounter = new Short((this.programCounter.asNumber() + branchAmount) % 256);
-        //}
+      if(!this.zFlag) 
+      {
+        this.programCounter = new Short((this.programCounter.asNumber() + branchAmount) % 256);
       }
     }
     
-    private branchEqual() {
+    private branchEqual(): void
+    {
       var branchAmount: number = this.loadInstructionConstant().asNumber();
       
-      if(this.zFlag) {
+      if(this.zFlag) 
+      {
         //In kernel mode you address all of memory
         if(this.kernelMode)
         {
@@ -281,11 +309,8 @@ module TSOS {
       }
     }
 
-    private noOperation() {
-      //Do nothing
-    }
-
-    private increment() {
+    private increment(): void
+    {
       var address: Short = this.loadAddressFromMemory();
       var value: Byte = this.getByte(address);
       var newValue: Byte = value.increment();
@@ -293,7 +318,8 @@ module TSOS {
       this.setByte(address, newValue);
     }
     
-    private loadInstructionConstant(): Byte {
+    private loadInstructionConstant(): Byte 
+    {
       var toReturn: Byte = new Byte(this.getByte(this.programCounter).asNumber());
       
       //The next instruction needs to be in the PC, so increment again
@@ -302,7 +328,8 @@ module TSOS {
       return toReturn;
     }
 
-    private loadAddressFromMemory(): Short {
+    private loadAddressFromMemory(): Short 
+    {
       var lowByte: Byte = new Byte(this.getByte(this.programCounter).asNumber());
 
       //The high address byte is two bytes ahread of the instruction so increment the PC
@@ -315,11 +342,13 @@ module TSOS {
       return bytesToShort(lowByte, highByte);
     }
 
-    private loadValueFromAddress(): Byte {
+    private loadValueFromAddress(): Byte 
+    {
       return new Byte(this.getByte(this.loadAddressFromMemory()).asNumber());
     }
 
-    private systemCall(): void {
+    private systemCall(): void 
+    {
       this.setKernelMode();
       this.returnRegister = this.programCounter;
       _KernelInterruptQueue.enqueue(new Interrupt(InterruptType.SYSTEM_CALL, [this.xRegister.asNumber(), false, this.yRegister.asNumber()]));

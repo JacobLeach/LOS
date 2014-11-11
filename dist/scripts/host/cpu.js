@@ -11,12 +11,11 @@ var TSOS;
             this.xRegister = new TSOS.Byte(0);
             this.yRegister = new TSOS.Byte(0);
             this.zFlag = false;
+            this.cFlag = false;
             this.kernelMode = false;
-
             this.lowAddress = new TSOS.Short(0);
             this.highAddress = new TSOS.Short(0);
             this.executing = false;
-
             this.deviceController = new TSOS.DeviceController();
         }
         Cpu.prototype.toString = function () {
@@ -124,7 +123,6 @@ var TSOS;
                     this.branchNotEqual();
                     break;
                 case 0xEA:
-                    this.noOperation();
                     break;
                 case 0xEC:
                     this.compareX();
@@ -183,10 +181,13 @@ var TSOS;
 
         Cpu.prototype.addWithCarry = function () {
             var value = this.getByte(this.loadAddressFromMemory());
+            var addition = this.accumulator.asNumber() + value.asNumber();
 
-            //We are not implementing carry.
-            //Instead we are just wrapping the value around
-            this.accumulator = new TSOS.Byte((this.accumulator.asNumber() + value.asNumber()) % 256);
+            if (addition > 255) {
+                this.cFlag = true;
+            }
+
+            this.accumulator = new TSOS.Byte(addition % 256);
         };
 
         Cpu.prototype.storeYRegisterInMemory = function () {
@@ -229,16 +230,7 @@ var TSOS;
             var branchAmount = this.loadInstructionConstant().asNumber();
 
             if (!this.zFlag) {
-                //In kernel mode you address all of memory
-                /*if(this.kernelMode)
-                {
-                this.programCounter = new Short(this.programCounter.asNumber() + branchAmount);
-                }
-                else
-                {*/
-                //We have to wrap when branch goes above our memory range
                 this.programCounter = new TSOS.Short((this.programCounter.asNumber() + branchAmount) % 256);
-                //}
             }
         };
 
@@ -254,10 +246,6 @@ var TSOS;
                     this.programCounter = new TSOS.Short((this.programCounter.asNumber() + branchAmount) % 256);
                 }
             }
-        };
-
-        Cpu.prototype.noOperation = function () {
-            //Do nothing
         };
 
         Cpu.prototype.increment = function () {
