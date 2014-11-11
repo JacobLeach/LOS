@@ -141,10 +141,6 @@ var TSOS;
                 case 0xFF:
                     this.systemCall();
                     break;
-                default:
-                    this.executing = false;
-                    _KernelInterruptQueue.enqueue(new TSOS.Interrupt(6 /* INVALID_OP */, this.kernelMode));
-                    break;
             }
         };
 
