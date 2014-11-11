@@ -162,6 +162,9 @@ module TSOS {
         case 0xFF:
           this.systemCall();
           break;
+        default:
+          _Kernel.krnTrace("Invalid opcode: " + 
+              this.instructionRegister.asNumber());
       }
     }
 
