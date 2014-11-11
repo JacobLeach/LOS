@@ -17,13 +17,13 @@ module TSOS
     public zFlag: boolean;
     public cFlag: boolean;
     public kernelMode: boolean;
-    
     public lowAddress: Short;
     public highAddress: Short;
-
     public returnRegister: Short;
     public executing: boolean;
+    
     private deviceController: DeviceController;
+    private clock: Clock;
 
     constructor() 
     {
@@ -37,7 +37,14 @@ module TSOS
       this.lowAddress = new Short(0);
       this.highAddress = new Short(0);
       this.executing = false;
+
       this.deviceController = new DeviceController();
+      this.clock = new Clock(this, CPU_CLOCK_INTERVAL);
+    }
+
+    public tick(): void
+    {
+      console.log("TICK");
     }
     
     public toString(): string

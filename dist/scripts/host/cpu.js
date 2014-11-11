@@ -16,8 +16,14 @@ var TSOS;
             this.lowAddress = new TSOS.Short(0);
             this.highAddress = new TSOS.Short(0);
             this.executing = false;
+
             this.deviceController = new TSOS.DeviceController();
+            this.clock = new TSOS.Clock(this, CPU_CLOCK_INTERVAL);
         }
+        Cpu.prototype.tick = function () {
+            console.log("TICK");
+        };
+
         Cpu.prototype.toString = function () {
             var cpuAsString = "";
 
