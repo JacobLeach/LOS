@@ -7,10 +7,12 @@ module TSOS {
 
     constructor() {
       this.memory = new Memory();
+      _Memory = this.memory;
       
       this.printMemory();
 
       this.terminal = new Terminal(_Canvas);
+      _Console = this.terminal;
       this.programReader = new ProgramReader();
     }
 

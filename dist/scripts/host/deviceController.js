@@ -3,10 +3,12 @@ var TSOS;
     var DeviceController = (function () {
         function DeviceController() {
             this.memory = new TSOS.Memory();
+            _Memory = this.memory;
 
             this.printMemory();
 
             this.terminal = new TSOS.Terminal(_Canvas);
+            _Console = this.terminal;
             this.programReader = new TSOS.ProgramReader();
         }
         DeviceController.prototype.printMemory = function () {

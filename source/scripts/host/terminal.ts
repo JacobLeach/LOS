@@ -87,6 +87,24 @@ module TSOS {
           */
     }
 
+  //HACKS HACKS HACKS!
+    public bluescreen() {
+      this.cursor.x = 0;
+      console.log("FUCK");
+      this.cursor.y = 0;
+      this.context.fillStyle='#0000FF';
+      this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+      this.context.fillStyle='#000000';
+    }
+
+    //HACKS HACKS HACKS!
+    public writeWhiteText(text) {
+      this.context.fillStyle='#FFFFFF';
+      for(var i = 0; i < text.length; i++) {
+        this.printChar(text.charAt(i), false);
+      }
+    }
+
     public printCursor(): void
     {
       if(this.blink)
@@ -175,6 +193,9 @@ module TSOS {
               break;
             case 'G':
               this.cursor.x = 0;
+              break;
+            case 'J':
+              this.clearAll();
               break;
             case 'J':
               this.clearAll();

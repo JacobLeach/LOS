@@ -58,7 +58,6 @@ module TSOS {
     }
 
     public cycle(): void {
-      _Kernel.krnTrace('CPU cycle');      
       this.printCPU();
       this.loadInstruction(); 
       this.programCounter = this.programCounter.increment();
@@ -163,6 +162,9 @@ module TSOS {
         case 0xFF:
           this.systemCall();
           break;
+        default:
+          _Kernel.krnTrace("Invalid opcode: " + 
+              this.instructionRegister.asNumber());
       }
     }
 
@@ -213,15 +215,15 @@ module TSOS {
     }
     
     private storeYRegisterInMemory() {
-      this.deviceController.setByte(this.loadAddressFromMemory(), this.yRegister);
+      this.setByte(this.loadAddressFromMemory(), this.yRegister);
     }
     
     private storeAccumulatorInMemory() {
-      this.deviceController.setByte(this.loadAddressFromMemory(), this.accumulator);
+      this.setByte(this.loadAddressFromMemory(), this.accumulator);
     }
     
     private storeXRegisterInMemory() {
-      this.deviceController.setByte(this.loadAddressFromMemory(), this.xRegister);
+      this.setByte(this.loadAddressFromMemory(), this.xRegister);
     }
 
     private loadYRegisterWithConstant() {
@@ -253,15 +255,15 @@ module TSOS {
       
       if(!this.zFlag) {
         //In kernel mode you address all of memory
-        if(this.kernelMode)
+        /*if(this.kernelMode)
         {
           this.programCounter = new Short(this.programCounter.asNumber() + branchAmount);
         }
         else
-        {
+        {*/
           //We have to wrap when branch goes above our memory range
           this.programCounter = new Short((this.programCounter.asNumber() + branchAmount) % 256);
-        }
+        //}
       }
     }
     
@@ -291,7 +293,7 @@ module TSOS {
       var value: Byte = this.getByte(address);
       var newValue: Byte = value.increment();
 
-      this.deviceController.setByte(address, newValue);
+      this.setByte(address, newValue);
     }
     
     private loadInstructionConstant(): Byte {
@@ -321,7 +323,6 @@ module TSOS {
     }
 
     private systemCall(): void {
-      console.log("WHAT WHAT");
       this.setKernelMode();
       this.returnRegister = this.programCounter;
       _KernelInterruptQueue.enqueue(new Interrupt(InterruptType.SYSTEM_CALL, [this.xRegister.asNumber(), false, this.yRegister.asNumber()]));

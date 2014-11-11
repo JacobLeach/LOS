@@ -37,6 +37,8 @@ module TSOS {
     SYSTEM_CALL,
     BREAK,
     RETURN,
-    SEG_FAULT
+    SEG_FAULT,
+    INVALID_OP,
+    SWITCH
   }
 }

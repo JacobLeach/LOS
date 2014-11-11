@@ -130,6 +130,31 @@ module TSOS {
                                   "run",
                                   "- runs a program");
             this.commandList[sc.command] = sc;
+            
+            sc = new ShellCommand(this.ps,
+                                  "ps",
+                                  "- list loaded programs");
+            this.commandList[sc.command] = sc;
+            
+            sc = new ShellCommand(this.kill,
+                                  "kill",
+                                  "<pid> - kills a program");
+            this.commandList[sc.command] = sc;
+            
+            sc = new ShellCommand(this.clearmem,
+                                  "clearmem",
+                                  "- clears memory");
+            this.commandList[sc.command] = sc;
+            
+            sc = new ShellCommand(this.runall,
+                                  "runall",
+                                  "- runs all programs");
+            this.commandList[sc.command] = sc;
+            
+            sc = new ShellCommand(this.quantum,
+                                  "quantum",
+                                  "<ticks> - Changes round robin quantum");
+            this.commandList[sc.command] = sc;
 
             // processes - list the running processes and their IDs
             // kill <id> - kills the specified process id.
@@ -137,6 +162,31 @@ module TSOS {
             //
             // Display the initial prompt.
             this.putPrompt();
+        }
+
+        public ps(args): void 
+        {
+          liblos.ps(); 
+        } 
+        
+        public kill(args): void 
+        {
+          liblos.kill(args[0]); 
+        } 
+        
+        public clearmem(args): void 
+        {
+          liblos.clearmem(); 
+        } 
+
+        public runall(args): void
+        {
+          liblos.runall();
+        }
+        
+        public quantum(args): void
+        {
+          _Quant = args[0];
         }
 
         public putPrompt() {
@@ -318,8 +368,8 @@ module TSOS {
           if(this.inputBuffer.length > 0) {
             this.executeCommand(command, parameters);
           }
-          
-         /*
+         
+          /*
           * If the cursor is not at the beginning of the line,
           * we need to advance it to the next line before we 
           * print the prompt
@@ -494,7 +544,9 @@ module TSOS {
        
         //HACKS HACKS HACKS
         public shellCrash(args) {
-          //TODO
+          _Console.bluescreen();
+          _Console.writeWhiteText("Gotta crash... Mmmhh kay.");
+          _Kernel.shutdown();
         }
         
         public shellStatus(args) {
@@ -524,8 +576,15 @@ module TSOS {
           {
             Stdio.putString("Loading...");
             var pid: number = liblos.loadProgram();
-            Stdio.putStringLn(" Done.");
-            Stdio.putStringLn("Pid: " + pid);
+            if(pid === undefined)
+            {
+              Stdio.putStringLn("No space.");
+            }
+            else 
+            {
+              Stdio.putStringLn(" Done.");
+              Stdio.putStringLn("Pid: " + pid);
+            }
           }
           else 
           {
