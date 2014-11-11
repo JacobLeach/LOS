@@ -12,7 +12,7 @@ module TSOS
     private waiting: Queue;
     private running: PCB;
     private shellPCB: PCB;
-    private memoryManager: MemoryManager;
+    public memoryManager: MemoryManager;
     private cyclesLeft: number;
     
     public interrupt: boolean;
@@ -381,6 +381,15 @@ module TSOS
           this.interrupt = false;
           this.print(save);
           Stdio.putStringLn("Segfault. Program killed");
+          break;
+        case InterruptType.INVALID_OP:
+          var save = this.running;
+          this.saveProcessorState1();
+          liblos.deallocate(save.getSegment());
+          this.memoryManager.deallocate(save.getSegment());;
+          this.interrupt = false;
+          this.print(save);
+          Stdio.putStringLn("Invalid op. Program killed");
           break;
         default:
           this.krnTrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");

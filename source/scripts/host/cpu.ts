@@ -163,6 +163,10 @@ module TSOS {
         case 0xFF:
           this.systemCall();
           break;
+        default:
+          this.executing = false;
+           _KernelInterruptQueue.enqueue(new Interrupt(InterruptType.INVALID_OP, this.kernelMode));
+          break;
       }
     }
 

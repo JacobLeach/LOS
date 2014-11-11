@@ -310,6 +310,16 @@ var TSOS;
                     this.print(save);
                     TSOS.Stdio.putStringLn("Segfault. Program killed");
                     break;
+                case 6 /* INVALID_OP */:
+                    var save = this.running;
+                    this.saveProcessorState1();
+                    TSOS.liblos.deallocate(save.getSegment());
+                    this.memoryManager.deallocate(save.getSegment());
+                    ;
+                    this.interrupt = false;
+                    this.print(save);
+                    TSOS.Stdio.putStringLn("Invalid op. Program killed");
+                    break;
                 default:
                     this.krnTrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");
             }

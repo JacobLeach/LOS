@@ -22,6 +22,9 @@ module TSOS
 
     public static clearmem(): void
     {
+      _Kernel.memoryManager.deallocate(0);
+      _Kernel.memoryManager.deallocate(1);
+      _Kernel.memoryManager.deallocate(2);
       this.deallocate(0);
       this.deallocate(1);
       this.deallocate(2);
