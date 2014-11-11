@@ -16,9 +16,9 @@ var singleStep = true;
 var execute = true;
 
 var APP_NAME: string    = "LOS";   
-var APP_VERSION: string = "2.0.1"; 
+var APP_VERSION: string = "3.0.1"; 
 
-var CPU_CLOCK_INTERVAL: number = 10;   // This is in ms, or milliseconds, so 1000 = 1 second.
+var CPU_CLOCK_INTERVAL: number = 20;   // This is in ms, or milliseconds, so 1000 = 1 second.
 
 var ESCAPE    = String.fromCharCode(27);
 var TAB       = String.fromCharCode(9);

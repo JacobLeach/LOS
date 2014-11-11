@@ -100,6 +100,9 @@ var TSOS;
             if (this.running != undefined && this.running.getPid() === pid) {
                 _CPU.executing = false;
                 this.running = undefined;
+                this.memoryManager.deallocate(this.running.getSegment());
+                ;
+                TSOS.liblos.deallocate(this.running.getSegment());
             } else {
                 for (var i = 0; i < this.ready.length; i++) {
                     console.log(this.ready[i].getPid());
@@ -236,6 +239,23 @@ var TSOS;
         };
 
         Kernel.prototype.clockTick = function () {
+            //Yes this is terrible. Have mercy.
+            var print = "";
+            for (var i = 0; i < this.waiting.q.length; i++) {
+                print += "Pid: " + this.waiting.q[i].getPid();
+                print += "\nPC: " + this.waiting.q[i].getProgramCounter().asNumber().toString(16);
+                print += "\nACC: " + this.waiting.q[i].getAccumulator().asNumber().toString(16);
+                print += "\nX: " + this.waiting.q[i].getXRegister().asNumber().toString(16);
+                print += "\nY: " + this.waiting.q[i].getYRegister().asNumber().toString(16);
+                print += "\nZ: " + this.waiting.q[i].getZFlag();
+                print += "\nKernel Mode: " + this.waiting.q[i].getKernelMode();
+                print += "\nbase: " + this.waiting.q[i].getLowAddress().asNumber().toString(16);
+                print += "\nlimit: " + this.waiting.q[i].getHighAddress().asNumber().toString(16);
+                print += "\n";
+            }
+
+            document.getElementById("readyBox").value = print;
+
             if (execute) {
                 singleStep = true;
             }
