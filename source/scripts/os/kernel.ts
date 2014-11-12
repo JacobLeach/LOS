@@ -328,7 +328,7 @@ module TSOS
         
         if(singleStep)
         {
-          _CPU.cycle();
+          //_CPU.cycle();
           (<HTMLInputElement>document.getElementById("cpuBox")).value = _CPU.toString();
           singleStep = false;
 
@@ -477,6 +477,44 @@ module TSOS
         case 7:
           _CPU.accumulator = new Byte(this.memoryManager.getBounds(params[2]).lower().getHighByte().asNumber());
           _CPU.programCounter = new Short(0x035D);
+          break;
+      }   
+    }
+
+    public programBreak(): void
+    {
+      var save = this.running;
+      this.saveProcessorState1();
+      liblos.deallocate(save.getSegment());
+      this.memoryManager.deallocate(save.getSegment());;
+      this.interrupt = false;
+      this.print(save);
+      Stdio.putStringLn("Program finished");
+    }
+
+    public segmentationFault(): void
+    {
+      var save = this.running;
+      this.saveProcessorState1();
+      liblos.deallocate(save.getSegment());
+      this.memoryManager.deallocate(save.getSegment());;
+      this.interrupt = false;
+      this.print(save);
+      Stdio.putStringLn("Segfault. Program killed");
+    }
+
+    public softwareInterrupt(): void
+    {
+      switch(_CPU.xRegister.asNumber())
+      {
+        case 1:
+          Stdio.putString(_CPU.yRegister.asNumber().toString());
+          break;
+        case 2:
+          //I can't figure out the segment so I need the whole address.
+          //Overwrite the accumulator with the base register
+          _CPU.accumulator = new Byte(_CPU.lowAddress.getHighByte().asNumber());
+          _CPU.programCounter = new Short(0x0342);
           break;
       }   
     }

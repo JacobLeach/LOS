@@ -7,6 +7,13 @@
 module TSOS 
 {
 
+  enum Interrupt
+  {
+    SegmentationFault,
+    Break,
+    Software
+  }
+
   export class Cpu 
   {
     public programCounter: Short;
@@ -21,7 +28,8 @@ module TSOS
     public highAddress: Short;
     public returnRegister: Short;
     public executing: boolean;
-    
+    private interruptFlag: Interrupt;
+
     private deviceController: DeviceController;
     private clock: Clock;
 
@@ -37,6 +45,7 @@ module TSOS
       this.lowAddress = new Short(0);
       this.highAddress = new Short(0);
       this.executing = false;
+      this.interruptFlag = undefined;
 
       this.deviceController = new DeviceController();
       this.clock = new Clock(this, CPU_CLOCK_INTERVAL);
@@ -44,7 +53,31 @@ module TSOS
 
     public tick(): void
     {
-      console.log("TICK");
+      if(this.interruptFlag != undefined)
+      {
+        if(this.interruptFlag === Interrupt.SegmentationFault)
+        {
+          _Kernel.segmentationFault();
+        }
+        else if(this.interruptFlag === Interrupt.Break)
+        {
+          _Kernel.programBreak();
+        }
+        else if(this.interruptFlag === Interrupt.Software)
+        {
+          _Kernel.softwareInterrupt();
+        }
+      }
+
+      if(this.executing)
+      {
+        this.cycle();
+      }
+    }
+
+    private interrupt(interrupt: Interrupt): void
+    {
+      this.interruptFlag = interrupt;
     }
     
     public toString(): string
@@ -63,7 +96,7 @@ module TSOS
       return cpuAsString;
     }
 
-    public cycle(): void 
+    private cycle(): void 
     {
       this.loadInstruction(); 
       this.programCounter = this.programCounter.increment();
@@ -195,13 +228,13 @@ module TSOS
     private programEnd(): void 
     {
       this.executing = false;
-      _KernelInterruptQueue.enqueue(new Interrupt(InterruptType.BREAK, this.kernelMode));
+      this.interrupt(Interrupt.Break);
     }
     
     private returnFromInterupt(): void 
     {
-      _Kernel.interrupt = false;
-      _KernelInterruptQueue.front(new Interrupt(InterruptType.RETURN, this.returnRegister));
+      this.setUserMode();
+      this.programCounter = this.returnRegister;
     }
 
     private jump(): void 
@@ -358,7 +391,7 @@ module TSOS
     {
       this.setKernelMode();
       this.returnRegister = this.programCounter;
-      _KernelInterruptQueue.enqueue(new Interrupt(InterruptType.SYSTEM_CALL, [this.xRegister.asNumber(), false, this.yRegister.asNumber()]));
+      this.interrupt(Interrupt.Software);
     }
     
     private getByte(address: Short): Byte
@@ -384,8 +417,7 @@ module TSOS
         
         if(adjustedAddress.asNumber() > this.highAddress.asNumber())
         {
-          //Segfault
-          _KernelInterruptQueue.front(new Interrupt(InterruptType.SEG_FAULT, this.kernelMode));
+          this.interrupt(Interrupt.SegmentationFault);
           return undefined;
         }
         else

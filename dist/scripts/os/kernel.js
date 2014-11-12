@@ -265,7 +265,7 @@ var TSOS;
                 this.interruptHandler(interrupt.type(), interrupt.parameters());
             } else if (_CPU.isExecuting()) {
                 if (singleStep) {
-                    _CPU.cycle();
+                    //_CPU.cycle();
                     document.getElementById("cpuBox").value = _CPU.toString();
                     singleStep = false;
 
@@ -398,6 +398,42 @@ var TSOS;
                 case 7:
                     _CPU.accumulator = new TSOS.Byte(this.memoryManager.getBounds(params[2]).lower().getHighByte().asNumber());
                     _CPU.programCounter = new TSOS.Short(0x035D);
+                    break;
+            }
+        };
+
+        Kernel.prototype.programBreak = function () {
+            var save = this.running;
+            this.saveProcessorState1();
+            TSOS.liblos.deallocate(save.getSegment());
+            this.memoryManager.deallocate(save.getSegment());
+            ;
+            this.interrupt = false;
+            this.print(save);
+            TSOS.Stdio.putStringLn("Program finished");
+        };
+
+        Kernel.prototype.segmentationFault = function () {
+            var save = this.running;
+            this.saveProcessorState1();
+            TSOS.liblos.deallocate(save.getSegment());
+            this.memoryManager.deallocate(save.getSegment());
+            ;
+            this.interrupt = false;
+            this.print(save);
+            TSOS.Stdio.putStringLn("Segfault. Program killed");
+        };
+
+        Kernel.prototype.softwareInterrupt = function () {
+            switch (_CPU.xRegister.asNumber()) {
+                case 1:
+                    TSOS.Stdio.putString(_CPU.yRegister.asNumber().toString());
+                    break;
+                case 2:
+                    //I can't figure out the segment so I need the whole address.
+                    //Overwrite the accumulator with the base register
+                    _CPU.accumulator = new TSOS.Byte(_CPU.lowAddress.getHighByte().asNumber());
+                    _CPU.programCounter = new TSOS.Short(0x0342);
                     break;
             }
         };

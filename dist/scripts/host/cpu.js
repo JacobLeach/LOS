@@ -4,6 +4,13 @@ A basic modifed 6502 CPU simulation.
 ------------ */
 var TSOS;
 (function (TSOS) {
+    var Interrupt;
+    (function (Interrupt) {
+        Interrupt[Interrupt["SegmentationFault"] = 0] = "SegmentationFault";
+        Interrupt[Interrupt["Break"] = 1] = "Break";
+        Interrupt[Interrupt["Software"] = 2] = "Software";
+    })(Interrupt || (Interrupt = {}));
+
     var Cpu = (function () {
         function Cpu() {
             this.programCounter = new TSOS.Short(0);
@@ -16,12 +23,29 @@ var TSOS;
             this.lowAddress = new TSOS.Short(0);
             this.highAddress = new TSOS.Short(0);
             this.executing = false;
+            this.interruptFlag = undefined;
 
             this.deviceController = new TSOS.DeviceController();
             this.clock = new TSOS.Clock(this, CPU_CLOCK_INTERVAL);
         }
         Cpu.prototype.tick = function () {
-            console.log("TICK");
+            if (this.interruptFlag != undefined) {
+                if (this.interruptFlag === 0 /* SegmentationFault */) {
+                    _Kernel.segmentationFault();
+                } else if (this.interruptFlag === 1 /* Break */) {
+                    _Kernel.programBreak();
+                } else if (this.interruptFlag === 2 /* Software */) {
+                    _Kernel.softwareInterrupt();
+                }
+            }
+
+            if (this.executing) {
+                this.cycle();
+            }
+        };
+
+        Cpu.prototype.interrupt = function (interrupt) {
+            this.interruptFlag = interrupt;
         };
 
         Cpu.prototype.toString = function () {
@@ -157,12 +181,12 @@ var TSOS;
 
         Cpu.prototype.programEnd = function () {
             this.executing = false;
-            _KernelInterruptQueue.enqueue(new TSOS.Interrupt(3 /* BREAK */, this.kernelMode));
+            this.interrupt(1 /* Break */);
         };
 
         Cpu.prototype.returnFromInterupt = function () {
-            _Kernel.interrupt = false;
-            _KernelInterruptQueue.front(new TSOS.Interrupt(4 /* RETURN */, this.returnRegister));
+            this.setUserMode();
+            this.programCounter = this.returnRegister;
         };
 
         Cpu.prototype.jump = function () {
@@ -291,7 +315,7 @@ var TSOS;
         Cpu.prototype.systemCall = function () {
             this.setKernelMode();
             this.returnRegister = this.programCounter;
-            _KernelInterruptQueue.enqueue(new TSOS.Interrupt(2 /* SYSTEM_CALL */, [this.xRegister.asNumber(), false, this.yRegister.asNumber()]));
+            this.interrupt(2 /* Software */);
         };
 
         Cpu.prototype.getByte = function (address) {
@@ -310,8 +334,7 @@ var TSOS;
                 var adjustedAddress = new TSOS.Short(address.asNumber() + this.lowAddress.asNumber());
 
                 if (adjustedAddress.asNumber() > this.highAddress.asNumber()) {
-                    //Segfault
-                    _KernelInterruptQueue.front(new TSOS.Interrupt(5 /* SEG_FAULT */, this.kernelMode));
+                    this.interrupt(0 /* SegmentationFault */);
                     return undefined;
                 } else {
                     return adjustedAddress;
