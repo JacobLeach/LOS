@@ -94,6 +94,7 @@ module TSOS {
             _hardwareClockID = setInterval(Devices.hostClockPulse, CPU_CLOCK_INTERVAL);
             // .. and call the OS Kernel Bootstrap routine.
             _Kernel = new Kernel();
+            _CPU.start();
         }
 
         public static hostBtnHaltOS_click(btn): void {

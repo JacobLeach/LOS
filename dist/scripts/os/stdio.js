@@ -16,6 +16,7 @@ var TSOS;
 
         //Wrapper to write text to output
         Stdio.putString = function (text) {
+            console.log("PUT: " + text);
             for (var i = 0; i < text.length; i++) {
                 Stdio.buffer += (text.charAt(i));
             }
@@ -24,6 +25,7 @@ var TSOS;
         };
 
         Stdio.putStringLn = function (text) {
+            console.log("PUTLN: " + text);
             for (var i = 0; i < text.length; i++) {
                 Stdio.buffer += (text.charAt(i));
             }

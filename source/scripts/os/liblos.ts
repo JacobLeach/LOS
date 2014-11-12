@@ -37,7 +37,6 @@ module TSOS
     
     public static runProgram(pid: number): void
     {
-      console.log("FUCK ME WITH ARAKE MATE");
       _KernelInterruptQueue.add(new Tuple(IO.RUN, pid));
     }
     

@@ -143,10 +143,9 @@ var TSOS;
             this.memory[0x0370] = new Byte(0x40);
 
             //Idle
-            this.memory[0x0371] = new Byte(0xEA); //Do nothing
-            this.memory[0x0372] = new Byte(0x4C); //Jump back
-            this.memory[0x0373] = new Byte(0x71);
-            this.memory[0x0374] = new Byte(0x03);
+            this.memory[0x0400] = new Byte(0xEA); //Do nothing
+            this.memory[0x0401] = new Byte(0xD0); //Branch back
+            this.memory[0x0402] = new Byte(0xFD);
         }
         Memory.prototype.getSize = function () {
             return this.size;
@@ -172,7 +171,7 @@ var TSOS;
 
             return toReturn;
         };
-        Memory.DEFAULT_SIZE = 1024;
+        Memory.DEFAULT_SIZE = 1280;
         return Memory;
     })();
     TSOS.Memory = Memory;

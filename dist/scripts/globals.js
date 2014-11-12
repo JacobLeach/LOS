@@ -15,7 +15,7 @@ var execute = true;
 var APP_NAME = "LOS";
 var APP_VERSION = "3.0.1";
 
-var CPU_CLOCK_INTERVAL = 20;
+var CPU_CLOCK_INTERVAL = 50;
 
 var ESCAPE = String.fromCharCode(27);
 var TAB = String.fromCharCode(9);

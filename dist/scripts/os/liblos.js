@@ -31,7 +31,6 @@ var TSOS;
         };
 
         liblos.runProgram = function (pid) {
-            console.log("FUCK ME WITH ARAKE MATE");
             _KernelInterruptQueue.add(new TSOS.Tuple(5 /* RUN */, pid));
         };
 

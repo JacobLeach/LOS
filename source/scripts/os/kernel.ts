@@ -21,6 +21,7 @@ module TSOS
     private loaded: PCB[];
     private running: PCB;
     private kernelPCB: PCB;
+    private idlePCB: PCB;
 
     public memoryManager: MemoryManager;
     private cyclesLeft: number;
@@ -46,17 +47,27 @@ module TSOS
     //Switches context to the next PCB in the ready queue
     private contextSwitchToNext(): void
     {
-      //If size is 1, do not do a context switch since it is pointless
-      if(this.ready.size() > 1)
+      if(this.running != undefined)
       {
-        if(this.running != undefined)
+        this.running.updatePCB();
+
+        //Idle and kernel PCBs do not go on the ready queue
+        if(this.running != this.idlePCB && this.running != this.kernelPCB)
         {
-          this.running.updatePCB();
           this.ready.add(this.running);
         }
-        
+      }
+      
+      console.log("HERTE");
+      if(this.ready.size() > 0)
+      {
         this.running = this.ready.dequeue();
         this.running.setCPU();
+      }
+      else
+      {
+      console.log("idle");
+        this.setIdle(); 
       }
     }
 
@@ -66,8 +77,13 @@ module TSOS
       if(this.running != this.kernelPCB)
       {
         this.running.updatePCB();
-        //Put what was running at the front so it runs after we are done
-        this.ready.front(this.running);
+        
+        //Don't put the idle PCB on the ready queue
+        if(this.running != this.idlePCB)
+        {
+          //Put what was running at the front so it runs after we are done
+          this.ready.front(this.running);
+        }
       
         this.running = this.kernelPCB;
       }
@@ -197,7 +213,9 @@ module TSOS
 
     private setIdle()
     {
-      this.kernelPCB.setProgramCounter(new Short(0x0371));
+      this.krnTrace("Starting idle process");
+      this.running = this.idlePCB;
+      this.running.setCPU();
     }
 
     constructor()
@@ -211,14 +229,7 @@ module TSOS
 
       //Create a kernel PCB to reserve memory where system call functions are located
       this.kernelPCB = new PCB(this.memoryManager.reserve(3));
-      //Set kernel PCB to kernel mode
       this.kernelPCB.setKernelMode(true);
-      //Set the kernel PCB to the idle process
-      this.setIdle();
-      //Set the kernelPCB to running
-      this.running = this.kernelPCB;
-      //Set the CPU to execute the kernel
-      this.contextSwitchToKernel();
       
       Control.hostLog("bootstrap", "host");
       
@@ -238,6 +249,11 @@ module TSOS
       this.krnTrace("Creating and Launching the shell.");
       _OsShell = new Shell();
       _OsShell.init();
+      
+      //Create the idle process and get it started
+      this.idlePCB = new PCB(this.memoryManager.reserve(4));
+      this.setIdle();
+      
     }
 
     public shutdown() 
@@ -248,29 +264,15 @@ module TSOS
 
     public handleKernelInterrupt(interrupt): void
     {
-      //If the kernel is not already running, save the current PCB
-      //and put it at the front of the ready queue
-      if(this.running != this.kernelPCB)
-      {
-        this.running.updatePCB();
-        this.ready.front(this.running);
-        this.running = this.kernelPCB;
-        //Add a context switch call to go back to the running process
-        //after the kernel is finished 
-        _KernelInterruptQueue.add(IO.CONTEXT_SWITCH);
-      }
-
       switch(interrupt.first)
       {
         case IO.PUT_STRING:
-          _CPU.ignoreInterrupts = true;
-          _CPU.returnRegister = _CPU.programCounter;
+          console.log("Put string interrupt");
           this.kernelPCB.setProgramCounter(new Short(0x0308));
           this.contextSwitchToKernel();
           break;
         case IO.LOAD_PROGRAM:
-          _CPU.ignoreInterrupts = true; 
-          _CPU.returnRegister = _CPU.programCounter;
+          console.log("Load program interrupt");
           this.kernelPCB.setProgramCounter(new Short(0x0319));
           _Memory.setByte(new Short(0x0323), interrupt.second.getBase().getHighByte());
           this.contextSwitchToKernel();
@@ -278,13 +280,17 @@ module TSOS
           break;
         case IO.CLEAR_SEGMENT:
           break;
-        case IO.CONTEXT_SWITCH:
-          break;
         case IO.PCB_IN_LOADED:
+          this.setIdle();
+          console.log("Loading done interrupt");
           this.loaded.push(interrupt.second); 
+          _CPU.ignoreInterrupts = false;
           break;
         case IO.RUN:
+          console.log("Running interrupt");
           this.loadedToReady(interrupt.second);
+          this.contextSwitchToNext();
+          _CPU.ignoreInterrupts = false;
           break;
 
       }
@@ -292,11 +298,13 @@ module TSOS
     
     private loadedToReady(pid)
     {
-      console.log("????");
       for(var i = 0; i < this.loaded.length; i++)
       {
-        if(this.loaded[i].getPid() === pid)
+        console.log("what? " + this.loaded[i].getPid());
+        console.log("pid: " + pid);
+        if(this.loaded[i].getPid() == pid)
         {
+          console.log("Hey");
           this.ready.add(this.loaded[i]);
           this.loaded.splice(i, 1);
           break;
@@ -306,7 +314,16 @@ module TSOS
 
     public programBreak(): void
     {
+      console.log("BREAK");
+    }
     
+    public returnInterrupt(): void
+    {
+      console.log("returning");
+      if(_KernelInterruptQueue.size() === 0)
+      {
+        this.contextSwitchToNext(); 
+      }
     }
 
     public segmentationFault(): void
@@ -316,8 +333,11 @@ module TSOS
 
     public timerInterrupt(): void
     {
-      console.log("HEY: " + this.ready.size());
-      this.contextSwitchToNext();
+      //Only switch to next if we are running more than one program
+      if(this.ready.size() > 1)
+      {
+        this.contextSwitchToNext();
+      }
     }
 
     public keyboardInterrupt(parameters: any[]): void
@@ -337,10 +357,9 @@ module TSOS
           Stdio.putString(_CPU.yRegister.asNumber().toString());
           break;
         case 2:
-          //I can't figure out the segment so I need the whole address.
-          //Overwrite the accumulator with the base register
-          _CPU.accumulator = new Byte(_CPU.lowAddress.getHighByte().asNumber());
-          _CPU.programCounter = new Short(0x0342);
+          this.kernelPCB.setAccumulator(new Byte(_CPU.lowAddress.getHighByte().asNumber()));
+          this.kernelPCB.setProgramCounter(new Short(0x0342));
+          this.contextSwitchToKernel();
           break;
       }   
     }

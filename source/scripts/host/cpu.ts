@@ -12,11 +12,13 @@ module TSOS
     SegmentationFault,
     Break,
     Software,
-    Clock
+    Clock,
+    Return
   }
 
   export class Cpu 
   {
+
     public programCounter: Short;
     public accumulator: Byte;
     public xRegister: Byte;
@@ -53,6 +55,10 @@ module TSOS
       this.tickCount = _Quant;
 
       this.deviceController = new DeviceController();
+    }
+
+    public start()
+    {
       this.clock = new Clock(this, CPU_CLOCK_INTERVAL);
     }
 
@@ -84,6 +90,12 @@ module TSOS
         {
           _Kernel.timerInterrupt();
         }
+        else if(_CPU.interruptFlag === Interrupt.Return)
+        {
+          _Kernel.returnInterrupt();
+        }
+
+        _CPU.interruptFlag = undefined;
       }
       
       /*
@@ -93,7 +105,7 @@ module TSOS
        */
       if(!_CPU.ignoreInterrupts && _KernelInterruptQueue.size() > 0)
       {
-        console.log("What: " + _CPU.ignoreInterrupts + " huh: " + _KernelInterruptQueue.size());
+        _CPU.ignoreInterrupts = true;
         /*
          * Call the kernel function to handle the interrupts.
          * It will make sure that the CPU is correctly setup to 
@@ -115,6 +127,8 @@ module TSOS
           _CPU.tickCount = _Quant;
         }
       }
+
+      (<HTMLInputElement>document.getElementById("cpuBox")).value = _CPU.toString();      
     }
 
     public stop(): void
@@ -132,15 +146,36 @@ module TSOS
       var cpuAsString = "";
 
       cpuAsString += "PC: " + this.programCounter.asNumber().toString(16);
+      cpuAsString += "\nIR: " + this.instructionRegister.asNumber().toString(16);
       cpuAsString += "\nAC: " + this.accumulator.asNumber().toString(16);
       cpuAsString += "\nX: " + this.xRegister.asNumber().toString(16);
       cpuAsString += "\nY: " + this.yRegister.asNumber().toString(16);
       cpuAsString += "\nZ: " + this.zFlag;
       cpuAsString += "\nkernelMode: " + this.kernelMode;
+      cpuAsString += "\ninterrupt: " + this.interruptToString();
       cpuAsString += "\nlowAddress: " + this.lowAddress.asNumber().toString(16);
       cpuAsString += "\nhighAddress: " + this.highAddress.asNumber().toString(16);
 
       return cpuAsString;
+    }
+    
+    private interruptToString(): string
+    {
+      switch(this.interruptFlag)
+      {
+        case Interrupt.SegmentationFault:
+          return "Segmentation Fault";
+        case Interrupt.Break:
+          return "Break";
+        case Interrupt.Software:
+          return "Software";
+        case Interrupt.Clock:
+          return "Clock";
+        case Interrupt.Return:
+          return "Return";
+        default:
+          return "None";
+      }
     }
 
     private cycle(): void 
@@ -280,10 +315,8 @@ module TSOS
     
     private returnFromInterupt(): void 
     {
-      console.log("SHITTY");
-      this.setUserMode();
       this.ignoreInterrupts = false;
-      this.programCounter = this.returnRegister;
+      this.interruptFlag = Interrupt.Return;
     }
 
     private jump(): void 
@@ -438,8 +471,6 @@ module TSOS
 
     private systemCall(): void 
     {
-      this.setKernelMode();
-      this.returnRegister = this.programCounter;
       this.interrupt(Interrupt.Software);
     }
     

@@ -19,6 +19,7 @@ module TSOS {
     
     //Wrapper to write text to output
     public static putString(text: String) {
+      console.log("PUT: " + text);
       for(var i = 0; i < text.length; i++) {
         Stdio.buffer += (text.charAt(i));
       }
@@ -27,6 +28,7 @@ module TSOS {
     }
     
     public static putStringLn(text: String) {
+      console.log("PUTLN: " + text);
       for(var i = 0; i < text.length; i++) {
         Stdio.buffer += (text.charAt(i));
       }

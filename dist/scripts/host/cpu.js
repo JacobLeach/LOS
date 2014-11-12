@@ -10,6 +10,7 @@ var TSOS;
         Interrupt[Interrupt["Break"] = 1] = "Break";
         Interrupt[Interrupt["Software"] = 2] = "Software";
         Interrupt[Interrupt["Clock"] = 3] = "Clock";
+        Interrupt[Interrupt["Return"] = 4] = "Return";
     })(Interrupt || (Interrupt = {}));
 
     var Cpu = (function () {
@@ -29,8 +30,11 @@ var TSOS;
             this.tickCount = _Quant;
 
             this.deviceController = new TSOS.DeviceController();
-            this.clock = new TSOS.Clock(this, CPU_CLOCK_INTERVAL);
         }
+        Cpu.prototype.start = function () {
+            this.clock = new TSOS.Clock(this, CPU_CLOCK_INTERVAL);
+        };
+
         /*
         * WARNING! WARNING! WARNING!
         * DO NOT USE "THIS." IN THE FUNCTION!
@@ -49,7 +53,11 @@ var TSOS;
                     _Kernel.softwareInterrupt();
                 } else if (_CPU.interruptFlag === 3 /* Clock */) {
                     _Kernel.timerInterrupt();
+                } else if (_CPU.interruptFlag === 4 /* Return */) {
+                    _Kernel.returnInterrupt();
                 }
+
+                _CPU.interruptFlag = undefined;
             }
 
             /*
@@ -58,7 +66,7 @@ var TSOS;
             * does not use the CPY at all it adds it to this queue.
             */
             if (!_CPU.ignoreInterrupts && _KernelInterruptQueue.size() > 0) {
-                console.log("What: " + _CPU.ignoreInterrupts + " huh: " + _KernelInterruptQueue.size());
+                _CPU.ignoreInterrupts = true;
 
                 /*
                 * Call the kernel function to handle the interrupts.
@@ -79,6 +87,8 @@ var TSOS;
                     _CPU.tickCount = _Quant;
                 }
             }
+
+            document.getElementById("cpuBox").value = _CPU.toString();
         };
 
         Cpu.prototype.stop = function () {
@@ -93,15 +103,34 @@ var TSOS;
             var cpuAsString = "";
 
             cpuAsString += "PC: " + this.programCounter.asNumber().toString(16);
+            cpuAsString += "\nIR: " + this.instructionRegister.asNumber().toString(16);
             cpuAsString += "\nAC: " + this.accumulator.asNumber().toString(16);
             cpuAsString += "\nX: " + this.xRegister.asNumber().toString(16);
             cpuAsString += "\nY: " + this.yRegister.asNumber().toString(16);
             cpuAsString += "\nZ: " + this.zFlag;
             cpuAsString += "\nkernelMode: " + this.kernelMode;
+            cpuAsString += "\ninterrupt: " + this.interruptToString();
             cpuAsString += "\nlowAddress: " + this.lowAddress.asNumber().toString(16);
             cpuAsString += "\nhighAddress: " + this.highAddress.asNumber().toString(16);
 
             return cpuAsString;
+        };
+
+        Cpu.prototype.interruptToString = function () {
+            switch (this.interruptFlag) {
+                case 0 /* SegmentationFault */:
+                    return "Segmentation Fault";
+                case 1 /* Break */:
+                    return "Break";
+                case 2 /* Software */:
+                    return "Software";
+                case 3 /* Clock */:
+                    return "Clock";
+                case 4 /* Return */:
+                    return "Return";
+                default:
+                    return "None";
+            }
         };
 
         Cpu.prototype.cycle = function () {
@@ -226,10 +255,8 @@ var TSOS;
         };
 
         Cpu.prototype.returnFromInterupt = function () {
-            console.log("SHITTY");
-            this.setUserMode();
             this.ignoreInterrupts = false;
-            this.programCounter = this.returnRegister;
+            this.interruptFlag = 4 /* Return */;
         };
 
         Cpu.prototype.jump = function () {
@@ -356,8 +383,6 @@ var TSOS;
         };
 
         Cpu.prototype.systemCall = function () {
-            this.setKernelMode();
-            this.returnRegister = this.programCounter;
             this.interrupt(2 /* Software */);
         };
 
