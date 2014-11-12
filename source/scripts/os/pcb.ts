@@ -30,6 +30,28 @@ module TSOS {
       this.memoryBounds = memoryBounds;
       this.pid = PCB.next_pid++;
     }
+    
+    public updatePCB()
+    {
+      this.setProgramCounter(_CPU.programCounter);  
+      this.setAccumulator(_CPU.accumulator);
+      this.setXRegister(_CPU.xRegister);
+      this.setYRegister(_CPU.yRegister);
+      this.setZFlag(_CPU.zFlag);
+      this.setKernelMode(_CPU.kernelMode);
+    }
+    
+    public setCPU(): void
+    {
+      _CPU.programCounter = this.getProgramCounter();  
+      _CPU.accumulator = this.getAccumulator();
+      _CPU.xRegister = this.getXRegister();
+      _CPU.yRegister = this.getYRegister();
+      _CPU.zFlag = this.getZFlag();
+      _CPU.kernelMode = this.getKernelMode();
+      _CPU.lowAddress = this.getLowAddress();
+      _CPU.highAddress = this.getHighAddress();
+    }
 
     public getSegment(): number
     {
