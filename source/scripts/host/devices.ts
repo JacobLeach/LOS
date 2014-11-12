@@ -34,7 +34,6 @@ module TSOS {
             // Increment the hardware (host) clock.
             _OSclock++;
             // Call the kernel clock pulse event handler.
-            liblos.clockTick();
         }
 
         //

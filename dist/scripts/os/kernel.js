@@ -12,18 +12,8 @@ var TSOS;
             this.running = undefined;
             this.cyclesLeft = _Quant;
 
-            /*
-            * Reserve the segment system calls are stored in.
-            * Save this in the PCB used for system calls from the Shell.
-            * This has to happen because devices require CPU time to use
-            * and since the shell needs to talk to the devices, it needs
-            * to be able to execute system calls on the CPU.
-            *
-            * Must be in kernel mode since we only use this for I/O
-            * and all I/O requires kernel mode.
-            */
-            this.shellPCB = new TSOS.PCB(this.memoryManager.reserve(3));
-            this.shellPCB.setKernelMode(true);
+            //Reserve memory where system call functions are located
+            this.waiting.enqueue(new TSOS.PCB(this.memoryManager.reserve(3)));
 
             this.interrupt = false;
 
@@ -36,20 +26,14 @@ var TSOS;
             _StdIn = _Console;
             _StdOut = _Console;
 
-            // Load the Keyboard Device Driver
             this.krnTrace("Loading the keyboard device driver.");
-            _krnKeyboardDriver = new TSOS.DeviceDriverKeyboard(); // Construct it.
-            _krnKeyboardDriver.driverEntry(); // Call the driverEntry() initialization routine.
+            _krnKeyboardDriver = new TSOS.DeviceDriverKeyboard();
+            _krnKeyboardDriver.driverEntry();
             this.krnTrace(_krnKeyboardDriver.status);
-
-            this.krnTrace("Enabling the interrupts.");
-            this.enableInterrupts();
 
             this.krnTrace("Creating and Launching the shell.");
             _OsShell = new TSOS.Shell();
             _OsShell.init();
-            // Finally, initiate testing.
-            //_GLaDOS.afterStartup();
         }
         Kernel.prototype.forkExec = function () {
             var segment = this.memoryManager.allocate();
@@ -93,7 +77,6 @@ var TSOS;
             }
 
             this.saveProcessorState();
-            this.setProcessorState(this.shellPCB);
         };
 
         Kernel.prototype.kill = function (pid) {
@@ -157,9 +140,7 @@ var TSOS;
                 this.running.setZFlag(_CPU.zFlag);
                 this.running.setKernelMode(_CPU.kernelMode);
 
-                if (this.running.getPid() != this.shellPCB.getPid()) {
-                    this.waiting.enqueue(this.running);
-                }
+                this.waiting.enqueue(this.running);
                 this.print(this.running);
 
                 this.running = undefined;
@@ -177,8 +158,6 @@ var TSOS;
                 this.running.setZFlag(_CPU.zFlag);
                 this.running.setKernelMode(_CPU.kernelMode);
 
-                if (this.running.getPid() != this.shellPCB.getPid()) {
-                }
                 this.print(this.running);
 
                 this.running = undefined;
@@ -187,11 +166,7 @@ var TSOS;
             _CPU.executing = false;
         };
         Kernel.prototype.setProcessorState = function (pcb) {
-            if (pcb.getPid() == this.shellPCB.getPid()) {
-                this.running = this.shellPCB;
-            } else {
-                this.running = pcb;
-            }
+            this.running = pcb;
 
             _CPU.programCounter = this.running.getProgramCounter();
             _CPU.accumulator = this.running.getAccumulator();
@@ -227,71 +202,9 @@ var TSOS;
             return this.running.getPid();
         };
 
-        Kernel.prototype.getShellPid = function () {
-            return this.shellPCB.getPid();
-        };
-
         Kernel.prototype.shutdown = function () {
             this.krnTrace("begin shutdown OS");
-            this.krnTrace("Disabling the interrupts.");
-            this.disableInterrupts();
             this.krnTrace("end shutdown OS");
-        };
-
-        Kernel.prototype.clockTick = function () {
-            //Yes this is terrible. Have mercy.
-            var print = "";
-            for (var i = 0; i < this.waiting.q.length; i++) {
-                print += "Pid: " + this.waiting.q[i].getPid();
-                print += "\nPC: " + this.waiting.q[i].getProgramCounter().asNumber().toString(16);
-                print += "\nACC: " + this.waiting.q[i].getAccumulator().asNumber().toString(16);
-                print += "\nX: " + this.waiting.q[i].getXRegister().asNumber().toString(16);
-                print += "\nY: " + this.waiting.q[i].getYRegister().asNumber().toString(16);
-                print += "\nZ: " + this.waiting.q[i].getZFlag();
-                print += "\nKernel Mode: " + this.waiting.q[i].getKernelMode();
-                print += "\nbase: " + this.waiting.q[i].getLowAddress().asNumber().toString(16);
-                print += "\nlimit: " + this.waiting.q[i].getHighAddress().asNumber().toString(16);
-                print += "\n";
-            }
-
-            document.getElementById("readyBox").value = print;
-
-            if (execute) {
-                singleStep = true;
-            }
-
-            if (_KernelInterruptQueue.getSize() > 0 && !this.interrupt) {
-                var interrupt = _KernelInterruptQueue.dequeue();
-                this.interruptHandler(interrupt.type(), interrupt.parameters());
-            } else if (_CPU.isExecuting()) {
-                if (singleStep) {
-                    //_CPU.cycle();
-                    document.getElementById("cpuBox").value = _CPU.toString();
-                    singleStep = false;
-
-                    if (!this.interrupt && this.running.getPid() != this.shellPCB.getPid()) {
-                        this.cyclesLeft--;
-                    }
-                }
-            } else if (this.waiting.getSize() > 0) {
-                _KernelInterruptQueue.front(new TSOS.Interrupt(7 /* SWITCH */, []));
-                console.log("JOB1111");
-            } else {
-                //this.krnTrace("Idle");
-            }
-
-            if (this.cyclesLeft === 0 && this.waiting.getSize() > 0) {
-                _KernelInterruptQueue.front(new TSOS.Interrupt(7 /* SWITCH */, []));
-                console.log("JOB");
-            }
-        };
-
-        Kernel.prototype.enableInterrupts = function () {
-            TSOS.Devices.hostEnableKeyboardInterrupt();
-        };
-
-        Kernel.prototype.disableInterrupts = function () {
-            TSOS.Devices.hostDisableKeyboardInterrupt();
         };
 
         Kernel.prototype.interruptHandler = function (irq, params) {
@@ -315,9 +228,6 @@ var TSOS;
                     break;
                 case 3 /* BREAK */:
                     this.handleBreak(params);
-                    break;
-                case 4 /* RETURN */:
-                    this.handleReturn(params);
                     break;
                 case 5 /* SEG_FAULT */:
                     var save = this.running;
@@ -348,18 +258,6 @@ var TSOS;
                 default:
                     this.krnTrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");
             }
-        };
-
-        Kernel.prototype.handleReturn = function (address) {
-            if (this.running.getPid() === this.shellPCB.getPid()) {
-                this.saveProcessorState();
-            } else {
-                console.log("FUYCK YOU");
-                _CPU.programCounter = address;
-            }
-
-            _CPU.setUserMode();
-            this.interrupt = false;
         };
 
         Kernel.prototype.handleSystemCall = function (params) {

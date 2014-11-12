@@ -39,10 +39,6 @@ var TSOS;
             _KernelInterruptQueue.enqueue(new TSOS.Interrupt(2 /* SYSTEM_CALL */, [4, true]));
         };
 
-        liblos.clockTick = function () {
-            _Kernel.clockTick();
-        };
-
         liblos.shutdown = function () {
             _Kernel.shutdown();
         };

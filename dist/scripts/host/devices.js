@@ -25,9 +25,7 @@ var TSOS;
         Devices.hostClockPulse = function () {
             // Increment the hardware (host) clock.
             _OSclock++;
-
             // Call the kernel clock pulse event handler.
-            TSOS.liblos.clockTick();
         };
 
         //

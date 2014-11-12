@@ -46,11 +46,6 @@ module TSOS
       _KernelInterruptQueue.enqueue(new Interrupt(InterruptType.SYSTEM_CALL, [4, true]));
     }
 
-    public static clockTick(): void
-    {
-      _Kernel.clockTick();
-    }
-    
     public static shutdown(): void
     {
       _Kernel.shutdown();
