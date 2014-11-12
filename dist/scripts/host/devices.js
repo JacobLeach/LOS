@@ -52,7 +52,7 @@ var TSOS;
                 var params = new Array(event.which, event.shiftKey);
 
                 // Enqueue this interrupt on the kernel interrupt queue so that it gets to the Interrupt handler.
-                _KernelInterruptQueue.enqueue(new TSOS.Interrupt(1 /* KEYBOARD */, params));
+                _Kernel.keyboardInterrupt(params);
             }
         };
         return Devices;

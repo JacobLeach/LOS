@@ -158,30 +158,30 @@ var TSOS;
             } else if (scanCode >= 37 && scanCode <= 40) {
                 switch (scanCode) {
                     case 37:
-                        _KernelInputQueue.enqueue(String.fromCharCode(27));
-                        _KernelInputQueue.enqueue("[");
+                        _KernelInputQueue.add(String.fromCharCode(27));
+                        _KernelInputQueue.add("[");
                         character = "D";
                         break;
                     case 38:
-                        _KernelInputQueue.enqueue(String.fromCharCode(27));
-                        _KernelInputQueue.enqueue("[");
+                        _KernelInputQueue.add(String.fromCharCode(27));
+                        _KernelInputQueue.add("[");
                         character = "A";
                         break;
                     case 39:
-                        _KernelInputQueue.enqueue(String.fromCharCode(27));
-                        _KernelInputQueue.enqueue("[");
+                        _KernelInputQueue.add(String.fromCharCode(27));
+                        _KernelInputQueue.add("[");
                         character = "C";
                         break;
                     case 40:
-                        _KernelInputQueue.enqueue(String.fromCharCode(27));
-                        _KernelInputQueue.enqueue("[");
+                        _KernelInputQueue.add(String.fromCharCode(27));
+                        _KernelInputQueue.add("[");
                         character = "B";
                         break;
                 }
             } else {
                 character = String.fromCharCode(0);
             }
-            _KernelInputQueue.enqueue(character);
+            _KernelInputQueue.add(character);
         };
         return DeviceDriverKeyboard;
     })(TSOS.DeviceDriver);

@@ -42,18 +42,18 @@ module TSOS
     
     public static putString(): void
     {
-      //_Kernel.contextSwitch(_Kernel.getShellPid());
-      _KernelInterruptQueue.enqueue(new Interrupt(InterruptType.SYSTEM_CALL, [4, true]));
+      _KernelInterruptQueue.add(IO.PUT_STRING);
+      console.log("HI");
     }
 
     public static shutdown(): void
     {
-      _Kernel.shutdown();
+      //_Kernel.shutdown();
     }
 
     public static deallocate(segment: number): void
     {
-      _KernelInterruptQueue.enqueue(new Interrupt(InterruptType.SYSTEM_CALL, [7, true, segment]));
+      //_KernelInterruptQueue.add(new Interrupt(InterruptType.SYSTEM_CALL, [7, true, segment]));
     }
 
     public static kill(pid: number): void

@@ -24,24 +24,53 @@ var TSOS;
             this.highAddress = new TSOS.Short(0);
             this.executing = false;
             this.interruptFlag = undefined;
+            this.ignoreInterrupts = false;
 
             this.deviceController = new TSOS.DeviceController();
             this.clock = new TSOS.Clock(this, CPU_CLOCK_INTERVAL);
         }
+        /*
+        * WARNING! WARNING! WARNING!
+        * DO NOT USE "THIS." IN THE FUNCTION!
+        * WARNING! WARNING! WARNING!
+        *
+        * Javascript is shit and this is a callback so we do not
+        * have the correct this. Use _CPU instead. Fuckers.
+        */
         Cpu.prototype.tick = function () {
-            if (this.interruptFlag != undefined) {
-                if (this.interruptFlag === 0 /* SegmentationFault */) {
+            if (_CPU.interruptFlag != undefined) {
+                if (_CPU.interruptFlag === 0 /* SegmentationFault */) {
                     _Kernel.segmentationFault();
-                } else if (this.interruptFlag === 1 /* Break */) {
+                } else if (_CPU.interruptFlag === 1 /* Break */) {
                     _Kernel.programBreak();
-                } else if (this.interruptFlag === 2 /* Software */) {
+                } else if (_CPU.interruptFlag === 2 /* Software */) {
                     _Kernel.softwareInterrupt();
                 }
             }
 
-            if (this.executing) {
-                this.cycle();
+            /*
+            * This is a hack because the kernel is not all running on this hardware.
+            * When the Kernel needs to run some code on the CPU or do some task that
+            * does not use the CPY at all it adds it to this queue.
+            */
+            if (!_CPU.ignoreInterrupts && _KernelInterruptQueue.size() > 0) {
+                console.log("What: " + _CPU.ignoreInterrupts + " huh: " + _KernelInterruptQueue.size());
+
+                /*
+                * Call the kernel function to handle the interrupts.
+                * It will make sure that the CPU is correctly setup to
+                * either run the kernel code that is needed or to do the work
+                * that the kernel needs to do (aka stuff written in typescript
+                * does not need CPU time to run)
+                */
+                _Kernel.handleKernelInterrupt(_KernelInterruptQueue.dequeue());
             }
+
+            _CPU.cycle();
+        };
+
+        Cpu.prototype.stop = function () {
+            this.clock.stop();
         };
 
         Cpu.prototype.interrupt = function (interrupt) {
@@ -185,7 +214,9 @@ var TSOS;
         };
 
         Cpu.prototype.returnFromInterupt = function () {
+            console.log("SHITTY");
             this.setUserMode();
+            this.ignoreInterrupts = false;
             this.programCounter = this.returnRegister;
         };
 

@@ -3,6 +3,14 @@ Kernel.ts
 ------------ */
 var TSOS;
 (function (TSOS) {
+    (function (IO) {
+        IO[IO["PUT_STRING"] = 0] = "PUT_STRING";
+        IO[IO["LOAD_PROGRAM"] = 1] = "LOAD_PROGRAM";
+        IO[IO["CLEAR_SEGMENT"] = 2] = "CLEAR_SEGMENT";
+        IO[IO["CONTEXT_SWITCH"] = 3] = "CONTEXT_SWITCH";
+    })(TSOS.IO || (TSOS.IO = {}));
+    var IO = TSOS.IO;
+
     var Kernel = (function () {
         function Kernel() {
             this.memoryManager = new TSOS.MemoryManager();
@@ -15,8 +23,17 @@ var TSOS;
             //Create a kernel PCB to reserve memory where system call functions are located
             this.kernelPCB = new TSOS.PCB(this.memoryManager.reserve(3));
 
+            //Set kernel PCB to kernel mode
+            this.kernelPCB.setKernelMode(true);
+
             //Set the kernel PCB to the idle process
             this.setIdle();
+
+            //Set the kernelPCB to running
+            this.running = this.kernelPCB;
+
+            //Set the CPU to execute the kernel
+            this.contextSwitchToKernel();
 
             TSOS.Control.hostLog("bootstrap", "host");
 
@@ -30,6 +47,7 @@ var TSOS;
             this.krnTrace("Loading the keyboard device driver.");
             _krnKeyboardDriver = new TSOS.DeviceDriverKeyboard();
             _krnKeyboardDriver.driverEntry();
+            TSOS.Devices.hostEnableKeyboardInterrupt();
             this.krnTrace(_krnKeyboardDriver.status);
 
             this.krnTrace("Creating and Launching the shell.");
@@ -37,17 +55,41 @@ var TSOS;
             _OsShell.init();
         }
         Kernel.prototype.forkExec = function () {
-            var segment = this.memoryManager.allocate();
+            return 0;
+        };
 
-            if (segment === undefined) {
-                return undefined;
-            } else {
-                var pcb = new TSOS.PCB(segment);
-                _KernelInterruptQueue.enqueue(new TSOS.Interrupt(2 /* SYSTEM_CALL */, [5, true, segment.lower()]));
-                this.loaded.push(pcb);
+        //Switches context to the next PCB in the ready queue
+        Kernel.prototype.contextSwitchToNext = function () {
+            //If size is 1, do not do a context switch since it is pointless
+            if (this.ready.size() > 1) {
+                if (this.running != undefined) {
+                    this.running.updatePCB();
+                    this.ready.add(this.running);
+                }
 
-                return pcb.getPid();
+                this.running = this.ready.dequeue();
+                this.running.setCPU();
             }
+        };
+
+        Kernel.prototype.contextSwitchToKernel = function () {
+            //If kernel is already running, just reset the CPU to the kernel PCB
+            if (this.running != this.kernelPCB) {
+                this.running.updatePCB();
+
+                //Put what was running at the front so it runs after we are done
+                this.ready.front(this.running);
+
+                this.running = this.kernelPCB;
+            }
+
+            this.running.setCPU();
+        };
+
+        Kernel.prototype.putString = function () {
+            this.kernelPCB.setProgramCounter(new TSOS.Short(0x0308));
+            _CPU.returnRegister = _CPU.programCounter;
+            this.contextSwitchToKernel();
         };
 
         Kernel.prototype.ps = function () {
@@ -67,17 +109,7 @@ var TSOS;
             return pids;
         };
 
-        Kernel.prototype.contextSwitch = function () {
-            this.saveProcessorState();
-            this.setProcessorState(this.ready.dequeue());
-        };
-
         Kernel.prototype.runShell = function () {
-            if (_CPU.isExecuting()) {
-                this.ready.front(this.running);
-            }
-
-            this.saveProcessorState();
         };
 
         Kernel.prototype.kill = function (pid) {
@@ -132,56 +164,6 @@ var TSOS;
             }
         };
 
-        Kernel.prototype.saveProcessorState = function () {
-            if (this.running != undefined) {
-                this.running.setProgramCounter(_CPU.programCounter);
-                this.running.setAccumulator(_CPU.accumulator);
-                this.running.setXRegister(_CPU.xRegister);
-                this.running.setYRegister(_CPU.yRegister);
-                this.running.setZFlag(_CPU.zFlag);
-                this.running.setKernelMode(_CPU.kernelMode);
-
-                this.ready.add(this.running);
-                this.print(this.running);
-
-                this.running = undefined;
-            }
-
-            _CPU.executing = false;
-        };
-
-        Kernel.prototype.saveProcessorState1 = function () {
-            if (this.running != undefined) {
-                this.running.setProgramCounter(_CPU.programCounter);
-                this.running.setAccumulator(_CPU.accumulator);
-                this.running.setXRegister(_CPU.xRegister);
-                this.running.setYRegister(_CPU.yRegister);
-                this.running.setZFlag(_CPU.zFlag);
-                this.running.setKernelMode(_CPU.kernelMode);
-
-                this.print(this.running);
-
-                this.running = undefined;
-            }
-
-            _CPU.executing = false;
-        };
-        Kernel.prototype.setProcessorState = function (pcb) {
-            this.running = pcb;
-
-            _CPU.programCounter = this.running.getProgramCounter();
-            _CPU.accumulator = this.running.getAccumulator();
-            _CPU.xRegister = this.running.getXRegister();
-            _CPU.yRegister = this.running.getYRegister();
-            _CPU.zFlag = this.running.getZFlag();
-            _CPU.kernelMode = this.running.getKernelMode();
-            _CPU.lowAddress = this.running.getLowAddress();
-            _CPU.highAddress = this.running.getHighAddress();
-            _CPU.executing = true;
-
-            this.print(this.running);
-        };
-
         Kernel.prototype.print = function (pcb) {
             if (pcb.getPid() != 0) {
                 var print = "";
@@ -212,39 +194,52 @@ var TSOS;
             this.krnTrace("end shutdown OS");
         };
 
-        Kernel.prototype.programBreak = function () {
-            var save = this.running;
-            this.saveProcessorState1();
-            TSOS.liblos.deallocate(save.getSegment());
-            this.memoryManager.deallocate(save.getSegment());
-            ;
+        Kernel.prototype.handleKernelInterrupt = function (interrupt) {
+            //If the kernel is not already running, save the current PCB
+            //and put it at the front of the ready queue
+            if (this.running != this.kernelPCB) {
+                this.running.updatePCB();
+                this.ready.front(this.running);
+                this.running = this.kernelPCB;
 
-            this.print(save);
-            TSOS.Stdio.putStringLn("Program finished");
+                //Add a context switch call to go back to the running process
+                //after the kernel is finished
+                _KernelInterruptQueue.add(3 /* CONTEXT_SWITCH */);
+            }
+
+            switch (interrupt) {
+                case 0 /* PUT_STRING */:
+                    _CPU.ignoreInterrupts = true;
+                    _CPU.returnRegister = _CPU.programCounter;
+                    this.kernelPCB.setProgramCounter(new TSOS.Short(0x0308));
+                    this.contextSwitchToKernel();
+                    break;
+                case 1 /* LOAD_PROGRAM */:
+                    break;
+                case 2 /* CLEAR_SEGMENT */:
+                    break;
+                case 3 /* CONTEXT_SWITCH */:
+                    break;
+            }
+        };
+
+        Kernel.prototype.programBreak = function () {
         };
 
         Kernel.prototype.segmentationFault = function () {
-            var save = this.running;
-            this.saveProcessorState1();
-            TSOS.liblos.deallocate(save.getSegment());
-            this.memoryManager.deallocate(save.getSegment());
-            ;
-
-            this.print(save);
-            TSOS.Stdio.putStringLn("Segfault. Program killed");
         };
 
         Kernel.prototype.timerInterrupt = function () {
             //Never switch from Kernel Prcoess until it is done
             if (this.running != this.kernelPCB) {
-                //If size is 1, do not do a context switch since it is pointless
-                if (this.ready.size() > 1) {
-                    this.running.updatePCB();
-                    this.ready.add(this.running);
+                this.contextSwitchToNext();
+            }
+        };
 
-                    this.running = this.ready.dequeue();
-                    this.running.setCPU();
-                }
+        Kernel.prototype.keyboardInterrupt = function (parameters) {
+            _krnKeyboardDriver.isr(parameters);
+            while (_KernelInputQueue.size() > 0) {
+                _OsShell.isr(_KernelInputQueue.dequeue());
             }
         };
 
@@ -260,17 +255,6 @@ var TSOS;
                     _CPU.programCounter = new TSOS.Short(0x0342);
                     break;
             }
-        };
-
-        Kernel.prototype.handleBreak = function (mode) {
-            var save = this.running;
-            this.saveProcessorState1();
-            TSOS.liblos.deallocate(save.getSegment());
-            this.memoryManager.deallocate(save.getSegment());
-            ;
-
-            this.print(save);
-            TSOS.Stdio.putStringLn("Program finished");
         };
 
         Kernel.prototype.krnTimerISR = function () {

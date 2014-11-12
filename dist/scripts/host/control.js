@@ -96,7 +96,7 @@ var TSOS;
             TSOS.liblos.shutdown();
 
             // Stop the interval that's simulating our clock pulse.
-            clearInterval(_hardwareClockID);
+            _CPU.stop();
             // TODO: Is there anything else we need to do here?
         };
 

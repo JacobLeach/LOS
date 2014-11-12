@@ -35,16 +35,16 @@ var TSOS;
         };
 
         liblos.putString = function () {
-            //_Kernel.contextSwitch(_Kernel.getShellPid());
-            _KernelInterruptQueue.enqueue(new TSOS.Interrupt(2 /* SYSTEM_CALL */, [4, true]));
+            _KernelInterruptQueue.add(0 /* PUT_STRING */);
+            console.log("HI");
         };
 
         liblos.shutdown = function () {
-            _Kernel.shutdown();
+            //_Kernel.shutdown();
         };
 
         liblos.deallocate = function (segment) {
-            _KernelInterruptQueue.enqueue(new TSOS.Interrupt(2 /* SYSTEM_CALL */, [7, true, segment]));
+            //_KernelInterruptQueue.add(new Interrupt(InterruptType.SYSTEM_CALL, [7, true, segment]));
         };
 
         liblos.kill = function (pid) {

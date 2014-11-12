@@ -8,5 +8,10 @@ module TSOS
     {
       this.clockId = setInterval(cpu.tick, speed);
     }
+
+    public stop(): void
+    {
+      clearInterval(this.clockId);
+    }
   }
 }
