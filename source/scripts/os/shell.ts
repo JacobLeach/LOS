@@ -158,6 +158,7 @@ module TSOS {
 
             // processes - list the running processes and their IDs
             // kill <id> - kills the specified process id.
+            this.putPrompt();
         }
 
         public ps(args): void 

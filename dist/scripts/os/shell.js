@@ -106,8 +106,10 @@ var TSOS;
 
             sc = new TSOS.ShellCommand(this.quantum, "quantum", "<ticks> - Changes round robin quantum");
             this.commandList[sc.command] = sc;
+
             // processes - list the running processes and their IDs
             // kill <id> - kills the specified process id.
+            this.putPrompt();
         };
 
         Shell.prototype.ps = function (args) {
