@@ -57,6 +57,11 @@ module TSOS {
     {
       return this.memoryBounds.getSegment();
     }
+    
+    public getBase(): Short
+    {
+      return this.memoryBounds.lower();
+    }
 
     public getPid(): number
     {

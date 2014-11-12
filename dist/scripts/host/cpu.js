@@ -9,6 +9,7 @@ var TSOS;
         Interrupt[Interrupt["SegmentationFault"] = 0] = "SegmentationFault";
         Interrupt[Interrupt["Break"] = 1] = "Break";
         Interrupt[Interrupt["Software"] = 2] = "Software";
+        Interrupt[Interrupt["Clock"] = 3] = "Clock";
     })(Interrupt || (Interrupt = {}));
 
     var Cpu = (function () {
@@ -25,6 +26,7 @@ var TSOS;
             this.executing = false;
             this.interruptFlag = undefined;
             this.ignoreInterrupts = false;
+            this.tickCount = _Quant;
 
             this.deviceController = new TSOS.DeviceController();
             this.clock = new TSOS.Clock(this, CPU_CLOCK_INTERVAL);
@@ -45,6 +47,8 @@ var TSOS;
                     _Kernel.programBreak();
                 } else if (_CPU.interruptFlag === 2 /* Software */) {
                     _Kernel.softwareInterrupt();
+                } else if (_CPU.interruptFlag === 3 /* Clock */) {
+                    _Kernel.timerInterrupt();
                 }
             }
 
@@ -67,6 +71,14 @@ var TSOS;
             }
 
             _CPU.cycle();
+
+            if (!_CPU.ignoreInterrupts) {
+                _CPU.tickCount--;
+                if (_CPU.tickCount === 0) {
+                    _CPU.interruptFlag = 3 /* Clock */;
+                    _CPU.tickCount = _Quant;
+                }
+            }
         };
 
         Cpu.prototype.stop = function () {

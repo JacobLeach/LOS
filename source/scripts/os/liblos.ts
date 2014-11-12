@@ -37,13 +37,13 @@ module TSOS
     
     public static runProgram(pid: number): void
     {
-      _Kernel.runProgram(pid);
+      console.log("FUCK ME WITH ARAKE MATE");
+      _KernelInterruptQueue.add(new Tuple(IO.RUN, pid));
     }
     
     public static putString(): void
     {
-      _KernelInterruptQueue.add(IO.PUT_STRING);
-      console.log("HI");
+      _KernelInterruptQueue.add(new Tuple(IO.PUT_STRING, undefined));
     }
 
     public static shutdown(): void

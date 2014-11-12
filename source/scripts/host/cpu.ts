@@ -11,7 +11,8 @@ module TSOS
   {
     SegmentationFault,
     Break,
-    Software
+    Software,
+    Clock
   }
 
   export class Cpu 
@@ -30,6 +31,7 @@ module TSOS
     public executing: boolean;
     private interruptFlag: Interrupt;
     public ignoreInterrupts: boolean;
+    public tickCount: number;
 
     private deviceController: DeviceController;
     private clock: Clock;
@@ -48,6 +50,7 @@ module TSOS
       this.executing = false;
       this.interruptFlag = undefined;
       this.ignoreInterrupts = false;
+      this.tickCount = _Quant;
 
       this.deviceController = new DeviceController();
       this.clock = new Clock(this, CPU_CLOCK_INTERVAL);
@@ -77,6 +80,10 @@ module TSOS
         {
           _Kernel.softwareInterrupt();
         }
+        else if(_CPU.interruptFlag === Interrupt.Clock)
+        {
+          _Kernel.timerInterrupt();
+        }
       }
       
       /*
@@ -98,6 +105,16 @@ module TSOS
       }
 
       _CPU.cycle();
+
+      if(!_CPU.ignoreInterrupts)
+      {
+        _CPU.tickCount--;
+        if(_CPU.tickCount === 0)
+        {
+          _CPU.interruptFlag = Interrupt.Clock; 
+          _CPU.tickCount = _Quant;
+        }
+      }
     }
 
     public stop(): void

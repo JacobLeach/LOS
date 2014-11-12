@@ -8,6 +8,8 @@ var TSOS;
         IO[IO["LOAD_PROGRAM"] = 1] = "LOAD_PROGRAM";
         IO[IO["CLEAR_SEGMENT"] = 2] = "CLEAR_SEGMENT";
         IO[IO["CONTEXT_SWITCH"] = 3] = "CONTEXT_SWITCH";
+        IO[IO["PCB_IN_LOADED"] = 4] = "PCB_IN_LOADED";
+        IO[IO["RUN"] = 5] = "RUN";
     })(TSOS.IO || (TSOS.IO = {}));
     var IO = TSOS.IO;
 
@@ -55,6 +57,16 @@ var TSOS;
             _OsShell.init();
         }
         Kernel.prototype.forkExec = function () {
+            var segment = this.memoryManager.allocate();
+
+            if (segment === undefined) {
+                return undefined;
+            } else {
+                var pcb = new TSOS.PCB(segment);
+                _KernelInterruptQueue.add(new TSOS.Tuple(1 /* LOAD_PROGRAM */, pcb));
+
+                return pcb.getPid();
+            }
             return 0;
         };
 
@@ -207,7 +219,7 @@ var TSOS;
                 _KernelInterruptQueue.add(3 /* CONTEXT_SWITCH */);
             }
 
-            switch (interrupt) {
+            switch (interrupt.first) {
                 case 0 /* PUT_STRING */:
                     _CPU.ignoreInterrupts = true;
                     _CPU.returnRegister = _CPU.programCounter;
@@ -215,11 +227,34 @@ var TSOS;
                     this.contextSwitchToKernel();
                     break;
                 case 1 /* LOAD_PROGRAM */:
+                    _CPU.ignoreInterrupts = true;
+                    _CPU.returnRegister = _CPU.programCounter;
+                    this.kernelPCB.setProgramCounter(new TSOS.Short(0x0319));
+                    _Memory.setByte(new TSOS.Short(0x0323), interrupt.second.getBase().getHighByte());
+                    this.contextSwitchToKernel();
+                    _KernelInterruptQueue.front(new TSOS.Tuple(4 /* PCB_IN_LOADED */, interrupt.second));
                     break;
                 case 2 /* CLEAR_SEGMENT */:
                     break;
                 case 3 /* CONTEXT_SWITCH */:
                     break;
+                case 4 /* PCB_IN_LOADED */:
+                    this.loaded.push(interrupt.second);
+                    break;
+                case 5 /* RUN */:
+                    this.loadedToReady(interrupt.second);
+                    break;
+            }
+        };
+
+        Kernel.prototype.loadedToReady = function (pid) {
+            console.log("????");
+            for (var i = 0; i < this.loaded.length; i++) {
+                if (this.loaded[i].getPid() === pid) {
+                    this.ready.add(this.loaded[i]);
+                    this.loaded.splice(i, 1);
+                    break;
+                }
             }
         };
 
@@ -230,10 +265,8 @@ var TSOS;
         };
 
         Kernel.prototype.timerInterrupt = function () {
-            //Never switch from Kernel Prcoess until it is done
-            if (this.running != this.kernelPCB) {
-                this.contextSwitchToNext();
-            }
+            console.log("HEY: " + this.ready.size());
+            this.contextSwitchToNext();
         };
 
         Kernel.prototype.keyboardInterrupt = function (parameters) {
@@ -255,11 +288,6 @@ var TSOS;
                     _CPU.programCounter = new TSOS.Short(0x0342);
                     break;
             }
-        };
-
-        Kernel.prototype.krnTimerISR = function () {
-            // The built-in TIMER (not clock) Interrupt Service Routine (as opposed to an ISR coming from a device driver). {
-            // Check multiprogramming parameters and enforce quanta here. Call the scheduler / context switch here if necessary.
         };
 
         Kernel.prototype.krnTrace = function (msg) {

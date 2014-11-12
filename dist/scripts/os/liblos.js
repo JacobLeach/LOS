@@ -31,12 +31,12 @@ var TSOS;
         };
 
         liblos.runProgram = function (pid) {
-            _Kernel.runProgram(pid);
+            console.log("FUCK ME WITH ARAKE MATE");
+            _KernelInterruptQueue.add(new TSOS.Tuple(5 /* RUN */, pid));
         };
 
         liblos.putString = function () {
-            _KernelInterruptQueue.add(0 /* PUT_STRING */);
-            console.log("HI");
+            _KernelInterruptQueue.add(new TSOS.Tuple(0 /* PUT_STRING */, undefined));
         };
 
         liblos.shutdown = function () {

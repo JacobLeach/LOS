@@ -40,6 +40,10 @@ var TSOS;
             return this.memoryBounds.getSegment();
         };
 
+        PCB.prototype.getBase = function () {
+            return this.memoryBounds.lower();
+        };
+
         PCB.prototype.getPid = function () {
             return this.pid;
         };
