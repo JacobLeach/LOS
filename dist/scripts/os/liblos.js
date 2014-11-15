@@ -4,7 +4,7 @@ var TSOS;
         function liblos() {
         }
         liblos.loadProgram = function () {
-            return _Kernel.forkExec();
+            return _Kernel.loadProgram();
         };
 
         liblos.ps = function () {

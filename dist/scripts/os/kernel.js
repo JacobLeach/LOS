@@ -49,7 +49,7 @@ var TSOS;
             this.idlePCB = new TSOS.PCB(this.memoryManager.reserve(4));
             this.setIdle();
         }
-        Kernel.prototype.forkExec = function () {
+        Kernel.prototype.loadProgram = function () {
             var segment = this.memoryManager.allocate();
 
             if (segment === undefined) {
@@ -120,9 +120,6 @@ var TSOS;
             }
 
             return pids;
-        };
-
-        Kernel.prototype.runShell = function () {
         };
 
         Kernel.prototype.kill = function (pid) {

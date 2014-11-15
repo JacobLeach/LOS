@@ -4,7 +4,7 @@ module TSOS
   {
     public static loadProgram(): number
     {
-      return _Kernel.forkExec();
+      return _Kernel.loadProgram();
     }
 
     public static ps(): void

@@ -26,7 +26,7 @@ module TSOS
     public memoryManager: MemoryManager;
     private cyclesLeft: number;
     
-    public forkExec(): number
+    public loadProgram(): number
     {
       var segment = this.memoryManager.allocate();
 
@@ -117,11 +117,6 @@ module TSOS
       return pids;
     }
     
-    private runShell(): void
-    {
-    
-    }
-
     public kill(pid: number): void
     {
       if(this.running != undefined && this.running.getPid() === pid)
