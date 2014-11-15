@@ -139,8 +139,6 @@ module TSOS
       {
         for(var i = 0; i < this.loaded.length; i++)
         {
-          console.log(this.loaded[i].getPid());
-          console.log(pid);
           if(this.loaded[i].getPid() == pid)  
           {
             this.memoryManager.deallocate(this.loaded[i].getSegment());;
@@ -269,12 +267,10 @@ module TSOS
       switch(interrupt.first)
       {
         case IO.PUT_STRING:
-          console.log("Put string interrupt");
           this.kernelPCB.setProgramCounter(new Short(0x0308));
           this.contextSwitchToKernel();
           break;
         case IO.LOAD_PROGRAM:
-          console.log("Load program interrupt");
           this.kernelPCB.setProgramCounter(new Short(0x0319));
           _Memory.setByte(new Short(0x0323), interrupt.second.getBase().getHighByte());
           this.contextSwitchToKernel();
@@ -287,17 +283,14 @@ module TSOS
           break;
         case IO.PCB_IN_LOADED:
           this.setIdle();
-          console.log("Loading done interrupt");
           this.loaded.push(interrupt.second); 
           _CPU.ignoreInterrupts = false;
           break;
         case IO.RUN:
-          console.log("Running interrupt");
           this.loadedToReady(interrupt.second);
           this.contextSwitchToNext();
           _CPU.ignoreInterrupts = false;
           break;
-
       }
     }
     
@@ -305,11 +298,8 @@ module TSOS
     {
       for(var i = 0; i < this.loaded.length; i++)
       {
-        console.log("what? " + this.loaded[i].getPid());
-        console.log("pid: " + pid);
         if(this.loaded[i].getPid() == pid)
         {
-          console.log("Hey");
           this.ready.add(this.loaded[i]);
           this.loaded.splice(i, 1);
           break;
@@ -329,7 +319,6 @@ module TSOS
     
     public returnInterrupt(): void
     {
-      console.log("returning");
       if(_KernelInterruptQueue.size() === 0)
       {
         this.contextSwitchToNext(); 

@@ -138,8 +138,6 @@ var TSOS;
                 TSOS.liblos.deallocate(this.running.getSegment());
             } else {
                 for (var i = 0; i < this.loaded.length; i++) {
-                    console.log(this.loaded[i].getPid());
-                    console.log(pid);
                     if (this.loaded[i].getPid() == pid) {
                         this.memoryManager.deallocate(this.loaded[i].getSegment());
                         ;
@@ -216,12 +214,10 @@ var TSOS;
         Kernel.prototype.handleKernelInterrupt = function (interrupt) {
             switch (interrupt.first) {
                 case 0 /* PUT_STRING */:
-                    console.log("Put string interrupt");
                     this.kernelPCB.setProgramCounter(new TSOS.Short(0x0308));
                     this.contextSwitchToKernel();
                     break;
                 case 1 /* LOAD_PROGRAM */:
-                    console.log("Load program interrupt");
                     this.kernelPCB.setProgramCounter(new TSOS.Short(0x0319));
                     _Memory.setByte(new TSOS.Short(0x0323), interrupt.second.getBase().getHighByte());
                     this.contextSwitchToKernel();
@@ -234,12 +230,10 @@ var TSOS;
                     break;
                 case 4 /* PCB_IN_LOADED */:
                     this.setIdle();
-                    console.log("Loading done interrupt");
                     this.loaded.push(interrupt.second);
                     _CPU.ignoreInterrupts = false;
                     break;
                 case 5 /* RUN */:
-                    console.log("Running interrupt");
                     this.loadedToReady(interrupt.second);
                     this.contextSwitchToNext();
                     _CPU.ignoreInterrupts = false;
@@ -249,10 +243,7 @@ var TSOS;
 
         Kernel.prototype.loadedToReady = function (pid) {
             for (var i = 0; i < this.loaded.length; i++) {
-                console.log("what? " + this.loaded[i].getPid());
-                console.log("pid: " + pid);
                 if (this.loaded[i].getPid() == pid) {
-                    console.log("Hey");
                     this.ready.add(this.loaded[i]);
                     this.loaded.splice(i, 1);
                     break;
@@ -270,7 +261,6 @@ var TSOS;
         };
 
         Kernel.prototype.returnInterrupt = function () {
-            console.log("returning");
             if (_KernelInterruptQueue.size() === 0) {
                 this.contextSwitchToNext();
             }
