@@ -76,6 +76,7 @@ var TSOS;
             if (this.ready.size() > 0) {
                 this.running = this.ready.dequeue();
                 this.running.setCPU();
+                this.krnTrace("Starting user process " + this.running.getPid());
             } else {
                 this.setIdle();
             }
@@ -93,6 +94,7 @@ var TSOS;
                 }
 
                 this.running = this.kernelPCB;
+                this.krnTrace("Starting kernel process");
             }
 
             this.running.setCPU();
