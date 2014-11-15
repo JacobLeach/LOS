@@ -28,6 +28,7 @@ module TSOS
       this.deallocate(0);
       this.deallocate(1);
       this.deallocate(2);
+      _Kernel.killAll();
     }
 
     public static runall(): void

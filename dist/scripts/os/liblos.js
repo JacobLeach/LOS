@@ -24,6 +24,7 @@ var TSOS;
             this.deallocate(0);
             this.deallocate(1);
             this.deallocate(2);
+            _Kernel.killAll();
         };
 
         liblos.runall = function () {
