@@ -119,12 +119,19 @@ var TSOS;
                 pids[this.running.getPid()] = true;
             }
 
+            if (this.idlePCB != undefined) {
+                pids[this.idlePCB.getPid()] = true;
+            }
+
+            if (this.kernelPCB != undefined) {
+                pids[this.kernelPCB.getPid()] = true;
+            }
+
             return pids;
         };
 
         Kernel.prototype.kill = function (pid) {
             if (this.running != undefined && this.running.getPid() === pid) {
-                _CPU.executing = false;
                 this.running = undefined;
                 this.memoryManager.deallocate(this.running.getSegment());
                 ;
@@ -221,6 +228,9 @@ var TSOS;
                     _KernelInterruptQueue.front(new TSOS.Tuple(4 /* PCB_IN_LOADED */, interrupt.second));
                     break;
                 case 2 /* CLEAR_SEGMENT */:
+                    this.kernelPCB.setProgramCounter(new TSOS.Short(0x035D));
+                    this.kernelPCB.setAccumulator(new TSOS.Byte(interrupt.second));
+                    this.contextSwitchToKernel();
                     break;
                 case 4 /* PCB_IN_LOADED */:
                     this.setIdle();
@@ -251,7 +261,12 @@ var TSOS;
         };
 
         Kernel.prototype.programBreak = function () {
-            console.log("BREAK");
+            this.memoryManager.deallocate(this.running.getSegment());
+            TSOS.liblos.deallocate(this.running.getSegment());
+            this.running = undefined;
+
+            TSOS.Stdio.putStringLn("Program Finished");
+            this.contextSwitchToNext();
         };
 
         Kernel.prototype.returnInterrupt = function () {

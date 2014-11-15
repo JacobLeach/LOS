@@ -60,6 +60,14 @@ var TSOS;
                 _CPU.interruptFlag = undefined;
             }
 
+            //If the previous clock cycle set the interrupt flag
+            //AND a timer interrupt should have happened as well,
+            //then the timer interrupt is not set and is checked here
+            if (_CPU.tickCount === 0 && _CPU.interruptFlag === undefined) {
+                _Kernel.timerInterrupt();
+                _CPU.tickCount = _Quant;
+            }
+
             /*
             * This is a hack because the kernel is not all running on this hardware.
             * When the Kernel needs to run some code on the CPU or do some task that
@@ -82,12 +90,13 @@ var TSOS;
 
             if (!_CPU.ignoreInterrupts) {
                 _CPU.tickCount--;
-                if (_CPU.tickCount === 0) {
+                if (_CPU.tickCount === 0 && _CPU.interruptFlag === undefined) {
                     _CPU.interruptFlag = 3 /* Clock */;
                     _CPU.tickCount = _Quant;
                 }
             }
 
+            //Please do not hurt me for this
             document.getElementById("cpuBox").value = _CPU.toString();
         };
 

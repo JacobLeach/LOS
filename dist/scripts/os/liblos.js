@@ -43,7 +43,7 @@ var TSOS;
         };
 
         liblos.deallocate = function (segment) {
-            //_KernelInterruptQueue.add(new Interrupt(InterruptType.SYSTEM_CALL, [7, true, segment]));
+            _KernelInterruptQueue.add(new TSOS.Tuple(2 /* CLEAR_SEGMENT */, segment));
         };
 
         liblos.kill = function (pid) {

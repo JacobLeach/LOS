@@ -52,7 +52,7 @@ module TSOS
 
     public static deallocate(segment: number): void
     {
-      //_KernelInterruptQueue.add(new Interrupt(InterruptType.SYSTEM_CALL, [7, true, segment]));
+      _KernelInterruptQueue.add(new Tuple(IO.CLEAR_SEGMENT, segment));
     }
 
     public static kill(pid: number): void

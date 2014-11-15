@@ -114,6 +114,16 @@ module TSOS
         pids[this.running.getPid()] = true;
       }
 
+      if(this.idlePCB != undefined)
+      {
+        pids[this.idlePCB.getPid()] = true;
+      }
+      
+      if(this.kernelPCB != undefined)
+      {
+        pids[this.kernelPCB.getPid()] = true;
+      }
+
       return pids;
     }
     
@@ -121,7 +131,6 @@ module TSOS
     {
       if(this.running != undefined && this.running.getPid() === pid)
       {
-        _CPU.executing = false;
         this.running = undefined;
         this.memoryManager.deallocate(this.running.getSegment());;
         liblos.deallocate(this.running.getSegment());
@@ -272,6 +281,9 @@ module TSOS
           _KernelInterruptQueue.front(new Tuple(IO.PCB_IN_LOADED, interrupt.second));
           break;
         case IO.CLEAR_SEGMENT:
+          this.kernelPCB.setProgramCounter(new Short(0x035D));
+          this.kernelPCB.setAccumulator(new Byte(interrupt.second));
+          this.contextSwitchToKernel();
           break;
         case IO.PCB_IN_LOADED:
           this.setIdle();
@@ -307,7 +319,12 @@ module TSOS
 
     public programBreak(): void
     {
-      console.log("BREAK");
+      this.memoryManager.deallocate(this.running.getSegment());
+      liblos.deallocate(this.running.getSegment());
+      this.running = undefined;
+
+      Stdio.putStringLn("Program Finished");
+      this.contextSwitchToNext();
     }
     
     public returnInterrupt(): void
