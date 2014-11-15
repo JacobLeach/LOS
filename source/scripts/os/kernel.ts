@@ -58,7 +58,6 @@ module TSOS
         }
       }
       
-      console.log("HERTE");
       if(this.ready.size() > 0)
       {
         this.running = this.ready.dequeue();
@@ -66,7 +65,6 @@ module TSOS
       }
       else
       {
-      console.log("idle");
         this.setIdle(); 
       }
     }

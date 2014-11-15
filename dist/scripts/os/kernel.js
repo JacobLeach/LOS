@@ -74,12 +74,10 @@ var TSOS;
                 }
             }
 
-            console.log("HERTE");
             if (this.ready.size() > 0) {
                 this.running = this.ready.dequeue();
                 this.running.setCPU();
             } else {
-                console.log("idle");
                 this.setIdle();
             }
         };
