@@ -139,10 +139,9 @@ var TSOS;
                 TSOS.liblos.deallocate(this.running.getSegment());
                 this.running = undefined;
             } else if (this.kernelPCB != undefined && this.kernelPCB.getPid() == pid) {
-                this.memoryManager.deallocate(this.kernelPCB.getSegment());
-                ;
-                TSOS.liblos.deallocate(this.kernelPCB.getSegment());
-                this.kernelPCB = undefined;
+                _Console.bluescreen();
+                _Console.writeWhiteText("Kernel killed.");
+                _Kernel.shutdown();
             } else if (this.idlePCB != undefined && this.idlePCB.getPid() == pid) {
                 this.memoryManager.deallocate(this.idlePCB.getSegment());
                 ;
@@ -225,6 +224,7 @@ var TSOS;
         };
 
         Kernel.prototype.shutdown = function () {
+            _CPU.stop();
             this.krnTrace("begin shutdown OS");
             this.krnTrace("end shutdown OS");
         };

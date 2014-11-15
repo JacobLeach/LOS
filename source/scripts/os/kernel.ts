@@ -140,9 +140,9 @@ module TSOS
       }
       else if(this.kernelPCB != undefined && this.kernelPCB.getPid() == pid)
       {
-        this.memoryManager.deallocate(this.kernelPCB.getSegment());;
-        liblos.deallocate(this.kernelPCB.getSegment());
-        this.kernelPCB = undefined;
+        _Console.bluescreen();
+        _Console.writeWhiteText("Kernel killed.");
+        _Kernel.shutdown();
       }
       else if(this.idlePCB != undefined && this.idlePCB.getPid() == pid)
       {
@@ -280,6 +280,7 @@ module TSOS
 
     public shutdown() 
     {
+      _CPU.stop();
       this.krnTrace("begin shutdown OS");
       this.krnTrace("end shutdown OS");
     }
