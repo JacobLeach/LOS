@@ -45,8 +45,7 @@ var TSOS;
             _OsShell = new TSOS.Shell();
             _OsShell.init();
 
-            //Create the idle process and get it started
-            this.idlePCB = new TSOS.PCB(this.memoryManager.reserve(4));
+            //Start idling
             this.setIdle();
         }
         Kernel.prototype.loadProgram = function () {
@@ -131,11 +130,22 @@ var TSOS;
         };
 
         Kernel.prototype.kill = function (pid) {
-            if (this.running != undefined && this.running.getPid() === pid) {
-                this.running = undefined;
+            console.log("What?: " + pid);
+            if (this.running != undefined && this.running.getPid() == pid) {
                 this.memoryManager.deallocate(this.running.getSegment());
                 ;
                 TSOS.liblos.deallocate(this.running.getSegment());
+                this.running = undefined;
+            } else if (this.kernelPCB != undefined && this.kernelPCB.getPid() == pid) {
+                this.memoryManager.deallocate(this.kernelPCB.getSegment());
+                ;
+                TSOS.liblos.deallocate(this.kernelPCB.getSegment());
+                this.kernelPCB = undefined;
+            } else if (this.idlePCB != undefined && this.idlePCB.getPid() == pid) {
+                this.memoryManager.deallocate(this.idlePCB.getSegment());
+                ;
+                TSOS.liblos.deallocate(this.idlePCB.getSegment());
+                this.idlePCB = undefined;
             } else {
                 for (var i = 0; i < this.loaded.length; i++) {
                     if (this.loaded[i].getPid() == pid) {
@@ -201,9 +211,15 @@ var TSOS;
         };
 
         Kernel.prototype.setIdle = function () {
-            this.krnTrace("Starting idle process");
-            this.running = this.idlePCB;
-            this.running.setCPU();
+            if (this.idlePCB != undefined) {
+                this.krnTrace("Starting idle process");
+                this.running = this.idlePCB;
+                this.running.setCPU();
+            } else {
+                this.krnTrace("Idle process not started. Starting.");
+                this.idlePCB = new TSOS.PCB(this.memoryManager.reserve(4));
+                this.setIdle();
+            }
         };
 
         Kernel.prototype.shutdown = function () {

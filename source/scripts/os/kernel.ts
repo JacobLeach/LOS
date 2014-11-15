@@ -129,11 +129,24 @@ module TSOS
     
     public kill(pid: number): void
     {
-      if(this.running != undefined && this.running.getPid() === pid)
+      console.log("What?: " + pid);
+      if(this.running != undefined && this.running.getPid() == pid)
       {
-        this.running = undefined;
         this.memoryManager.deallocate(this.running.getSegment());;
         liblos.deallocate(this.running.getSegment());
+        this.running = undefined;
+      }
+      else if(this.kernelPCB != undefined && this.kernelPCB.getPid() == pid)
+      {
+        this.memoryManager.deallocate(this.kernelPCB.getSegment());;
+        liblos.deallocate(this.kernelPCB.getSegment());
+        this.kernelPCB = undefined;
+      }
+      else if(this.idlePCB != undefined && this.idlePCB.getPid() == pid)
+      {
+        this.memoryManager.deallocate(this.idlePCB.getSegment());;
+        liblos.deallocate(this.idlePCB.getSegment());
+        this.idlePCB = undefined;
       }
       else
       {
@@ -213,9 +226,18 @@ module TSOS
 
     private setIdle()
     {
-      this.krnTrace("Starting idle process");
-      this.running = this.idlePCB;
-      this.running.setCPU();
+      if(this.idlePCB != undefined)
+      {
+        this.krnTrace("Starting idle process");
+        this.running = this.idlePCB;
+        this.running.setCPU();
+      }
+      else
+      {
+        this.krnTrace("Idle process not started. Starting.");
+        this.idlePCB = new PCB(this.memoryManager.reserve(4));
+        this.setIdle();
+      }
     }
 
     constructor()
@@ -250,10 +272,8 @@ module TSOS
       _OsShell = new Shell();
       _OsShell.init();
       
-      //Create the idle process and get it started
-      this.idlePCB = new PCB(this.memoryManager.reserve(4));
+      //Start idling
       this.setIdle();
-      
     }
 
     public shutdown() 
