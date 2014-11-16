@@ -16,6 +16,21 @@ var TSOS;
             this.memoryBounds = memoryBounds;
             this.pid = PCB.next_pid++;
         }
+        PCB.prototype.toString = function () {
+            var print = "";
+            print += "Pid: " + this.getPid();
+            print += "\nPC: " + this.getProgramCounter().asNumber().toString(16);
+            print += "\nACC: " + this.getAccumulator().asNumber().toString(16);
+            print += "\nX: " + this.getXRegister().asNumber().toString(16);
+            print += "\nY: " + this.getYRegister().asNumber().toString(16);
+            print += "\nZ: " + this.getZFlag();
+            print += "\nKernel Mode: " + this.getKernelMode();
+            print += "\nbase: " + this.getLowAddress().asNumber().toString(16);
+            print += "\nlimit: " + this.getHighAddress().asNumber().toString(16);
+
+            return print;
+        };
+
         PCB.prototype.updatePCB = function () {
             this.setProgramCounter(_CPU.programCounter);
             this.setAccumulator(_CPU.accumulator);

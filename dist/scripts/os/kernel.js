@@ -80,6 +80,8 @@ var TSOS;
             } else {
                 this.setIdle();
             }
+
+            this.printReady();
         };
 
         Kernel.prototype.contextSwitchToKernel = function () {
@@ -98,6 +100,7 @@ var TSOS;
             }
 
             this.running.setCPU();
+            this.printReady();
         };
 
         Kernel.prototype.putString = function () {
@@ -191,20 +194,16 @@ var TSOS;
         };
 
         Kernel.prototype.print = function (pcb) {
-            if (pcb.getPid() != 0) {
-                var print = "";
-                print += "Pid: " + pcb.getPid();
-                print += "\nPC: " + pcb.getProgramCounter().asNumber().toString(16);
-                print += "\nACC: " + pcb.getAccumulator().asNumber().toString(16);
-                print += "\nX: " + pcb.getXRegister().asNumber().toString(16);
-                print += "\nY: " + pcb.getYRegister().asNumber().toString(16);
-                print += "\nZ: " + pcb.getZFlag();
-                print += "\nKernel Mode: " + pcb.getKernelMode();
-                print += "\nbase: " + pcb.getLowAddress().asNumber().toString(16);
-                print += "\nlimit: " + pcb.getHighAddress().asNumber().toString(16);
+            document.getElementById("readyBox").value = pcb.toString();
+        };
 
-                document.getElementById("pcbBox").value = print;
+        Kernel.prototype.printReady = function () {
+            var str = "";
+            for (var i = 0; i < this.ready.q.length; i++) {
+                str += this.ready.q[i].toString();
             }
+
+            document.getElementById("readyBox").value = str;
         };
 
         Kernel.prototype.getRunning = function () {

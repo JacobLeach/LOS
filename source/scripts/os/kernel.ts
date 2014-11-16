@@ -68,6 +68,8 @@ module TSOS
       {
         this.setIdle(); 
       }
+      
+      this.printReady();
     }
 
     private contextSwitchToKernel(): void
@@ -89,6 +91,7 @@ module TSOS
       }
       
       this.running.setCPU();
+      this.printReady();
     }
 
     public putString()
@@ -204,21 +207,18 @@ module TSOS
     
     public print(pcb: PCB): void
     {
-      if(pcb.getPid() != 0)
+      (<HTMLInputElement>document.getElementById("readyBox")).value = pcb.toString(); 
+    }
+
+    public printReady(): void
+    {
+      var str = "";
+      for(var i = 0; i < this.ready.q.length; i++)
       {
-        var print = "";
-        print += "Pid: " + pcb.getPid();
-        print += "\nPC: " + pcb.getProgramCounter().asNumber().toString(16);
-        print += "\nACC: " + pcb.getAccumulator().asNumber().toString(16);
-        print += "\nX: " + pcb.getXRegister().asNumber().toString(16);
-        print += "\nY: " + pcb.getYRegister().asNumber().toString(16);
-        print += "\nZ: " + pcb.getZFlag();
-        print += "\nKernel Mode: " + pcb.getKernelMode();
-        print += "\nbase: " + pcb.getLowAddress().asNumber().toString(16);
-        print += "\nlimit: " + pcb.getHighAddress().asNumber().toString(16);
-        
-        (<HTMLInputElement>document.getElementById("pcbBox")).value = print;
+        str += this.ready.q[i].toString();
       }
+
+      (<HTMLInputElement>document.getElementById("readyBox")).value = str; 
     }
 
     public getRunning(): number
@@ -338,6 +338,7 @@ module TSOS
 
       Stdio.putStringLn("Program Finished");
       this.contextSwitchToNext();
+
     }
     
     public returnInterrupt(): void

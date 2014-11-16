@@ -30,7 +30,23 @@ module TSOS {
       this.memoryBounds = memoryBounds;
       this.pid = PCB.next_pid++;
     }
-    
+
+    public toString(): string
+    {
+      var print = "";
+      print += "Pid: " + this.getPid();
+      print += "\nPC: " + this.getProgramCounter().asNumber().toString(16);
+      print += "\nACC: " + this.getAccumulator().asNumber().toString(16);
+      print += "\nX: " + this.getXRegister().asNumber().toString(16);
+      print += "\nY: " + this.getYRegister().asNumber().toString(16);
+      print += "\nZ: " + this.getZFlag();
+      print += "\nKernel Mode: " + this.getKernelMode();
+      print += "\nbase: " + this.getLowAddress().asNumber().toString(16);
+      print += "\nlimit: " + this.getHighAddress().asNumber().toString(16);
+
+      return print;
+    }
+
     public updatePCB()
     {
       this.setProgramCounter(_CPU.programCounter);  
