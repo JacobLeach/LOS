@@ -381,6 +381,7 @@ module TSOS
           break;
         case 2:
           this.kernelPCB.setAccumulator(new Byte(_CPU.lowAddress.getHighByte().asNumber()));
+          this.kernelPCB.setYRegister(new Byte(_CPU.yRegister.asNumber()));
           this.kernelPCB.setProgramCounter(new Short(0x0342));
           this.contextSwitchToKernel();
           break;

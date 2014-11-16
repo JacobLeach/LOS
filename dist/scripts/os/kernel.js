@@ -307,6 +307,7 @@ var TSOS;
                     break;
                 case 2:
                     this.kernelPCB.setAccumulator(new TSOS.Byte(_CPU.lowAddress.getHighByte().asNumber()));
+                    this.kernelPCB.setYRegister(new TSOS.Byte(_CPU.yRegister.asNumber()));
                     this.kernelPCB.setProgramCounter(new TSOS.Short(0x0342));
                     this.contextSwitchToKernel();
                     break;
