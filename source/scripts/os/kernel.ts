@@ -143,6 +143,7 @@ module TSOS
       }
       else if(this.kernelPCB != undefined && this.kernelPCB.getPid() == pid)
       {
+        //We let the user do whatever... Even if it's god damn stupid.
         _Console.bluescreen();
         _Console.writeWhiteText("Kernel killed.");
         _Kernel.shutdown();
@@ -179,7 +180,10 @@ module TSOS
 
     public killAll(): void
     {
-      this.running = undefined;
+      if(this.running != this.kernelPCB && this.running != this.idlePCB)
+      {
+        this.running = undefined;
+      }
       this.ready = new Queue();
       this.loaded = [];
     }
@@ -338,7 +342,6 @@ module TSOS
 
       Stdio.putStringLn("Program Finished");
       this.contextSwitchToNext();
-
     }
     
     public returnInterrupt(): void
@@ -346,6 +349,7 @@ module TSOS
       if(_KernelInterruptQueue.size() === 0)
       {
         this.contextSwitchToNext(); 
+        console.log("SWITCHING");
       }
     }
 

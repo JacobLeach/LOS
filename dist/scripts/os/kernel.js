@@ -142,6 +142,7 @@ var TSOS;
                 TSOS.liblos.deallocate(this.running.getSegment());
                 this.running = undefined;
             } else if (this.kernelPCB != undefined && this.kernelPCB.getPid() == pid) {
+                //We let the user do whatever... Even if it's god damn stupid.
                 _Console.bluescreen();
                 _Console.writeWhiteText("Kernel killed.");
                 _Kernel.shutdown();
@@ -172,7 +173,9 @@ var TSOS;
         };
 
         Kernel.prototype.killAll = function () {
-            this.running = undefined;
+            if (this.running != this.kernelPCB && this.running != this.idlePCB) {
+                this.running = undefined;
+            }
             this.ready = new TSOS.Queue();
             this.loaded = [];
         };
@@ -280,6 +283,7 @@ var TSOS;
         Kernel.prototype.returnInterrupt = function () {
             if (_KernelInterruptQueue.size() === 0) {
                 this.contextSwitchToNext();
+                console.log("SWITCHING");
             }
         };
 
