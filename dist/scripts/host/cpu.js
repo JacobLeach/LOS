@@ -44,60 +44,64 @@ var TSOS;
         * have the correct this. Use _CPU instead. Fuckers.
         */
         Cpu.prototype.tick = function () {
-            if (_CPU.interruptFlag != undefined) {
-                if (_CPU.interruptFlag === 0 /* SegmentationFault */) {
-                    _Kernel.segmentationFault();
-                } else if (_CPU.interruptFlag === 1 /* Break */) {
-                    _Kernel.programBreak();
-                } else if (_CPU.interruptFlag === 2 /* Software */) {
-                    _Kernel.softwareInterrupt();
-                } else if (_CPU.interruptFlag === 3 /* Clock */) {
-                    _Kernel.timerInterrupt();
-                } else if (_CPU.interruptFlag === 4 /* Return */) {
-                    _Kernel.returnInterrupt();
+            if (!singleStep || (singleStep && step)) {
+                if (_CPU.interruptFlag != undefined) {
+                    if (_CPU.interruptFlag === 0 /* SegmentationFault */) {
+                        _Kernel.segmentationFault();
+                    } else if (_CPU.interruptFlag === 1 /* Break */) {
+                        _Kernel.programBreak();
+                    } else if (_CPU.interruptFlag === 2 /* Software */) {
+                        _Kernel.softwareInterrupt();
+                    } else if (_CPU.interruptFlag === 3 /* Clock */) {
+                        _Kernel.timerInterrupt();
+                    } else if (_CPU.interruptFlag === 4 /* Return */) {
+                        _Kernel.returnInterrupt();
+                    }
+
+                    _CPU.interruptFlag = undefined;
                 }
 
-                _CPU.interruptFlag = undefined;
-            }
-
-            //If the previous clock cycle set the interrupt flag
-            //AND a timer interrupt should have happened as well,
-            //then the timer interrupt is not set and is checked here
-            if (_CPU.tickCount === 0 && _CPU.interruptFlag === undefined) {
-                _Kernel.timerInterrupt();
-                _CPU.tickCount = _Quant;
-            }
-
-            /*
-            * This is a hack because the kernel is not all running on this hardware.
-            * When the Kernel needs to run some code on the CPU or do some task that
-            * does not use the CPY at all it adds it to this queue.
-            */
-            if (!_CPU.ignoreInterrupts && _KernelInterruptQueue.size() > 0) {
-                _CPU.ignoreInterrupts = true;
-
-                /*
-                * Call the kernel function to handle the interrupts.
-                * It will make sure that the CPU is correctly setup to
-                * either run the kernel code that is needed or to do the work
-                * that the kernel needs to do (aka stuff written in typescript
-                * does not need CPU time to run)
-                */
-                _Kernel.handleKernelInterrupt(_KernelInterruptQueue.dequeue());
-            }
-
-            _CPU.cycle();
-
-            if (!_CPU.ignoreInterrupts) {
-                _CPU.tickCount--;
+                //If the previous clock cycle set the interrupt flag
+                //AND a timer interrupt should have happened as well,
+                //then the timer interrupt is not set and is checked here
                 if (_CPU.tickCount === 0 && _CPU.interruptFlag === undefined) {
-                    _CPU.interruptFlag = 3 /* Clock */;
+                    _Kernel.timerInterrupt();
                     _CPU.tickCount = _Quant;
                 }
-            }
 
-            //Please do not hurt me for this
-            document.getElementById("cpuBox").value = _CPU.toString();
+                /*
+                * This is a hack because the kernel is not all running on this hardware.
+                * When the Kernel needs to run some code on the CPU or do some task that
+                * does not use the CPY at all it adds it to this queue.
+                */
+                if (!_CPU.ignoreInterrupts && _KernelInterruptQueue.size() > 0) {
+                    _CPU.ignoreInterrupts = true;
+
+                    /*
+                    * Call the kernel function to handle the interrupts.
+                    * It will make sure that the CPU is correctly setup to
+                    * either run the kernel code that is needed or to do the work
+                    * that the kernel needs to do (aka stuff written in typescript
+                    * does not need CPU time to run)
+                    */
+                    _Kernel.handleKernelInterrupt(_KernelInterruptQueue.dequeue());
+                }
+
+                _CPU.cycle();
+
+                if (!_CPU.ignoreInterrupts) {
+                    _CPU.tickCount--;
+                    if (_CPU.tickCount === 0 && _CPU.interruptFlag === undefined) {
+                        _CPU.interruptFlag = 3 /* Clock */;
+                        _CPU.tickCount = _Quant;
+                    }
+                }
+
+                //Please do not hurt me for this
+                document.getElementById("cpuBox").value = _CPU.toString();
+
+                step = false;
+            }
         };
 
         Cpu.prototype.stop = function () {

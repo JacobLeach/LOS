@@ -110,17 +110,17 @@ var TSOS;
         };
 
         Control.stepMode_click = function (button) {
-            if (execute) {
-                execute = false;
+            if (!singleStep) {
+                singleStep = true;
                 document.getElementById("step").disabled = false;
             } else {
-                execute = true;
+                singleStep = false;
                 document.getElementById("step").disabled = true;
             }
         };
 
         Control.step_click = function (button) {
-            singleStep = true;
+            step = true;
         };
         return Control;
     })();

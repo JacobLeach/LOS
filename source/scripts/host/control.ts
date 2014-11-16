@@ -117,21 +117,21 @@ module TSOS {
 
         public static stepMode_click(button)
         {
-          if(execute)
+          if(!singleStep)
           {
-            execute = false;
+            singleStep = true;
             document.getElementById("step").disabled = false;
           }
           else
           {
-            execute = true;
+            singleStep = false;
             document.getElementById("step").disabled = true;
           }
         }
 
         public static step_click(button)
         {
-          singleStep = true;
+          step = true;
         }
     }
 }
