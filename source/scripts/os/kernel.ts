@@ -357,7 +357,7 @@ module TSOS
     public timerInterrupt(): void
     {
       //Only switch to next if we are running more than one program
-      if(this.ready.size() > 1)
+      if(this.running != this.kernelPCB && this.ready.size() > 1)
       {
         this.contextSwitchToNext();
       }
