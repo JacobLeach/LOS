@@ -26,6 +26,8 @@ module TSOS
           }
         }
       }
+      
+      (<HTMLInputElement>document.getElementById("hdd")).value = this.hdd.toString(); 
     }
 
     public createFile(name: string): boolean
