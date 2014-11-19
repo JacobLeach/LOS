@@ -33,24 +33,30 @@ module TSOS
     public createFile(name: string): boolean
     {
       var toReturn: boolean = false;
-
-      for(var i = 0; i < HDDDriver.SECTORS; i++)
+      
+      if(!this.fileExists(name))
       {
-        for(var j = 1; j < HDDDriver.BLOCKS; j++)
+        for(var i = 0; i < HDDDriver.SECTORS; i++)
         {
-          if(!this.inUse(0, i, j))
+          for(var j = 1; j < HDDDriver.BLOCKS; j++)
           {
-            var bytes: Byte[] = [];
-            bytes[0] = new Byte(1);
-
-            for(var l = 0; l < name.length; l++)
+            if(!this.inUse(0, i, j))
             {
-              bytes[l + 1] = new Byte(name.charCodeAt(l));
-            }
+              var bytes: Byte[] = [];
+              bytes[0] = new Byte(1);
+              bytes[1] = new Byte(0);
+              bytes[2] = new Byte(0);
+              bytes[3] = new Byte(0);
 
-            this.hdd.setBlock(0, i, j, bytes);
-            this.displayHDD();
-            return true;
+              for(var l = 0; l < name.length; l++)
+              {
+                bytes[l + 4] = new Byte(name.charCodeAt(l));
+              }
+
+              this.hdd.setBlock(0, i, j, bytes);
+              this.displayHDD();
+              return true;
+            }
           }
         }
       }
@@ -95,6 +101,33 @@ module TSOS
     private inUse(track: number, sector: number, block: number): boolean
     {
       return (this.hdd.getBlock(track, sector, block)[0].asNumber() == 1);
+    }
+
+    private fileExists(name: string): boolean
+    {
+      var toReturn = false;
+      for(var i = 0; i < HDDDriver.SECTORS; i++)
+      {
+        for(var j = 1; j < HDDDriver.BLOCKS; j++)
+        {
+          var bytes = this.hdd.getBlock(0,i,j);
+          var k = 4;
+          var storedName = "";
+
+          while(bytes[k].asNumber() != 0)
+          {
+            storedName += String.fromCharCode(bytes[k].asNumber());
+            k++;
+          }
+
+          if(name == storedName)
+          {
+            toReturn = true;
+          }
+        }
+      }
+
+      return toReturn;
     }
   }
 }
