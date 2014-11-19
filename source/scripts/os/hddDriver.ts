@@ -26,8 +26,8 @@ module TSOS
           }
         }
       }
-      
-      (<HTMLInputElement>document.getElementById("hdd")).value = this.hdd.toString(); 
+
+      this.displayHDD();
     }
 
     public createFile(name: string): boolean
@@ -45,6 +45,11 @@ module TSOS
       return false;
     }
 
+    public writeFile(name: string, data: Byte[]): boolean
+    {
+      return false;
+    }
+
     //******************************** Helper Funnctions ******************************** 
 
     private formattedBlock(): Byte[]
@@ -57,6 +62,16 @@ module TSOS
       }
 
       return block;
+    }
+
+    private displayHDD(): void
+    {
+      (<HTMLInputElement>document.getElementById("hdd")).value = this.hdd.toString(); 
+    }
+
+    private inUse(track: number, sector: number, block: number): boolean
+    {
+      return (this.hdd.getBlock(track, sector, block)[3].asNumber() == 1);
     }
   }
 }
