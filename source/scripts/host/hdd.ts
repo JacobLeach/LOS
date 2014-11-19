@@ -4,6 +4,16 @@ module TSOS
   {
     public setBlock(track: number, sector: number, block: number, value: Byte[]): void
     {
+      while(value.length < 64)
+      {
+        value.push(new Byte(0));
+      }
+
+      if(value.length > 64)
+      {
+        console.log("Block length > 64! Should not happen.");
+      }
+
       localStorage.setItem(track.toString() + sector.toString() + block.toString(), JSON.stringify(value));
     }
 
@@ -35,7 +45,7 @@ module TSOS
 
             for(var l = 0; l < HDDDriver.BLOCK_SIZE; l++)
             {
-              var num = bytes[i].asNumber().toString(16);
+              var num = bytes[l].asNumber().toString(16);
               if(num.length == 1)
               {
                 toReturn += "0" + num + " ";

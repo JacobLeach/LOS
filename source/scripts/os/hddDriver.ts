@@ -32,7 +32,30 @@ module TSOS
 
     public createFile(name: string): boolean
     {
-      return false;
+      var toReturn: boolean = false;
+
+      for(var i = 0; i < HDDDriver.SECTORS; i++)
+      {
+        for(var j = 1; j < HDDDriver.BLOCKS; j++)
+        {
+          if(!this.inUse(0, i, j))
+          {
+            var bytes: Byte[] = [];
+            bytes[0] = new Byte(1);
+
+            for(var l = 0; l < name.length; l++)
+            {
+              bytes[l + 1] = new Byte(name.charCodeAt(l));
+            }
+
+            this.hdd.setBlock(0, i, j, bytes);
+            this.displayHDD();
+            return true;
+          }
+        }
+      }
+
+      return toReturn;
     }
 
     public deleteFile(name: string): boolean
@@ -71,7 +94,7 @@ module TSOS
 
     private inUse(track: number, sector: number, block: number): boolean
     {
-      return (this.hdd.getBlock(track, sector, block)[3].asNumber() == 1);
+      return (this.hdd.getBlock(track, sector, block)[0].asNumber() == 1);
     }
   }
 }

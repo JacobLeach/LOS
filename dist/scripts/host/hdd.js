@@ -4,6 +4,14 @@ var TSOS;
         function HDD() {
         }
         HDD.prototype.setBlock = function (track, sector, block, value) {
+            while (value.length < 64) {
+                value.push(new TSOS.Byte(0));
+            }
+
+            if (value.length > 64) {
+                console.log("Block length > 64! Should not happen.");
+            }
+
             localStorage.setItem(track.toString() + sector.toString() + block.toString(), JSON.stringify(value));
         };
 
@@ -25,9 +33,10 @@ var TSOS;
                 for (var j = 0; j < TSOS.HDDDriver.SECTORS; j++) {
                     for (var k = 0; k < TSOS.HDDDriver.BLOCKS; k++) {
                         var bytes = this.getBlock(i, j, k);
+                        toReturn += j.toString() + i.toString() + k.toString() + ": ";
 
                         for (var l = 0; l < TSOS.HDDDriver.BLOCK_SIZE; l++) {
-                            var num = bytes[i].asNumber().toString(16);
+                            var num = bytes[l].asNumber().toString(16);
                             if (num.length == 1) {
                                 toReturn += "0" + num + " ";
                             } else {
