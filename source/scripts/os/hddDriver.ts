@@ -105,7 +105,13 @@ module TSOS
 
     private fileExists(name: string): boolean
     {
-      var toReturn = false;
+      return (this.findFile(name) == undefined) ? false : true;
+    }
+
+    private findFile(name: string): Address
+    {
+      var toReturn: Address = undefined;
+
       for(var i = 0; i < HDDDriver.SECTORS; i++)
       {
         for(var j = 1; j < HDDDriver.BLOCKS; j++)
@@ -122,12 +128,26 @@ module TSOS
 
           if(name == storedName)
           {
-            toReturn = true;
+            toReturn = new Address(0, i, j);
           }
         }
       }
-
+      
       return toReturn;
+    }
+  }
+
+  class Address
+  {
+    public track: number;
+    public sector: number;
+    public block: number;
+
+    constructor(track: number, sector: number, block: number)
+    {
+      this.track = track;
+      this.sector = sector;
+      this.block = block;
     }
   }
 }
