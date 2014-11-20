@@ -76,7 +76,59 @@ module TSOS
 
     public writeFile(name: string, data: Byte[]): boolean
     {
-      return false;
+      if(this.fileExists(name))
+      {
+        var address: Address = this.findFile(name);
+        var cur = this.hdd.getBlock(address.track, address.sector, address.block);
+
+        var block: Address = this.findEmptyBlock();
+        
+        cur[1] = new Byte(block.track);
+        cur[2] = new Byte(block.sector);
+        cur[3] = new Byte(block.block);
+        this.hdd.setBlock(address.track, address.sector, address.block, cur);
+        var done = 0;
+
+        while(done < data.length)
+        {
+          if(data.length - done > 60)
+          {
+            var toPut = data.slice(done, done + 60);
+            this.hdd.setBlock(block.track, block.sector, block.block, [new Byte(1)]);
+
+            var temp = this.findEmptyBlock();
+            toPut.unshift(new Byte(temp.block));
+            toPut.unshift(new Byte(temp.sector));
+            toPut.unshift(new Byte(temp.track));
+            toPut.unshift(new Byte(1));
+
+            this.hdd.setBlock(block.track, block.sector, block.block, toPut);
+
+            block = temp;
+          }
+          else
+          {
+            console.log("GI");
+            var toPut = data.slice(done);
+            toPut.unshift(new Byte(0));
+            toPut.unshift(new Byte(0));
+            toPut.unshift(new Byte(0));
+            toPut.unshift(new Byte(1));
+            
+            this.hdd.setBlock(block.track, block.sector, block.block, toPut);
+          }
+
+          done += 60;
+        }
+
+
+      }
+      else
+      {
+        return false;
+      }
+
+      this.displayHDD();
     }
 
     //******************************** Helper Funnctions ******************************** 
