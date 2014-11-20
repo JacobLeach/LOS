@@ -33,7 +33,7 @@ var TSOS;
                 for (var j = 0; j < TSOS.HDDDriver.SECTORS; j++) {
                     for (var k = 0; k < TSOS.HDDDriver.BLOCKS; k++) {
                         var bytes = this.getBlock(i, j, k);
-                        toReturn += j.toString() + i.toString() + k.toString() + ": ";
+                        toReturn += i.toString() + j.toString() + k.toString() + ": ";
 
                         for (var l = 0; l < TSOS.HDDDriver.BLOCK_SIZE; l++) {
                             var num = bytes[l].asNumber().toString(16);

@@ -41,7 +41,7 @@ module TSOS
           for(var k = 0; k < HDDDriver.BLOCKS; k++)
           {
             var bytes = this.getBlock(i, j, k);
-            toReturn += j.toString() + i.toString() + k.toString() + ": ";
+            toReturn += i.toString() + j.toString() + k.toString() + ": ";
 
             for(var l = 0; l < HDDDriver.BLOCK_SIZE; l++)
             {
