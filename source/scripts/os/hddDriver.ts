@@ -135,6 +135,41 @@ module TSOS
       
       return toReturn;
     }
+
+    private nextBlock(address: Address): Address
+    {
+      var bytes: Byte[] = this.hdd.getBlock(address.track, address.sector, address.block); 
+      var next: Address = new Address(bytes[1].asNumber(), bytes[2].asNumber(), bytes[3].asNumber());
+
+      if(next.track == 0 && next.sector == 0, next.block == 0)
+      {
+        return undefined;
+      }
+      else
+      {
+        return next;
+      }
+    }
+
+    private findEmptyBlock(): Address
+    {
+      for(var i = 1; i < HDDDriver.TRACKS; i++)
+      {
+        for(var j = 0; j < HDDDriver.SECTORS; j++)
+        {
+          for(var k = 0; k < HDDDriver.BLOCKS; k++)
+          {
+            var bytes = this.hdd.getBlock(i, j, k);
+            if(bytes[0].asNumber() == 0)
+            {
+              return new Address(i, j, k);
+            }
+          }
+        }
+      }
+
+      return undefined;
+    }
   }
 
   class Address
