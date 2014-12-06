@@ -108,7 +108,17 @@ var TSOS;
                     _HDDDriver.deleteFile("swap");
                     _HDDDriver.createFile("swap");
 
-                    this.ready.q[this.ready.q.length - 1].onDisk();
+                    //What last run is swapped out
+                    var toSwap = this.ready.q[this.ready.q.length - 1];
+                    toSwap.onDisk();
+
+                    var swapProgram = [];
+
+                    for (var i = 0; i < 256; i++) {
+                        //No time to do this "correctly"
+                        swapProgram.push(new TSOS.Byte(_Memory.memory[toSwap.getBase().asNumber() + i].asNumber()));
+                        _Memory.memory[toSwap.getBase().asNumber() + i] = new TSOS.Byte(program[i].asNumber());
+                    }
                 }
             } else {
                 this.setIdle();

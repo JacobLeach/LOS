@@ -9,7 +9,7 @@ module TSOS {
   export class Memory {
     private static DEFAULT_SIZE = 1280;
 
-    private memory: Byte[];  
+    public memory: Byte[];  
     private size: number;
 
     constructor(size: number = Memory.DEFAULT_SIZE) {
