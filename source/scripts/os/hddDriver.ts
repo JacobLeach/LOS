@@ -69,9 +69,9 @@ module TSOS
       return false;
     }
 
-    public readFile(name: string): boolean
+    public readFile(name: string): Byte[]
     {
-      return false;
+      return [];
     }
 
     public writeFile(name: string, data: Byte[]): boolean
@@ -108,7 +108,6 @@ module TSOS
           }
           else
           {
-            console.log("GI");
             var toPut = data.slice(done);
             toPut.unshift(new Byte(0));
             toPut.unshift(new Byte(0));
