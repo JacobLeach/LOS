@@ -50,6 +50,12 @@ module TSOS
           bytes.push(new Byte(asNumber));
         }
 
+        //Swapped programs should always be 256 bytes long
+        while(bytes.length < 256)
+        {
+          bytes.push(new Byte(0));
+        }
+
         _HDDDriver.writeFile("swap", bytes);
         var pcb = new PCB(undefined);
         this.loaded.push(pcb);

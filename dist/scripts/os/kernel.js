@@ -73,6 +73,10 @@ var TSOS;
                     bytes.push(new TSOS.Byte(asNumber));
                 }
 
+                while (bytes.length < 256) {
+                    bytes.push(new TSOS.Byte(0));
+                }
+
                 _HDDDriver.writeFile("swap", bytes);
                 var pcb = new TSOS.PCB(undefined);
                 this.loaded.push(pcb);
