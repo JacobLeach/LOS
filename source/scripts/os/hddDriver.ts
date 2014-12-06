@@ -64,9 +64,24 @@ module TSOS
       return toReturn;
     }
 
-    public deleteFile(name: string): boolean
+    public deleteFile(name: string): void
     {
-      return false;
+      if(this.fileExists(name))
+      {
+        var address: Address = this.findFile(name);
+        var currentBlock: Byte[] = this.hdd.getBlock(address.track, address.sector, address.block);
+        this.hdd.setBlock(address.track, address.sector, address.block, [new Byte(0)]);
+        address = new Address(currentBlock[1].asNumber(), currentBlock[2].asNumber(), currentBlock[3].asNumber());
+        
+        while(!(currentBlock[1].asNumber() == 0 && currentBlock[2].asNumber() == 0 && currentBlock[3].asNumber() == 0))
+        {
+          currentBlock = this.hdd.getBlock(address.track, address.sector, address.block);
+          this.hdd.setBlock(address.track, address.sector, address.block, [new Byte(0)]);
+          address = new Address(currentBlock[1].asNumber(), currentBlock[2].asNumber(), currentBlock[3].asNumber());
+        }
+      }
+
+      this.displayHDD();
     }
 
     public readFile(name: string): Byte[]
@@ -77,7 +92,6 @@ module TSOS
       {
         var address: Address = this.findFile(name);
         var currentBlock: Byte[] = this.hdd.getBlock(address.track, address.sector, address.block);
-        console.log(currentBlock);
         address = new Address(currentBlock[1].asNumber(), currentBlock[2].asNumber(), currentBlock[3].asNumber());
         
         while(!(currentBlock[1].asNumber() == 0 && currentBlock[2].asNumber() == 0 && currentBlock[3].asNumber() == 0))
