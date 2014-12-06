@@ -71,7 +71,25 @@ module TSOS
 
     public readFile(name: string): Byte[]
     {
-      return [];
+      var toReturn: Byte[] = [];
+      
+      if(this.fileExists(name))
+      {
+        var address: Address = this.findFile(name);
+        var currentBlock: Byte[] = this.hdd.getBlock(address.track, address.sector, address.block);
+        console.log(currentBlock);
+        address = new Address(currentBlock[1].asNumber(), currentBlock[2].asNumber(), currentBlock[3].asNumber());
+        
+        while(!(currentBlock[1].asNumber() == 0 && currentBlock[2].asNumber() == 0 && currentBlock[3].asNumber() == 0))
+        {
+          currentBlock = this.hdd.getBlock(address.track, address.sector, address.block);
+          address = new Address(currentBlock[1].asNumber(), currentBlock[2].asNumber(), currentBlock[3].asNumber());
+
+          toReturn = toReturn.concat(currentBlock.slice(4));
+        }
+      }
+
+      return toReturn;
     }
 
     public writeFile(name: string, data: Byte[]): boolean
