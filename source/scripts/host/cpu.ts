@@ -425,7 +425,6 @@ module TSOS
       if(!this.zFlag) 
       {
         this.programCounter = new Short((this.programCounter.asNumber() + branchAmount) % 256);
-        console.log("FUCK YUOU: " + this.programCounter.asNumber());
       }
     }
     
