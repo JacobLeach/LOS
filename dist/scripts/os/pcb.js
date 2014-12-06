@@ -39,7 +39,7 @@ var TSOS;
             this.disk = false;
         };
 
-        PCB.prototype.getLocation = function () {
+        PCB.prototype.isOnDisk = function () {
             return this.disk;
         };
 

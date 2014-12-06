@@ -58,7 +58,7 @@ module TSOS {
       this.disk = false;
     }
 
-    public getLocation(): boolean
+    public isOnDisk(): boolean
     {
       return this.disk;
     }

@@ -74,6 +74,10 @@ var TSOS;
                 }
 
                 _HDDDriver.writeFile("swap", bytes);
+                var pcb = new TSOS.PCB(undefined);
+                this.loaded.push(pcb);
+
+                return pcb.getPid();
             } else {
                 var pcb = new TSOS.PCB(segment);
                 _KernelInterruptQueue.add(new TSOS.Tuple(1 /* LOAD_PROGRAM */, pcb));
@@ -98,6 +102,14 @@ var TSOS;
                 this.running = this.ready.dequeue();
                 this.running.setCPU();
                 this.krnTrace("Starting user process " + this.running.getPid());
+
+                if (this.running.isOnDisk()) {
+                    var program = _HDDDriver.readFile("swap");
+                    _HDDDriver.deleteFile("swap");
+                    _HDDDriver.createFile("swap");
+
+                    this.ready.q[this.ready.q.length - 1].onDisk();
+                }
             } else {
                 this.setIdle();
             }
