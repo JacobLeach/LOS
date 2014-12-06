@@ -162,7 +162,7 @@ module TSOS
       return block;
     }
 
-    private displayHDD(): void
+    public displayHDD(): void
     {
       (<HTMLInputElement>document.getElementById("hdd")).value = this.hdd.toString(); 
     }

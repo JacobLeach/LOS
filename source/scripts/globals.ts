@@ -32,6 +32,8 @@ var BACKSPACE = String.fromCharCode(8);
 var _Memory: TSOS.Memory;
 var _CPU: TSOS.Cpu;  // Utilize TypeScript's type annotation system to ensure that _CPU is an instance of the Cpu class.
 var _Quant: number = 6;
+var _HDD: TSOS.HDD;
+var _HDDDriver: TSOS.HDDDriver;
 
 var _OSclock: number = 0;  // Page 23.
 

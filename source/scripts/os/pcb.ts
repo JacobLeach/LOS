@@ -18,6 +18,7 @@ module TSOS {
     
     private memoryBounds: MemoryBounds;
     private pid: number;
+    private disk: boolean;
 
     constructor(memoryBounds: MemoryBounds) {
       this.programCounter = new Short(0);
@@ -45,6 +46,21 @@ module TSOS {
       print += "\nlimit: " + this.getHighAddress().asNumber().toString(16);
 
       return print;
+    }
+
+    public onDisk(): void
+    {
+      this.disk = true;
+    }
+
+    public inMemory(): void
+    {
+      this.disk = false;
+    }
+
+    public getLocation(): boolean
+    {
+      return this.disk;
     }
 
     public updatePCB()

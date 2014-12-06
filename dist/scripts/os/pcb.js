@@ -31,6 +31,18 @@ var TSOS;
             return print;
         };
 
+        PCB.prototype.onDisk = function () {
+            this.disk = true;
+        };
+
+        PCB.prototype.inMemory = function () {
+            this.disk = false;
+        };
+
+        PCB.prototype.getLocation = function () {
+            return this.disk;
+        };
+
         PCB.prototype.updatePCB = function () {
             this.setProgramCounter(_CPU.programCounter);
             this.setAccumulator(_CPU.accumulator);

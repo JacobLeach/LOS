@@ -30,9 +30,27 @@ module TSOS
     {
       var segment = this.memoryManager.allocate();
 
+      //Put on disk
       if(segment === undefined)
       {
-        return undefined;
+        _HDDDriver.createFile("swap");
+        
+        var code: string = (<HTMLInputElement>document.getElementById("taProgramInput")).value;
+        code = code.replace(/ /g,'');
+        code = code.replace(/\n/g,'');
+
+        var bytes: Byte[] = [];
+
+        for(var i = 0; i < code.length; i += 2)
+        {
+          var first = code[i];
+          var second = code[i+1];
+          var asNumber = parseInt((first + second), 16);
+
+          bytes.push(new Byte(asNumber));
+        }
+
+        _HDDDriver.writeFile("swap", bytes);
       }
       else
       {
@@ -273,6 +291,10 @@ module TSOS
       _krnKeyboardDriver.driverEntry();
       Devices.hostEnableKeyboardInterrupt();
       this.krnTrace(_krnKeyboardDriver.status);
+
+      _HDD = new HDD();
+      _HDDDriver = new HDDDriver(_HDD);
+      _HDDDriver.format();
 
       this.krnTrace("Creating and Launching the shell.");
       _OsShell = new Shell();
