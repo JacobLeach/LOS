@@ -45,7 +45,20 @@ var TSOS;
         };
 
         HDDDriver.prototype.deleteFile = function (name) {
-            return false;
+            if (this.fileExists(name)) {
+                var address = this.findFile(name);
+                var currentBlock = this.hdd.getBlock(address.track, address.sector, address.block);
+                this.hdd.setBlock(address.track, address.sector, address.block, [new TSOS.Byte(0)]);
+                address = new Address(currentBlock[1].asNumber(), currentBlock[2].asNumber(), currentBlock[3].asNumber());
+
+                while (!(currentBlock[1].asNumber() == 0 && currentBlock[2].asNumber() == 0 && currentBlock[3].asNumber() == 0)) {
+                    currentBlock = this.hdd.getBlock(address.track, address.sector, address.block);
+                    this.hdd.setBlock(address.track, address.sector, address.block, [new TSOS.Byte(0)]);
+                    address = new Address(currentBlock[1].asNumber(), currentBlock[2].asNumber(), currentBlock[3].asNumber());
+                }
+            }
+
+            this.displayHDD();
         };
 
         HDDDriver.prototype.readFile = function (name) {
@@ -54,7 +67,6 @@ var TSOS;
             if (this.fileExists(name)) {
                 var address = this.findFile(name);
                 var currentBlock = this.hdd.getBlock(address.track, address.sector, address.block);
-                console.log(currentBlock);
                 address = new Address(currentBlock[1].asNumber(), currentBlock[2].asNumber(), currentBlock[3].asNumber());
 
                 while (!(currentBlock[1].asNumber() == 0 && currentBlock[2].asNumber() == 0 && currentBlock[3].asNumber() == 0)) {
