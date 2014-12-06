@@ -15,6 +15,7 @@ var TSOS;
 
             this.memoryBounds = memoryBounds;
             this.pid = PCB.next_pid++;
+            this.disk = false;
         }
         PCB.prototype.toString = function () {
             var print = "";
@@ -25,8 +26,8 @@ var TSOS;
             print += "\nY: " + this.getYRegister().asNumber().toString(16);
             print += "\nZ: " + this.getZFlag();
             print += "\nKernel Mode: " + this.getKernelMode();
-            print += "\nbase: " + this.getLowAddress().asNumber().toString(16);
-            print += "\nlimit: " + this.getHighAddress().asNumber().toString(16);
+            print += "\nbase: " + ((this.memoryBounds != undefined) ? this.getLowAddress().asNumber().toString(16) : "");
+            print += "\nlimit: " + ((this.memoryBounds != undefined) ? this.getHighAddress().asNumber().toString(16) : "");
 
             return print;
         };
@@ -67,6 +68,10 @@ var TSOS;
             return this.memoryBounds.getSegment();
         };
 
+        PCB.prototype.getBounds = function () {
+            return this.memoryBounds;
+        };
+
         PCB.prototype.getBase = function () {
             return this.memoryBounds.lower();
         };
@@ -105,6 +110,10 @@ var TSOS;
 
         PCB.prototype.getHighAddress = function () {
             return this.memoryBounds.upper();
+        };
+
+        PCB.prototype.setSegment = function (segment) {
+            this.memoryBounds = segment;
         };
 
         PCB.prototype.setProgramCounter = function (data) {

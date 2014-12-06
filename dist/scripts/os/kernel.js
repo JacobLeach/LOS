@@ -79,6 +79,7 @@ var TSOS;
 
                 _HDDDriver.writeFile("swap", bytes);
                 var pcb = new TSOS.PCB(undefined);
+                pcb.onDisk();
                 this.loaded.push(pcb);
 
                 return pcb.getPid();
@@ -104,26 +105,54 @@ var TSOS;
 
             if (this.ready.size() > 0) {
                 this.running = this.ready.dequeue();
-                this.running.setCPU();
                 this.krnTrace("Starting user process " + this.running.getPid());
 
                 if (this.running.isOnDisk()) {
+                    this.running.inMemory();
+                    console.log("WELL SHIT: " + this.running.getPid());
                     var program = _HDDDriver.readFile("swap");
+                    console.log("len: " + program.length);
                     _HDDDriver.deleteFile("swap");
-                    _HDDDriver.createFile("swap");
 
-                    //What last run is swapped out
-                    var toSwap = this.ready.q[this.ready.q.length - 1];
-                    toSwap.onDisk();
+                    var segment = this.memoryManager.allocate();
 
-                    var swapProgram = [];
+                    if (segment == undefined) {
+                        _HDDDriver.createFile("swap");
 
-                    for (var i = 0; i < 256; i++) {
-                        //No time to do this "correctly"
-                        swapProgram.push(new TSOS.Byte(_Memory.memory[toSwap.getBase().asNumber() + i].asNumber()));
-                        _Memory.memory[toSwap.getBase().asNumber() + i] = new TSOS.Byte(program[i].asNumber());
+                        //What last run is swapped out
+                        var toSwap = this.ready.q[this.ready.q.length - 1];
+                        console.log("SWAPPING: " + toSwap.getPid());
+                        toSwap.onDisk();
+                        this.running.inMemory();
+
+                        //Set running to correct memorySegment
+                        this.running.setSegment(toSwap.getBounds());
+
+                        var swapProgram = [];
+
+                        for (var i = 0; i < 256; i++) {
+                            //No time to do this "correctly"
+                            swapProgram.push(new TSOS.Byte(_Memory.memory[toSwap.getBase().asNumber() + i].asNumber()));
+
+                            _Memory.memory[this.running.getBase().asNumber() + i] = new TSOS.Byte(program[i].asNumber());
+                        }
+
+                        toSwap.setSegment(undefined);
+                        _HDDDriver.writeFile("swap", swapProgram);
+                    } else {
+                        this.running.setSegment(segment);
+                        this.running.inMemory();
+
+                        for (var i = 0; i < 256; i++) {
+                            _Memory.memory[this.running.getBase().asNumber() + i] = new TSOS.Byte(program[i].asNumber());
+                        }
+
+                        _HDDDriver.writeFile("swap", swapProgram);
                     }
                 }
+
+                //Must be done after we swap the process so we know what segment it is in
+                this.running.setCPU();
             } else {
                 this.setIdle();
             }
@@ -330,7 +359,6 @@ var TSOS;
         Kernel.prototype.returnInterrupt = function () {
             if (_KernelInterruptQueue.size() === 0) {
                 this.contextSwitchToNext();
-                console.log("SWITCHING");
             }
         };
 

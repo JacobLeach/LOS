@@ -30,6 +30,7 @@ module TSOS {
 
       this.memoryBounds = memoryBounds;
       this.pid = PCB.next_pid++;
+      this.disk = false;
     }
 
     public toString(): string
@@ -42,8 +43,8 @@ module TSOS {
       print += "\nY: " + this.getYRegister().asNumber().toString(16);
       print += "\nZ: " + this.getZFlag();
       print += "\nKernel Mode: " + this.getKernelMode();
-      print += "\nbase: " + this.getLowAddress().asNumber().toString(16);
-      print += "\nlimit: " + this.getHighAddress().asNumber().toString(16);
+      print += "\nbase: " + ((this.memoryBounds != undefined) ? this.getLowAddress().asNumber().toString(16) : "");
+      print += "\nlimit: " + ((this.memoryBounds != undefined) ? this.getHighAddress().asNumber().toString(16) : "");
 
       return print;
     }
@@ -88,6 +89,11 @@ module TSOS {
     public getSegment(): number
     {
       return this.memoryBounds.getSegment();
+    }
+
+    public getBounds(): MemoryBounds
+    {
+      return this.memoryBounds;
     }
     
     public getBase(): Short
@@ -139,6 +145,11 @@ module TSOS {
     {
       return this.memoryBounds.upper();
     } 
+
+    public setSegment(segment: MemoryBounds): void
+    {
+      this.memoryBounds = segment;
+    }
 
     public setProgramCounter(data: Short): void
     {
