@@ -15,6 +15,7 @@ var TSOS;
 
     var Kernel = (function () {
         function Kernel() {
+            this.sche = 0;
             this.memoryManager = new TSOS.MemoryManager();
 
             this.loaded = [];
@@ -366,9 +367,11 @@ var TSOS;
         };
 
         Kernel.prototype.timerInterrupt = function () {
-            //Only switch to next if we are running more than one program
-            if (this.running != this.kernelPCB && this.ready.size() > 1) {
-                this.contextSwitchToNext();
+            if (this.sche == 0) {
+                //Only switch to next if we are running more than one program
+                if (this.running != this.kernelPCB && this.ready.size() > 1) {
+                    this.contextSwitchToNext();
+                }
             }
         };
 

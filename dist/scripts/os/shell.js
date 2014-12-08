@@ -148,6 +148,17 @@ var TSOS;
             this.commandList[sc.command] = sc;
 
             sc = new TSOS.ShellCommand(function (args) {
+                if (args[0] == "rr") {
+                    _Kernel.sche = 0;
+                } else if (args[0] == "fcfs") {
+                    _Kernel.sche = 1;
+                } else {
+                    _Kernel.sche = 2;
+                }
+            }, "setschedule", "<algo> Sets schedule");
+            this.commandList[sc.command] = sc;
+
+            sc = new TSOS.ShellCommand(function (args) {
                 if (args[0].length > 0) {
                     var bytes = [];
 

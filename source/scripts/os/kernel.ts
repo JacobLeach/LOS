@@ -25,6 +25,7 @@ module TSOS
 
     public memoryManager: MemoryManager;
     private cyclesLeft: number;
+    public sche: number = 0;
     
     public loadProgram(): number
     {
@@ -443,10 +444,13 @@ module TSOS
 
     public timerInterrupt(): void
     {
-      //Only switch to next if we are running more than one program
-      if(this.running != this.kernelPCB && this.ready.size() > 1)
+      if(this.sche == 0)
       {
-        this.contextSwitchToNext();
+        //Only switch to next if we are running more than one program
+        if(this.running != this.kernelPCB && this.ready.size() > 1)
+        {
+          this.contextSwitchToNext();
+        }
       }
     }
 
