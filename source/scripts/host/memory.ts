@@ -7,9 +7,9 @@
 module TSOS {
 
   export class Memory {
-    private static DEFAULT_SIZE = 1024;
+    private static DEFAULT_SIZE = 1280;
 
-    private memory: Byte[];  
+    public memory: Byte[];  
     private size: number;
 
     constructor(size: number = Memory.DEFAULT_SIZE) {
@@ -147,6 +147,10 @@ module TSOS {
       this.memory[0x036F] = new Byte(0x03);
       this.memory[0x0370] = new Byte(0x40);
 
+      //Idle
+      this.memory[0x0400] = new Byte(0xEA);//Do nothing
+      this.memory[0x0401] = new Byte(0xD0);//Branch back
+      this.memory[0x0402] = new Byte(0xFD);
       
     }
 

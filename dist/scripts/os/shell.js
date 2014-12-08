@@ -107,10 +107,84 @@ var TSOS;
             sc = new TSOS.ShellCommand(this.quantum, "quantum", "<ticks> - Changes round robin quantum");
             this.commandList[sc.command] = sc;
 
+            sc = new TSOS.ShellCommand(function (args) {
+                if (args[0].length > 0) {
+                    _HDDDriver.createFile(args[0]);
+                    TSOS.Stdio.putStringLn("File created.");
+                }
+            }, "createFile", "<iname> - Creates a file");
+            this.commandList[sc.command] = sc;
+
+            sc = new TSOS.ShellCommand(function (args) {
+                if (args[0].length > 0) {
+                    var bytes = _HDDDriver.readFile(args[0]);
+                    while (bytes[0].asNumber() != 0) {
+                        TSOS.Stdio.putString(String.fromCharCode(bytes.shift().asNumber()));
+                    }
+                }
+            }, "readFile", "<name> - Reads a file");
+            this.commandList[sc.command] = sc;
+
+            sc = new TSOS.ShellCommand(function (args) {
+                if (args[0].length > 0) {
+                    _HDDDriver.deleteFile(args[0]);
+                    TSOS.Stdio.putStringLn("File deleted");
+                }
+            }, "deleteFile", "<name> - Deletes a file");
+            this.commandList[sc.command] = sc;
+
+            sc = new TSOS.ShellCommand(function (args) {
+                _HDDDriver.format();
+                TSOS.Stdio.putStringLn("Formatted");
+            }, "format", "Formats HDD");
+            this.commandList[sc.command] = sc;
+
+            sc = new TSOS.ShellCommand(function (args) {
+                var files = _HDDDriver.ls();
+                for (var i = 0; i < files.length; i++) {
+                    TSOS.Stdio.putStringLn(files[i]);
+                }
+            }, "ls", "Lists files");
+            this.commandList[sc.command] = sc;
+
+            sc = new TSOS.ShellCommand(function (args) {
+                if (args[0] == "rr") {
+                    _Kernel.sche = 0;
+                } else if (args[0] == "fcfs") {
+                    _Kernel.sche = 1;
+                } else {
+                    _Kernel.sche = 2;
+                }
+            }, "setschedule", "<algo> Sets schedule");
+            this.commandList[sc.command] = sc;
+
+            sc = new TSOS.ShellCommand(function (args) {
+                if (_Kernel.sche == 0) {
+                    TSOS.Stdio.putStringLn("round robin");
+                } else if (_Kernel.sche == 1) {
+                    TSOS.Stdio.putStringLn("first come first served");
+                } else {
+                    TSOS.Stdio.putStringLn("priority");
+                }
+            }, "getschedule", "Gets schedule");
+            this.commandList[sc.command] = sc;
+
+            sc = new TSOS.ShellCommand(function (args) {
+                if (args[0].length > 0) {
+                    var bytes = [];
+
+                    for (var i = 0; i < args[1].length; i++) {
+                        bytes.push(new TSOS.Byte(args[1].charCodeAt(i)));
+                    }
+
+                    _HDDDriver.writeFile(args[0], bytes);
+                    TSOS.Stdio.putStringLn("File written");
+                }
+            }, "writeFile", "<filename> <information to write> - Writes a file");
+            this.commandList[sc.command] = sc;
+
             // processes - list the running processes and their IDs
             // kill <id> - kills the specified process id.
-            //
-            // Display the initial prompt.
             this.putPrompt();
         };
 

@@ -10,6 +10,7 @@
 
    <!-- Globals CONSTANTS and _Variables. Must included be first. -->
    <script type="text/javascript" src="dist/scripts/globals.js"></script>
+   <script type="text/javascript" src="dist/scripts/tuple.js"></script>
 
    <!-- Host (Hardware Simulation) Routines -->
    <script type="text/javascript" src="dist/scripts/host/control.js"></script>
@@ -19,6 +20,8 @@
    <script type="text/javascript" src="dist/scripts/host/terminal.js"></script>
    <script type="text/javascript" src="dist/scripts/host/deviceController.js"></script>
    <script type="text/javascript" src="dist/scripts/host/programReader.js"></script>
+   <script type="text/javascript" src="dist/scripts/host/clock.js"></script>
+   <script type="text/javascript" src="dist/scripts/host/hdd.js"></script>
 
    <!-- Virtual OS Routines: Make sure Kernel code is last, since it needs those above it. -->
    <script type="text/javascript" src="dist/scripts/os/interrupt.js"></script>
@@ -33,6 +36,7 @@
    <script type="text/javascript" src="dist/scripts/os/pcb.js"></script>
    <script type="text/javascript" src="dist/scripts/os/memoryManager.js"></script>
    <script type="text/javascript" src="dist/scripts/os/liblos.js"></script>
+   <script type="text/javascript" src="dist/scripts/os/hddDriver.js"></script>
 
 
    <!-- Other Routines -->
@@ -94,7 +98,7 @@
            <br>
            <textarea name="cpuBox"
                      id  ="cpuBox"
-                     rows="8"
+                     rows="10"
                      cols="38"
            ></textarea>
         </label>
@@ -171,6 +175,17 @@
       </label>
    </div>
    
+   <div id="divHDD" style="float: left;">
+      <label>
+         HDD
+         <br>
+         <textarea name="hdd"
+                   id  ="hdd"
+                   rows="10"
+                   cols="207"
+         ></textarea>
+      </label>
+   </div>
 
 </div>
 

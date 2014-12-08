@@ -94,6 +94,7 @@ module TSOS {
             _hardwareClockID = setInterval(Devices.hostClockPulse, CPU_CLOCK_INTERVAL);
             // .. and call the OS Kernel Bootstrap routine.
             _Kernel = new Kernel();
+            _CPU.start();
         }
 
         public static hostBtnHaltOS_click(btn): void {
@@ -102,7 +103,7 @@ module TSOS {
             // Call the OS shutdown routine.
             liblos.shutdown();
             // Stop the interval that's simulating our clock pulse.
-            clearInterval(_hardwareClockID);
+            _CPU.stop();
             // TODO: Is there anything else we need to do here?
         }
 
@@ -116,21 +117,21 @@ module TSOS {
 
         public static stepMode_click(button)
         {
-          if(execute)
+          if(!singleStep)
           {
-            execute = false;
+            singleStep = true;
             document.getElementById("step").disabled = false;
           }
           else
           {
-            execute = true;
+            singleStep = false;
             document.getElementById("step").disabled = true;
           }
         }
 
         public static step_click(button)
         {
-          singleStep = true;
+          step = true;
         }
     }
 }

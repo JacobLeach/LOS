@@ -15,9 +15,65 @@ var TSOS;
 
             this.memoryBounds = memoryBounds;
             this.pid = PCB.next_pid++;
+            this.disk = false;
         }
+        PCB.prototype.toString = function () {
+            var print = "";
+            print += "Pid: " + this.getPid();
+            print += "\nPC: " + this.getProgramCounter().asNumber().toString(16);
+            print += "\nACC: " + this.getAccumulator().asNumber().toString(16);
+            print += "\nX: " + this.getXRegister().asNumber().toString(16);
+            print += "\nY: " + this.getYRegister().asNumber().toString(16);
+            print += "\nZ: " + this.getZFlag();
+            print += "\nKernel Mode: " + this.getKernelMode();
+            print += "\nbase: " + ((this.memoryBounds != undefined) ? this.getLowAddress().asNumber().toString(16) : "");
+            print += "\nlimit: " + ((this.memoryBounds != undefined) ? this.getHighAddress().asNumber().toString(16) : "");
+
+            return print;
+        };
+
+        PCB.prototype.onDisk = function () {
+            this.disk = true;
+        };
+
+        PCB.prototype.inMemory = function () {
+            this.disk = false;
+        };
+
+        PCB.prototype.isOnDisk = function () {
+            return this.disk;
+        };
+
+        PCB.prototype.updatePCB = function () {
+            this.setProgramCounter(_CPU.programCounter);
+            this.setAccumulator(_CPU.accumulator);
+            this.setXRegister(_CPU.xRegister);
+            this.setYRegister(_CPU.yRegister);
+            this.setZFlag(_CPU.zFlag);
+            this.setKernelMode(_CPU.kernelMode);
+        };
+
+        PCB.prototype.setCPU = function () {
+            _CPU.programCounter = this.getProgramCounter();
+            _CPU.accumulator = this.getAccumulator();
+            _CPU.xRegister = this.getXRegister();
+            _CPU.yRegister = this.getYRegister();
+            _CPU.zFlag = this.getZFlag();
+            _CPU.kernelMode = this.getKernelMode();
+            _CPU.lowAddress = this.getLowAddress();
+            _CPU.highAddress = this.getHighAddress();
+        };
+
         PCB.prototype.getSegment = function () {
             return this.memoryBounds.getSegment();
+        };
+
+        PCB.prototype.getBounds = function () {
+            return this.memoryBounds;
+        };
+
+        PCB.prototype.getBase = function () {
+            return this.memoryBounds.lower();
         };
 
         PCB.prototype.getPid = function () {
@@ -54,6 +110,10 @@ var TSOS;
 
         PCB.prototype.getHighAddress = function () {
             return this.memoryBounds.upper();
+        };
+
+        PCB.prototype.setSegment = function (segment) {
+            this.memoryBounds = segment;
         };
 
         PCB.prototype.setProgramCounter = function (data) {

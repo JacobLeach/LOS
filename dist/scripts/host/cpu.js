@@ -4,6 +4,15 @@ A basic modifed 6502 CPU simulation.
 ------------ */
 var TSOS;
 (function (TSOS) {
+    var Interrupt;
+    (function (Interrupt) {
+        Interrupt[Interrupt["SegmentationFault"] = 0] = "SegmentationFault";
+        Interrupt[Interrupt["Break"] = 1] = "Break";
+        Interrupt[Interrupt["Software"] = 2] = "Software";
+        Interrupt[Interrupt["Clock"] = 3] = "Clock";
+        Interrupt[Interrupt["Return"] = 4] = "Return";
+    })(Interrupt || (Interrupt = {}));
+
     var Cpu = (function () {
         function Cpu() {
             this.programCounter = new TSOS.Short(0);
@@ -11,32 +20,133 @@ var TSOS;
             this.xRegister = new TSOS.Byte(0);
             this.yRegister = new TSOS.Byte(0);
             this.zFlag = false;
+            this.cFlag = false;
             this.kernelMode = false;
-
             this.lowAddress = new TSOS.Short(0);
             this.highAddress = new TSOS.Short(0);
             this.executing = false;
+            this.interruptFlag = undefined;
+            this.ignoreInterrupts = false;
+            this.tickCount = _Quant;
 
             this.deviceController = new TSOS.DeviceController();
-            this.printCPU();
         }
-        Cpu.prototype.printCPU = function () {
+        Cpu.prototype.start = function () {
+            this.clock = new TSOS.Clock(this, CPU_CLOCK_INTERVAL);
+        };
+
+        /*
+        * WARNING! WARNING! WARNING!
+        * DO NOT USE "THIS." IN THE FUNCTION!
+        * WARNING! WARNING! WARNING!
+        *
+        * Javascript is shit and this is a callback so we do not
+        * have the correct this. Use _CPU instead. Fuckers.
+        */
+        Cpu.prototype.tick = function () {
+            if (!singleStep || (singleStep && step)) {
+                if (_CPU.interruptFlag != undefined) {
+                    if (_CPU.interruptFlag === 0 /* SegmentationFault */) {
+                        _Kernel.segmentationFault();
+                    } else if (_CPU.interruptFlag === 1 /* Break */) {
+                        _Kernel.programBreak();
+                    } else if (_CPU.interruptFlag === 2 /* Software */) {
+                        _Kernel.softwareInterrupt();
+                    } else if (_CPU.interruptFlag === 3 /* Clock */) {
+                        _Kernel.timerInterrupt();
+                    } else if (_CPU.interruptFlag === 4 /* Return */) {
+                        _Kernel.returnInterrupt();
+                    }
+
+                    _CPU.interruptFlag = undefined;
+                }
+
+                //If the previous clock cycle set the interrupt flag
+                //AND a timer interrupt should have happened as well,
+                //then the timer interrupt is not set and is checked here
+                if (_CPU.tickCount === 0 && _CPU.interruptFlag === undefined) {
+                    _Kernel.timerInterrupt();
+                    _CPU.tickCount = _Quant;
+                }
+
+                /*
+                * This is a hack because the kernel is not all running on this hardware.
+                * When the Kernel needs to run some code on the CPU or do some task that
+                * does not use the CPY at all it adds it to this queue.
+                */
+                if (!_CPU.ignoreInterrupts && _KernelInterruptQueue.size() > 0) {
+                    _CPU.ignoreInterrupts = true;
+
+                    /*
+                    * Call the kernel function to handle the interrupts.
+                    * It will make sure that the CPU is correctly setup to
+                    * either run the kernel code that is needed or to do the work
+                    * that the kernel needs to do (aka stuff written in typescript
+                    * does not need CPU time to run)
+                    */
+                    _Kernel.handleKernelInterrupt(_KernelInterruptQueue.dequeue());
+                }
+
+                _CPU.cycle();
+
+                if (!_CPU.ignoreInterrupts) {
+                    _CPU.tickCount--;
+                    if (_CPU.tickCount === 0 && _CPU.interruptFlag === undefined) {
+                        _CPU.interruptFlag = 3 /* Clock */;
+                        _CPU.tickCount = _Quant;
+                    }
+                }
+
+                //Please do not hurt me for this
+                document.getElementById("cpuBox").value = _CPU.toString();
+
+                step = false;
+            }
+        };
+
+        Cpu.prototype.stop = function () {
+            this.clock.stop();
+        };
+
+        Cpu.prototype.interrupt = function (interrupt) {
+            this.interruptFlag = interrupt;
+        };
+
+        Cpu.prototype.toString = function () {
             var cpuAsString = "";
 
             cpuAsString += "PC: " + this.programCounter.asNumber().toString(16);
+            cpuAsString += "\nIR: " + this.instructionRegister.asNumber().toString(16);
             cpuAsString += "\nAC: " + this.accumulator.asNumber().toString(16);
             cpuAsString += "\nX: " + this.xRegister.asNumber().toString(16);
             cpuAsString += "\nY: " + this.yRegister.asNumber().toString(16);
             cpuAsString += "\nZ: " + this.zFlag;
             cpuAsString += "\nkernelMode: " + this.kernelMode;
+            cpuAsString += "\ninterrupt: " + this.interruptToString();
             cpuAsString += "\nlowAddress: " + this.lowAddress.asNumber().toString(16);
             cpuAsString += "\nhighAddress: " + this.highAddress.asNumber().toString(16);
 
-            document.getElementById("cpuBox").value = cpuAsString;
+            return cpuAsString;
+        };
+
+        Cpu.prototype.interruptToString = function () {
+            switch (this.interruptFlag) {
+                case 0 /* SegmentationFault */:
+                    return "Segmentation Fault";
+                case 1 /* Break */:
+                    return "Break";
+                case 2 /* Software */:
+                    return "Software";
+                case 3 /* Clock */:
+                    return "Clock";
+                case 4 /* Return */:
+                    return "Return";
+                default:
+                    return "None";
+            }
         };
 
         Cpu.prototype.cycle = function () {
-            this.printCPU();
             this.loadInstruction();
             this.programCounter = this.programCounter.increment();
             this.executeInstruction();
@@ -126,7 +236,6 @@ var TSOS;
                     this.branchNotEqual();
                     break;
                 case 0xEA:
-                    this.noOperation();
                     break;
                 case 0xEC:
                     this.compareX();
@@ -155,12 +264,12 @@ var TSOS;
 
         Cpu.prototype.programEnd = function () {
             this.executing = false;
-            _KernelInterruptQueue.enqueue(new TSOS.Interrupt(3 /* BREAK */, this.kernelMode));
+            this.interrupt(1 /* Break */);
         };
 
         Cpu.prototype.returnFromInterupt = function () {
-            _Kernel.interrupt = false;
-            _KernelInterruptQueue.front(new TSOS.Interrupt(4 /* RETURN */, this.returnRegister));
+            this.ignoreInterrupts = false;
+            this.interruptFlag = 4 /* Return */;
         };
 
         Cpu.prototype.jump = function () {
@@ -185,10 +294,13 @@ var TSOS;
 
         Cpu.prototype.addWithCarry = function () {
             var value = this.getByte(this.loadAddressFromMemory());
+            var addition = this.accumulator.asNumber() + value.asNumber();
 
-            //We are not implementing carry.
-            //Instead we are just wrapping the value around
-            this.accumulator = new TSOS.Byte((this.accumulator.asNumber() + value.asNumber()) % 256);
+            if (addition > 255) {
+                this.cFlag = true;
+            }
+
+            this.accumulator = new TSOS.Byte(addition % 256);
         };
 
         Cpu.prototype.storeYRegisterInMemory = function () {
@@ -231,16 +343,7 @@ var TSOS;
             var branchAmount = this.loadInstructionConstant().asNumber();
 
             if (!this.zFlag) {
-                //In kernel mode you address all of memory
-                /*if(this.kernelMode)
-                {
-                this.programCounter = new Short(this.programCounter.asNumber() + branchAmount);
-                }
-                else
-                {*/
-                //We have to wrap when branch goes above our memory range
                 this.programCounter = new TSOS.Short((this.programCounter.asNumber() + branchAmount) % 256);
-                //}
             }
         };
 
@@ -256,10 +359,6 @@ var TSOS;
                     this.programCounter = new TSOS.Short((this.programCounter.asNumber() + branchAmount) % 256);
                 }
             }
-        };
-
-        Cpu.prototype.noOperation = function () {
-            //Do nothing
         };
 
         Cpu.prototype.increment = function () {
@@ -297,9 +396,7 @@ var TSOS;
         };
 
         Cpu.prototype.systemCall = function () {
-            this.setKernelMode();
-            this.returnRegister = this.programCounter;
-            _KernelInterruptQueue.enqueue(new TSOS.Interrupt(2 /* SYSTEM_CALL */, [this.xRegister.asNumber(), false, this.yRegister.asNumber()]));
+            this.interrupt(2 /* Software */);
         };
 
         Cpu.prototype.getByte = function (address) {
@@ -318,8 +415,7 @@ var TSOS;
                 var adjustedAddress = new TSOS.Short(address.asNumber() + this.lowAddress.asNumber());
 
                 if (adjustedAddress.asNumber() > this.highAddress.asNumber()) {
-                    //Segfault
-                    _KernelInterruptQueue.front(new TSOS.Interrupt(5 /* SEG_FAULT */, this.kernelMode));
+                    this.interrupt(0 /* SegmentationFault */);
                     return undefined;
                 } else {
                     return adjustedAddress;

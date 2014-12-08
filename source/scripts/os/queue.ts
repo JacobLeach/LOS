@@ -14,7 +14,7 @@ module TSOS {
 
         }
 
-        public getSize() {
+        public size() {
             return this.q.length;
         }
 
@@ -30,7 +30,7 @@ module TSOS {
           this.q.unshift(element);
         }
 
-        public enqueue(element) {
+        public add(element) {
             this.q.push(element);
         }
 

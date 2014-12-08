@@ -12,13 +12,13 @@
 // Global "CONSTANTS" (There is currently no const or final or readonly type annotation in TypeScript.)
 // TODO: Make a global object and use that instead of the "_" naming convention in the global namespace.
 //
-var singleStep = true;
-var execute = true;
+var singleStep = false;
+var step = false;
 
 var APP_NAME: string    = "LOS";   
 var APP_VERSION: string = "3.0.1"; 
 
-var CPU_CLOCK_INTERVAL: number = 20;   // This is in ms, or milliseconds, so 1000 = 1 second.
+var CPU_CLOCK_INTERVAL: number = 1;
 
 var ESCAPE    = String.fromCharCode(27);
 var TAB       = String.fromCharCode(9);
@@ -32,6 +32,8 @@ var BACKSPACE = String.fromCharCode(8);
 var _Memory: TSOS.Memory;
 var _CPU: TSOS.Cpu;  // Utilize TypeScript's type annotation system to ensure that _CPU is an instance of the Cpu class.
 var _Quant: number = 6;
+var _HDD: TSOS.HDD;
+var _HDDDriver: TSOS.HDDDriver;
 
 var _OSclock: number = 0;  // Page 23.
 

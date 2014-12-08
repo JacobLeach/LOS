@@ -86,6 +86,7 @@ var TSOS;
 
             // .. and call the OS Kernel Bootstrap routine.
             _Kernel = new TSOS.Kernel();
+            _CPU.start();
         };
 
         Control.hostBtnHaltOS_click = function (btn) {
@@ -96,7 +97,7 @@ var TSOS;
             TSOS.liblos.shutdown();
 
             // Stop the interval that's simulating our clock pulse.
-            clearInterval(_hardwareClockID);
+            _CPU.stop();
             // TODO: Is there anything else we need to do here?
         };
 
@@ -109,17 +110,17 @@ var TSOS;
         };
 
         Control.stepMode_click = function (button) {
-            if (execute) {
-                execute = false;
+            if (!singleStep) {
+                singleStep = true;
                 document.getElementById("step").disabled = false;
             } else {
-                execute = true;
+                singleStep = false;
                 document.getElementById("step").disabled = true;
             }
         };
 
         Control.step_click = function (button) {
-            singleStep = true;
+            step = true;
         };
         return Control;
     })();

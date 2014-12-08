@@ -12,7 +12,7 @@ var TSOS;
             if (typeof q === "undefined") { q = new Array(); }
             this.q = q;
         }
-        Queue.prototype.getSize = function () {
+        Queue.prototype.size = function () {
             return this.q.length;
         };
 
@@ -28,7 +28,7 @@ var TSOS;
             this.q.unshift(element);
         };
 
-        Queue.prototype.enqueue = function (element) {
+        Queue.prototype.add = function (element) {
             this.q.push(element);
         };
 

@@ -155,12 +155,118 @@ module TSOS {
                                   "quantum",
                                   "<ticks> - Changes round robin quantum");
             this.commandList[sc.command] = sc;
+            
+            sc = new ShellCommand(function(args) {
+              if(args[0].length > 0)
+              {
+                _HDDDriver.createFile(args[0]);
+                Stdio.putStringLn("File created.");
+              }
+            },
+                                  "createFile",
+                                  "<iname> - Creates a file");
+            this.commandList[sc.command] = sc;
+            
+            sc = new ShellCommand(function(args) {
+              if(args[0].length > 0)
+              {
+                var bytes: Byte[] = _HDDDriver.readFile(args[0]);
+                while(bytes[0].asNumber() != 0)
+                {
+                  Stdio.putString(String.fromCharCode(bytes.shift().asNumber()));
+                }
+              }
+            },
+                                  "readFile",
+                                  "<name> - Reads a file");
+            this.commandList[sc.command] = sc;
+            
+            sc = new ShellCommand(function(args) {
+              if(args[0].length > 0)
+              {
+                _HDDDriver.deleteFile(args[0]);
+                Stdio.putStringLn("File deleted");
+              }
+            },
+                                  "deleteFile",
+                                  "<name> - Deletes a file");
+            this.commandList[sc.command] = sc;
+            
+            sc = new ShellCommand(function(args) {
+              _HDDDriver.format();
+              Stdio.putStringLn("Formatted");
+            },
+                                  "format",
+                                  "Formats HDD");
+            this.commandList[sc.command] = sc;
+            
+            sc = new ShellCommand(function(args) {
+              var files = _HDDDriver.ls();
+              for(var i = 0; i < files.length; i++)
+              {
+                Stdio.putStringLn(files[i]);
+              }
+            },
+                                  "ls",
+                                  "Lists files");
+            this.commandList[sc.command] = sc;
+            
+            sc = new ShellCommand(function(args) {
+              if(args[0] == "rr") 
+              {
+                _Kernel.sche = 0;
+              }
+              else if(args[0] == "fcfs")
+              {
+                _Kernel.sche = 1;
+              }
+              else
+              {
+                _Kernel.sche = 2;
+              }
+            },
+                                  "setschedule",
+                                  "<algo> Sets schedule");
+            this.commandList[sc.command] = sc;
+            
+            sc = new ShellCommand(function(args) {
+              if(_Kernel.sche == 0) 
+              {
+                Stdio.putStringLn("round robin");
+              }
+              else if(_Kernel.sche == 1)
+              {
+                Stdio.putStringLn("first come first served");
+              }
+              else
+              {
+                Stdio.putStringLn("priority");
+              }
+            },
+                                  "getschedule",
+                                  "Gets schedule");
+            this.commandList[sc.command] = sc;
+            
+            sc = new ShellCommand(function(args) {
+              if(args[0].length > 0)
+              {
+                var bytes: Byte[] = [];
+
+                for(var i = 0; i < args[1].length; i++)
+                {
+                  bytes.push(new Byte(args[1].charCodeAt(i)));
+                }
+
+                _HDDDriver.writeFile(args[0], bytes);
+                Stdio.putStringLn("File written");
+              }
+            },
+                                  "writeFile",
+                                  "<filename> <information to write> - Writes a file");
+            this.commandList[sc.command] = sc;
 
             // processes - list the running processes and their IDs
             // kill <id> - kills the specified process id.
-
-            //
-            // Display the initial prompt.
             this.putPrompt();
         }
 

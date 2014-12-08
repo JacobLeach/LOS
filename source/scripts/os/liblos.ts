@@ -4,7 +4,7 @@ module TSOS
   {
     public static loadProgram(): number
     {
-      return _Kernel.forkExec();
+      return _Kernel.loadProgram();
     }
 
     public static ps(): void
@@ -22,6 +22,7 @@ module TSOS
 
     public static clearmem(): void
     {
+      _Kernel.killAll();
       _Kernel.memoryManager.deallocate(0);
       _Kernel.memoryManager.deallocate(1);
       _Kernel.memoryManager.deallocate(2);
@@ -37,28 +38,22 @@ module TSOS
     
     public static runProgram(pid: number): void
     {
-      _Kernel.runProgram(pid);
+      _KernelInterruptQueue.add(new Tuple(IO.RUN, pid));
     }
     
     public static putString(): void
     {
-      //_Kernel.contextSwitch(_Kernel.getShellPid());
-      _KernelInterruptQueue.enqueue(new Interrupt(InterruptType.SYSTEM_CALL, [4, true]));
+      _KernelInterruptQueue.add(new Tuple(IO.PUT_STRING, undefined));
     }
 
-    public static clockTick(): void
-    {
-      _Kernel.clockTick();
-    }
-    
     public static shutdown(): void
     {
-      _Kernel.shutdown();
+      //_Kernel.shutdown();
     }
 
     public static deallocate(segment: number): void
     {
-      _KernelInterruptQueue.enqueue(new Interrupt(InterruptType.SYSTEM_CALL, [7, true, segment]));
+      _KernelInterruptQueue.add(new Tuple(IO.CLEAR_SEGMENT, segment));
     }
 
     public static kill(pid: number): void

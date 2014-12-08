@@ -18,6 +18,7 @@ module TSOS {
     
     private memoryBounds: MemoryBounds;
     private pid: number;
+    private disk: boolean;
 
     constructor(memoryBounds: MemoryBounds) {
       this.programCounter = new Short(0);
@@ -29,11 +30,75 @@ module TSOS {
 
       this.memoryBounds = memoryBounds;
       this.pid = PCB.next_pid++;
+      this.disk = false;
+    }
+
+    public toString(): string
+    {
+      var print = "";
+      print += "Pid: " + this.getPid();
+      print += "\nPC: " + this.getProgramCounter().asNumber().toString(16);
+      print += "\nACC: " + this.getAccumulator().asNumber().toString(16);
+      print += "\nX: " + this.getXRegister().asNumber().toString(16);
+      print += "\nY: " + this.getYRegister().asNumber().toString(16);
+      print += "\nZ: " + this.getZFlag();
+      print += "\nKernel Mode: " + this.getKernelMode();
+      print += "\nbase: " + ((this.memoryBounds != undefined) ? this.getLowAddress().asNumber().toString(16) : "");
+      print += "\nlimit: " + ((this.memoryBounds != undefined) ? this.getHighAddress().asNumber().toString(16) : "");
+
+      return print;
+    }
+
+    public onDisk(): void
+    {
+      this.disk = true;
+    }
+
+    public inMemory(): void
+    {
+      this.disk = false;
+    }
+
+    public isOnDisk(): boolean
+    {
+      return this.disk;
+    }
+
+    public updatePCB()
+    {
+      this.setProgramCounter(_CPU.programCounter);  
+      this.setAccumulator(_CPU.accumulator);
+      this.setXRegister(_CPU.xRegister);
+      this.setYRegister(_CPU.yRegister);
+      this.setZFlag(_CPU.zFlag);
+      this.setKernelMode(_CPU.kernelMode);
+    }
+    
+    public setCPU(): void
+    {
+      _CPU.programCounter = this.getProgramCounter();  
+      _CPU.accumulator = this.getAccumulator();
+      _CPU.xRegister = this.getXRegister();
+      _CPU.yRegister = this.getYRegister();
+      _CPU.zFlag = this.getZFlag();
+      _CPU.kernelMode = this.getKernelMode();
+      _CPU.lowAddress = this.getLowAddress();
+      _CPU.highAddress = this.getHighAddress();
     }
 
     public getSegment(): number
     {
       return this.memoryBounds.getSegment();
+    }
+
+    public getBounds(): MemoryBounds
+    {
+      return this.memoryBounds;
+    }
+    
+    public getBase(): Short
+    {
+      return this.memoryBounds.lower();
     }
 
     public getPid(): number
@@ -80,6 +145,11 @@ module TSOS {
     {
       return this.memoryBounds.upper();
     } 
+
+    public setSegment(segment: MemoryBounds): void
+    {
+      this.memoryBounds = segment;
+    }
 
     public setProgramCounter(data: Short): void
     {
