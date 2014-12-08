@@ -230,6 +230,24 @@ module TSOS {
             this.commandList[sc.command] = sc;
             
             sc = new ShellCommand(function(args) {
+              if(_Kernel.sche == 0) 
+              {
+                Stdio.putStringLn("round robin");
+              }
+              else if(_Kernel.sche == 1)
+              {
+                Stdio.putStringLn("first come first served");
+              }
+              else
+              {
+                Stdio.putStringLn("priority");
+              }
+            },
+                                  "getschedule",
+                                  "Gets schedule");
+            this.commandList[sc.command] = sc;
+            
+            sc = new ShellCommand(function(args) {
               if(args[0].length > 0)
               {
                 var bytes: Byte[] = [];
