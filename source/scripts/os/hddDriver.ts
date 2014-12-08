@@ -30,6 +30,37 @@ module TSOS
       this.displayHDD();
     }
 
+    public ls(): string[]
+    {
+      var toReturn: string[] = [];
+      
+      for(var j = 0; j < HDDDriver.SECTORS; j++)
+      {
+        for(var k = 0; k < HDDDriver.BLOCKS; k++)
+        {
+          console.log("FUCK YOU");
+          var bytes: Byte[] = this.hdd.getBlock(0, j, k);
+          var s = "";
+          if(bytes[0].asNumber() != 0)
+          {
+            bytes.shift();
+            bytes.shift();
+            bytes.shift();
+            bytes.shift();
+            
+            while(bytes[0].asNumber() != 0)
+            {
+              s += (String.fromCharCode(bytes.shift().asNumber()));
+            }
+
+            toReturn.push(s);
+          }
+        }
+      }
+
+      return toReturn;
+    }
+
     public createFile(name: string): boolean
     {
       var toReturn: boolean = false;

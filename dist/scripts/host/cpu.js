@@ -344,7 +344,6 @@ var TSOS;
 
             if (!this.zFlag) {
                 this.programCounter = new TSOS.Short((this.programCounter.asNumber() + branchAmount) % 256);
-                console.log("FUCK YUOU: " + this.programCounter.asNumber());
             }
         };
 
